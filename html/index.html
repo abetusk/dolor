@@ -1,0 +1,43 @@
+<html>
+
+  <meta charset='utf-8'>
+
+  <head>
+
+    <!-- we don't want it pausing while loading if the server is down,
+         so we use a local copy
+    -->
+    <script src='js/lib/jquery.js'></script>
+    <script src='js/lib/jquery.mousewheel.js'/></script>
+    <script src='js/lib/jquery.capslockstate.js'/></script>
+    <script src='js/lib/jquery.getUrlParam.js'/></script>
+
+    <script src='js/lib/bleepsixRender.js'></script>
+    <script src='js/lib/bleepsixAux.js'></script>
+
+    <script src='js/lib/numeric.js'></script>
+    <script src='js/lib/oop.js'></script>
+    <script src='js/lib/jquery.cookie.js'></script>
+
+    <script src='js/game/dungeon0.js'></script>
+    <script src='js/game/main_controller.js'></script>
+    <script src='js/game/main_player.js'></script>
+
+
+    <link rel='stylesheet' type='text/css' href='css/dolor.css' />
+
+    <script src='js/dolor_init.js'></script>
+
+  </head>
+
+  <body>
+
+    <canvas 
+      id='canvas' 
+      width='1200' height='700' 
+      style='position: absolute; left: 0; top: 0; border:1px solid #111; z-index:0;' 
+      tabindex='0'> </canvas>
+
+  </body>
+
+</html>
