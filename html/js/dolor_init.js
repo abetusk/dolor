@@ -62,11 +62,22 @@
         g_painter.clear();
         g_player.update();
         g_level.update();
+
+        if (g_player.intent.type != "idle") {
+
+          if (g_player.intent.type == "walking") {
+            g_player.x = g_player.intent.next.x;
+            g_player.y = g_player.intent.next.y;
+          }
+          g_player.intent = { "type" : "idle" };
+        }
       }
 
       if (g_painter.dirty_flag) {
+        g_painter.startDrawColor();
         g_player.draw();
         g_level.draw();
+        g_painter.endDraw();
       }
 
     }
@@ -88,7 +99,8 @@
       g_imgcache = new imageCache();
 
       g_imgcache.add("noether", img_base + "/noether.png");
-      g_imgcache.add("item", img_base + "/items_11.png");
+      //g_imgcache.add("item", img_base + "/items_11.png");
+      g_imgcache.add("item", img_base + "/items_11.a.png");
       g_imgcache.add("rotbow", img_base + "/rotbow3.png");
       g_imgcache.add("dungeon0", img_base + "/dungeon_sheet_0.png");
 
@@ -133,6 +145,7 @@
       g_game = new mainController();
       g_game.init("canvas");
       g_game.player = g_player;
+      g_game.level = g_level;
 
 
     });

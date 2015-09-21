@@ -2,24 +2,87 @@
 function dungeon0() {
   this.tilemap = {};
   this.ready = false;
+  this.init_flag = false;
 
   this.tilemap_name = "dungeon0";
 
-  this.world_w = 64;
-  this.world_h = 64;
+  //this.world_w = 64;
+  //this.world_h = 64;
 
-  this.x = -1000;
-  this.y = -1000;
-  
+  this.world_w = 32;
+  this.world_h = 32;
+
+  //this.x = -1000;
+  //this.y = -1000;
+
+  //this.x = -100;
+  //this.y = -100;
+
+  this.x = -200;
+  this.y = -200;
+
 }
+
 
 dungeon0.prototype.init = function() {
+  this.init_flag=true;
+
+  this.layer_lookup = {};
+  for (var ii=0; ii<this.tilemap.layers.length; ii++) {
+
+    var layer = this.tilemap.layers[ii];
+    var w = layer.width;
+    var h = layer.height;
+
+    this.layer_lookup[ii] = {};
+    for (var jj=0; jj<layer.data.length; jj++) {
+      var r = Math.floor(jj / w);
+      var c = Math.floor(jj % h);
+      if (layer.data[jj] <= layer.opacity) { continue; }
+      this.layer_lookup[ii][Math.floor(r) + ":" + Math.floor(c)] = layer.data[jj];
+    }
+
+  }
+
+  console.log("ok");
+
 }
+
+dungeon0.prototype.bbox = function(r,c) {
+  for (var ii=0; ii<this.tilemap.layser.length; ii++) {
+    var key = Math.floor(r) +":" + Math.floor(c);
+    if (this.layer_lookup[ii][key]) { console.log("bang!", ii, r, c, key); }
+  }
+}
+
 
 dungeon0.prototype.update = function() {
   if (!this.ready) { return; }
+  if (!this.init_flag) {
+    this.init();
+  }
 
   //console.log(">>>");
+}
+
+dungeon0.prototype.keyDown = function(code) {
+  //console.log(">> dungeon0 keyDown", code);
+
+  // 'i' - up
+  //
+  //if (code == 73) { this.y -= 100; }
+ 
+  // 'j' - left
+  //
+  //else if (code == 74) { this.x -= 100; }
+
+  // 'k' - down
+  //
+  //else if (code == 75) { this.y += 100; }
+
+  // 'l' - right
+  //
+  //else if (code == 76) { this.x += 100; }
 }
 
 dungeon0.prototype.event = function(event_type, data) {
@@ -34,42 +97,56 @@ dungeon0.prototype.event = function(event_type, data) {
 
 }
 
+var g_wtf = {};
+
 dungeon0.prototype.draw = function() {
   if (!this.ready) { return; }
-
 
   //var w = this.tilemap.width;
   //var h = this.tilemap.height;
   //for (var ii=0; ii<this.tilemap.layers.length; ii++) {
   for (var ii=2; ii<3; ii++) {
+  //for (var ii=1; ii<2; ii++) {
+  //for (var ii=0; ii<1; ii++) {
+  //for (var ii=3; ii<4; ii++) {
 
     var layer = this.tilemap.layers[ii];
     var w = layer.width;
     var h = layer.height;
 
     var first = true;
+    var count = 0;
 
     for (var jj=0; jj<layer.data.length; jj++) {
       var r = Math.floor(jj / w);
       var c = Math.floor(jj % h);
 
       if (layer.data[jj] <= layer.opacity) { continue; }
+      count++;
 
-      var x = this.x + r*this.world_w;
-      var y = this.y + c*this.world_h;
+      //var x = this.x + r*this.world_w;
+      //var y = this.y + c*this.world_h;
+
+      var x = this.x + c*this.world_h;
+      var y = this.y + r*this.world_w;
 
       var imx = 0;
       var imy = 0;
 
-      var dat = layer.data[jj];
+      var dat = layer.data[jj]-1;
+      var tilewidth = 16;
 
-      imx = Math.floor(dat*16 % 384);
-      imy = Math.floor(dat*16 / 384);
+      //imx = Math.floor(dat*16 / 384)*tilewidth;
+      //imy = Math.floor(dat*16 % 384)*tilewidth;
 
+      g_wtf[dat] = true;
+      //dat = 101;
+
+      imx = Math.floor((dat*16) % 384);
+      imy = Math.floor((dat*16) / 384)*tilewidth;
 
       if (first) {
         //console.log(layer.data[jj]);
-
         //tm_r = Math.floor(layer.data[jj] / this.tilemap.tilewidth);
         //tm_c = Math.floor(layer.data[jj] % this.tilemap.tilewidth);
 
@@ -78,13 +155,9 @@ dungeon0.prototype.draw = function() {
 
       g_imgcache.draw_s(this.tilemap_name, imx, imy, 16, 16, x, y, this.world_w, this.world_h);
 
-
-
     }
 
   }
-
-
 
 }
 

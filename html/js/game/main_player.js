@@ -35,8 +35,15 @@ function mainPlayer() {
 
   this.walkDisplayQ = [];
 
-  this.dx = 12;
-  this.dy = 12;
+  // for 64
+  //this.dx = 12;
+  //this.dy = 12;
+
+  // for 32
+  //this.dx = 8;
+  //this.dy = 8;
+  this.dx = 6;
+  this.dy = 6;
 
 
   this.img_w = 16;
@@ -44,8 +51,11 @@ function mainPlayer() {
   this.img_x = 0;
   this.img_y = 0;
 
-  this.world_w = 64;
-  this.world_h = 64;
+  //this.world_w = 64;
+  //this.world_h = 64;
+
+  this.world_w = 32;
+  this.world_h = 32;
 
 
   //this.swordReady = true;
@@ -57,7 +67,8 @@ function mainPlayer() {
   this.bowKeyState = "idle"; // "fire", "warm"
 
   this.swordKeyEvent = false;
-  this.swordDelayN = 3;
+  //this.swordDelayN = 3;
+  this.swordDelayN = 4;
   this.swordDelay = 0;
 
   this.bombEvent = false;
@@ -90,6 +101,8 @@ function mainPlayer() {
   this.swordJitterX = 0;
   this.swordJitterY = 0;
 
+
+  this.intent = { "type":"idle" };
 
 }
 
@@ -213,10 +226,31 @@ mainPlayer.prototype.prepBomb = function() {
   this.bomb = true;
 }
 
+mainPlayer.prototype.dir_xy = function() {
+  var di = this.currentDisplayDirection();
+  var bxy = [0, 0];
+  if (di == "up") { bxy = [0, -1]; }
+  else if (di == "left") { bxy = [-1, 0]; }
+  else if (di == "right") { bxy = [0, 1]; }
+  else if (di == "down") { bxy = [0, 1]; }
+  return bxy;
+}
+
 mainPlayer.prototype.throwBomb = function() {
   console.log("bomb throw!");
   this.bomb = false;
   this.bombDelay = this.bombDelayN;
+
+  var di = this.currentDisplayDirection();
+  var bxy = this.dir_xy();
+
+  this.intent  = { "type" : "throwBomb",
+    "x" : this.x,
+    "y" : this.y,
+    "dx" : bxy[0],
+    "dy" : bxy[1],
+    "d" : di };
+
 }
 
 // walking, bow and sword are mutually exclusive
@@ -351,9 +385,16 @@ mainPlayer.prototype.update = function() {
   }
 
   if (this.state == "walking") {
+
     var xy = this.dxdy();
-    this.x += xy[0];
-    this.y += xy[1];
+    //this.x += xy[0];
+    //this.y += xy[1];
+
+    // Intent
+    this.intent = { "type" : "walking",
+      "prev" : { "x" : this.x, "y": this.y },
+      "next" : { "x" : this.x+xy[0], "y" : this.y+xy[1] }
+    };
 
     this.updateWalkingFrame();
 
@@ -421,6 +462,17 @@ mainPlayer.prototype.swordAttack = function() {
     this.swordJitterX = Math.floor((Math.random()+1)*jx)
     this.swordJitterY = Math.floor((Math.random()-0.5)*jy)
   }
+
+  var di = this.currentDisplayDirection();
+  var jitxy = this.sword_dxdy();
+  var bxy = this.dir_xy();
+
+  this.intent  = { "type" : "swordAttack",
+    "x" : this.x + jitxy[0],
+    "y" : this.y + jitxy[1],
+    "dx" : bxy[0],
+    "dy" : bxy[1],
+    "d" : di };
 
 }
 
@@ -666,8 +718,11 @@ mainPlayer.prototype.draw = function() {
       a = Math.PI;
       ix = -16;
     }
-    ix *= 4;
-    iy *= 4;
+    //ix *= 4;
+    //iy *= 4;
+
+    ix *= 2;
+    iy *= 2;
 
     var s_dxy = this.sword_dxdy();
     ix += s_dxy[0];
@@ -725,8 +780,11 @@ mainPlayer.prototype.draw = function() {
     else if (di == "left") {
       ix = 2;
     }
-    ix *= 4;
-    iy *= 4;
+    //ix *= 4;
+    //iy *= 4;
+
+    ix *= 2;
+    iy *= 2;
 
     g_imgcache.draw_s("item", 80, 16, 16, 16, this.x+ix, this.y+iy, this.world_w, this.world_h);
   }

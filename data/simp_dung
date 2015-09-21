@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" width="64" height="64" tilewidth="16" tileheight="16">
+ <tileset firstgid="1" name="sheet_17" tilewidth="16" tileheight="16">
+  <image source="../assets.rnd/sheet_17.png" width="304" height="208"/>
+ </tileset>
+ <layer name="floor" width="64" height="64">
+  <data encoding="base64" compression="zlib">
+   eJztwzENAAAMBKHb3r/jyugCCaumqqqqqqqqqqqqqqqqqqqqvj7yD3AB
+  </data>
+ </layer>
+ <layer name="wall" width="64" height="64">
+  <data encoding="base64" compression="zlib">
+   eJztmlsuBEEUhsdtB4IdaOzAhBiPRNgA6bABHkxmE6yBDfDEO0+8IKyBFViA09KdVKqru6q7LlOX/0v+TN1P/enT3enKDAYAAAAAAMAGp6SzaW/CIPOkrNRm+Tssy0NB3yVpzNQzblwmmLvgzE13lhzEWHQQow/fpJ+yPJGMfVdsKxhxa/rqv+BA0LZjOIbP/nMHMXz2r3r/d8l/nhj86wD//sI+/94UyjwfCuU70n33rTkhdxDjifTsIE4fUs7/B9IjU1fJ/3PSBVNXyX9f/b+QXh3E8dV/Qcr5X8D6t/X8D8W/LrsN7TH4/1VsE+Gzf9H3X9N17IvP/nPFcbFe/yr/R62j9PgkfVlcX4fKv+z8pw8hnP+k/v5fJs026JB0VJbnBHNnWsaz9RWrDtwgyhOfr6tp4L8O/KcD/NeB/3SA/zrwHw/s/yBEWhPMWZXM8fl/Dzw2voNCyo/K/x5pX2Mddn6I/o9JJxrrsPND9G+SGPzL7oe2/lD8r5M2Gvpk90Nb/xZpW2NfLkH+mydE/3j/4f1nipD8t52Ds7oiXSuOjeHcm+eGdDvtTQAAAADgnz/Cf0CM
+  </data>
+ </layer>
+</map>

@@ -170,8 +170,7 @@ bleepsixRender.prototype.adjustZoom = function(x, y, z)
 bleepsixRender.prototype.adjustPan = function(x, y)
 {
    var z = this.zoom;
-   this.setView ( this.view.cx - x/z, this.view.cy - y/z, z );
-
+   this.setView(this.view.cx - x/z, this.view.cy - y/z, z);
    this.dirty_flag = true;
 }
 

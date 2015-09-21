@@ -5,6 +5,7 @@ function mainController() {
   this.capState = "unknown";
 
   this.player = null;
+  this.level = null;
 }
 
 // update 'model' state
@@ -31,7 +32,49 @@ mainController.prototype.keyUp = function(code, ch, e) {
 mainController.prototype.keyDown = function(code, ch, e) {
   //console.log("keyDown:", code);
   //if (this.player) { this.player.input[code] = 1; }
-  if (this.player) { this.player.keyDown(code); }
+
+  var key_processed = false;
+
+  // 'i' - up
+  if (code == 73) {
+    g_painter.adjustPan(0, -10);
+    key_processed = true;
+  }
+
+  // 'j' - left
+  else if (code == 74) {
+    g_painter.adjustPan(-10, 0);
+    key_processed = true;
+  }
+
+  // 'k' - down
+  else if (code == 75) {
+    g_painter.adjustPan(0, 10);
+    key_processed = true;
+  }
+
+  // 'l' - rightc
+  else if (code == 76) {
+    g_painter.adjustPan(10, 0);
+    key_processed = true;
+  }
+
+
+  else if (code == 221) {
+    g_painter.adjustZoom(100, 100, 1);
+  }
+
+  else if (code == 219) {
+    g_painter.adjustZoom(100, 100, -1);
+  }
+
+  //console.log(">>>", code);
+
+
+  if (!key_processed) {
+    if (this.player) { this.player.keyDown(code); }
+    if (this.level) { this.level.keyDown(code); }
+  }
 }
 
 mainController.prototype.keyPress = function(key, ch, e) {
@@ -43,7 +86,6 @@ mainController.prototype.keyPress = function(key, ch, e) {
 mainController.prototype.init = function(canvas_id) {
   this.canvas = $("#" + canvas_id)[0];
   this.context = this.canvas.getContext('2d');
-
 
   var controller = this;
 
