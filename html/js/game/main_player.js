@@ -1,5 +1,5 @@
 function mainPlayer() {
-  this.x = 100;
+  this.x = 80;
   this.y = 200;
 
   this.d = "u"; // "d", "l", "r", and combinations?
@@ -42,8 +42,11 @@ function mainPlayer() {
   // for 32
   //this.dx = 8;
   //this.dy = 8;
-  this.dx = 6;
-  this.dy = 6;
+  //this.dx = 6;
+  //this.dy = 6;
+
+  this.dx = 8;
+  this.dy = 8;
 
 
   this.img_w = 16;

@@ -104,11 +104,8 @@ dungeon0.prototype.draw = function() {
 
   //var w = this.tilemap.width;
   //var h = this.tilemap.height;
-  //for (var ii=0; ii<this.tilemap.layers.length; ii++) {
-  for (var ii=2; ii<3; ii++) {
-  //for (var ii=1; ii<2; ii++) {
-  //for (var ii=0; ii<1; ii++) {
-  //for (var ii=3; ii<4; ii++) {
+  for (var ii=0; ii<this.tilemap.layers.length; ii++) {
+    if (this.tilemap.layers[ii].name == "collision") { continue; }
 
     var layer = this.tilemap.layers[ii];
     var w = layer.width;
@@ -121,7 +118,8 @@ dungeon0.prototype.draw = function() {
       var r = Math.floor(jj / w);
       var c = Math.floor(jj % h);
 
-      if (layer.data[jj] <= layer.opacity) { continue; }
+      if (layer.data[jj] == 0) { continue; }
+      //if (layer.data[jj] <= layer.opacity) { continue; }
       count++;
 
       //var x = this.x + r*this.world_w;
@@ -142,8 +140,11 @@ dungeon0.prototype.draw = function() {
       g_wtf[dat] = true;
       //dat = 101;
 
-      imx = Math.floor((dat*16) % 384);
-      imy = Math.floor((dat*16) / 384)*tilewidth;
+      var tilemap_h = 208;
+      var tilemap_w = 304;
+
+      imx = Math.floor((dat*16) % tilemap_w);
+      imy = Math.floor((dat*16) / tilemap_w)*tilewidth;
 
       if (first) {
         //console.log(layer.data[jj]);

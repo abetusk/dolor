@@ -14,6 +14,7 @@
     var g_data = {};
     var g_player = null;
     var g_level = null;
+    var g_world = null;
 
 
     var g_canvas = "canvas";
@@ -63,6 +64,9 @@
         g_player.update();
         g_level.update();
 
+        g_world.update();
+
+        /*
         if (g_player.intent.type != "idle") {
 
           if (g_player.intent.type == "walking") {
@@ -71,12 +75,13 @@
           }
           g_player.intent = { "type" : "idle" };
         }
+        */
       }
 
       if (g_painter.dirty_flag) {
         g_painter.startDrawColor();
-        g_player.draw();
         g_level.draw();
+        g_player.draw();
         g_painter.endDraw();
       }
 
@@ -92,6 +97,7 @@
 
       g_player = new mainPlayer();
       g_level = new dungeon0();
+      g_world = new mainWorld();
 
       // setup image cache and preload some generic items
       //
@@ -102,10 +108,12 @@
       //g_imgcache.add("item", img_base + "/items_11.png");
       g_imgcache.add("item", img_base + "/items_11.a.png");
       g_imgcache.add("rotbow", img_base + "/rotbow3.png");
-      g_imgcache.add("dungeon0", img_base + "/dungeon_sheet_0.png");
+      //g_imgcache.add("dungeon0", img_base + "/dungeon_sheet_0.png");
+      g_imgcache.add("dungeon0", img_base + "/sheet_17.png");
 
       $.ajax({
-        url: "assets/dolor_room_test.json",
+        //url: "assets/dolor_room_test.json",
+        url: "assets/tele_room.json",
         dataType:"json",
         success: function(a,b,c) {
           console.log("!!!", a,b,c);
@@ -146,6 +154,7 @@
       g_game.init("canvas");
       g_game.player = g_player;
       g_game.level = g_level;
+      g_game.world = g_world;
 
 
     });
