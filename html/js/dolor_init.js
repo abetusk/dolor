@@ -123,6 +123,8 @@
       //g_imgcache.add("dungeon0", img_base + "/dungeon_sheet_0.png");
       g_imgcache.add("dungeon0", img_base + "/sheet_17.png");
 
+      g_imgcache.add("skel_blue", img_base + "/jade_skel_float_wip2.png");
+
       $.ajax({
         //url: "assets/dolor_room_test.json",
         url: "assets/tele_room.json",

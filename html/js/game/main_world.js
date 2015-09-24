@@ -3,7 +3,7 @@ function mainWorld() {
   this.level = g_level;
   this.painter = g_painter;
 
-  this.enemy = null;
+  this.enemy = [];
   this.particle = [];
 
   this.size = 32;
@@ -12,6 +12,9 @@ function mainWorld() {
 
   this.player_nudge_delay_count = 8;
   this.player_nudge_delay = 8;
+
+  var ee = new creatureSkel();
+  this.enemy.push(ee);
 }
 
 mainWorld.prototype.player_attack_level_collision = function() {
@@ -194,6 +197,7 @@ mainWorld.prototype.update = function() {
 
         var align_dx = 0;
         var align_dy = 0;
+        var player_dir = player.actualDirection();
 
         if (this.player_nudge_delay==0) {
 
@@ -207,7 +211,6 @@ mainWorld.prototype.update = function() {
 
           // Align to grid
           //
-          var player_dir = player.actualDirection();
 
           if ((player_dir == "up") || (player_dir == "down")) {
             if (ofx!=0) {
@@ -229,6 +232,60 @@ mainWorld.prototype.update = function() {
           player.x = dst_x;
           player.y = dst_y;
         } else {
+
+          // 'hug' the wall if you walk into it.
+          //
+          if (player_dir=="right") {
+            var ovf_x = (((dst_x%32)+32)%32);
+            var nudge_x = dst_x - ovf_x;
+
+            if (player.x != nudge_x) {
+              if (!this.player_level_collision(nudge_x, dst_y)) {
+                player.x = nudge_x;
+                player.y = dst_y;
+              }
+            }
+          }
+
+          else if (player_dir=="left") {
+            var ovf_x = 32 - (((dst_x%32)+32)%32);
+            var nudge_x = dst_x + ovf_x;
+
+            if (player.x != nudge_x) {
+              if (!this.player_level_collision(nudge_x, dst_y)) {
+                player.x = nudge_x;
+                player.y = dst_y;
+              }
+            }
+
+          }
+
+          else if (player_dir=="up") {
+            var ovf_y = 32 - (((dst_y%32)+32)%32);
+            var nudge_y = dst_y + ovf_y;
+
+            if (player.y != nudge_y) {
+              if (!this.player_level_collision(dst_x, nudge_y)) {
+                player.x = dst_x;
+                player.y = nudge_y;
+              }
+            }
+
+          }
+
+          else if (player_dir=="down") {
+            var ovf_y = (((dst_y%32)+32)%32);
+            var nudge_y = dst_y - ovf_y;
+
+            if (player.y != nudge_y) {
+              if (!this.player_level_collision(dst_x, nudge_y)) {
+                player.x = dst_x;
+                player.y = nudge_y;
+              }
+            }
+
+          }
+
 
 
           if (this.player_nudge_delay==0) {
