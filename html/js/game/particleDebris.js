@@ -49,7 +49,7 @@ function particleDebris(x,y,dx,dy) {
 
     this.color.push( "rgba( 88, 52, 40,1)" );
 
-    var s = Math.floor(Math.random()*3) + 1;
+    var s = Math.floor(Math.random()*3) + 2;
     this.psize.push(s);
   }
   return;
