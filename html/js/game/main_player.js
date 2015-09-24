@@ -1,4 +1,6 @@
-function mainPlayer() {
+function mainPlayer(x,y,game) {
+  this.game = game;
+
   this.x = 80;
   this.y = 200;
 
@@ -8,6 +10,8 @@ function mainPlayer() {
   this.walking = false;
   this.bomb = false;
   this.bow = false;
+
+  this.sword_bbox = [[0,0],[0,0]];
 
   this.keyFrameRow = 0;
   this.keyFrame = 0;
@@ -234,7 +238,17 @@ mainPlayer.prototype.dir_xy = function() {
   var bxy = [0, 0];
   if (di == "up") { bxy = [0, -1]; }
   else if (di == "left") { bxy = [-1, 0]; }
-  else if (di == "right") { bxy = [0, 1]; }
+  else if (di == "right") { bxy = [1, 0]; }
+  else if (di == "down") { bxy = [0, 1]; }
+  return bxy;
+}
+
+mainPlayer.prototype.actual_dir_xy = function() {
+  var di = this.actualDirection();
+  var bxy = [0, 0];
+  if (di == "up") { bxy = [0, -1]; }
+  else if (di == "left") { bxy = [-1, 0]; }
+  else if (di == "right") { bxy = [1, 0]; }
   else if (di == "down") { bxy = [0, 1]; }
   return bxy;
 }
@@ -470,6 +484,11 @@ mainPlayer.prototype.swordAttack = function() {
   var jitxy = this.sword_dxdy();
   var bxy = this.dir_xy();
 
+  this.sword_bbox = this.swordBBox(jitxy[0], jitxy[1]);
+
+  //DEBUG
+  console.log(this.sword_bbox[0], this.sword_bbox[1]);
+
   this.intent  = { "type" : "swordAttack",
     "x" : this.x + jitxy[0],
     "y" : this.y + jitxy[1],
@@ -478,6 +497,56 @@ mainPlayer.prototype.swordAttack = function() {
     "d" : di };
 
 }
+
+mainPlayer.prototype.swordBBox= function(dx, dy) {
+
+  var sword_w2 = 3;
+  var sword_h2 = 24;
+
+  var curdir = this.actualDirection();
+  var bbox = [[0,0],[0,0]];
+  var ofx  = this.world_w/2;
+  var ofy  = this.world_h/2;
+
+  if        (curdir == "up") {
+
+    bbox[0][0] = this.x + dx - sword_w2;
+    bbox[0][1] = this.y + dy - sword_h2*2;
+    bbox[1][0] = this.x + dx + sword_w2;
+    bbox[1][1] = this.y + dy ;
+
+
+  } else if (curdir == "down") {
+
+    bbox[0][0] = this.x + dx - sword_w2;
+    bbox[0][1] = this.y + dy ;
+    bbox[1][0] = this.x + dx + sword_w2;
+    bbox[1][1] = this.y + dy + sword_h2*2;
+
+  } else if (curdir == "right") {
+
+    bbox[0][0] = this.x + dx;
+    bbox[0][1] = this.y + dy - sword_w2;
+    bbox[1][0] = this.x + dx + sword_h2*2;
+    bbox[1][1] = this.y + dy + sword_w2;
+
+  } else if (curdir == "left") {
+
+    bbox[0][0] = this.x + dx - sword_h2*2;
+    bbox[0][1] = this.y + dy - sword_w2;
+    bbox[1][0] = this.x + dx ;
+    bbox[1][1] = this.y + dy + sword_w2;
+
+  }
+
+  bbox[0][0] += ofx;
+  bbox[0][1] += ofy;
+  bbox[1][0] += ofx;
+  bbox[1][1] += ofy;
+
+  return bbox;
+}
+
 
 mainPlayer.prototype.swordRetract = function() {
   this.sword = false;

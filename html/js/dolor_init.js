@@ -8,7 +8,8 @@
     var lastTime = new Date();
 
     var g_painter = null;
-    var g_controller = null;
+
+    var g_game_controller = null;
 
     var g_imgcache = null;
     var g_data = {};
@@ -59,12 +60,18 @@
       requestAnimationFrame(loop, 1);
 
 
+
       if (update) {
+        //g_game_controller.update();
+        g_world.update();
+
+        /*
         g_painter.clear();
         g_player.update();
         g_level.update();
 
         g_world.update();
+        */
 
         /*
         if (g_player.intent.type != "idle") {
@@ -78,11 +85,16 @@
         */
       }
 
+      g_painter.dirty_flag = true;
       if (g_painter.dirty_flag) {
+        g_world.draw();
+
+        /*
         g_painter.startDrawColor();
         g_level.draw();
         g_player.draw();
         g_painter.endDraw();
+        */
       }
 
     }
@@ -150,12 +162,24 @@
       });
 
 
-      g_game = new mainController();
-      g_game.init("canvas");
-      g_game.player = g_player;
-      g_game.level = g_level;
-      g_game.world = g_world;
+      g_game_controller = new mainController();
+      g_game_controller.init("canvas");
+      g_game_controller.player = g_player;
+      g_game_controller.level = g_level;
+      g_game_controller.world = g_world;
 
+
+      // INIT
+      g_painter.setView(0, 0, 0.8);
+
+      /*
+      for (var ii=0; ii<16; ii++)  {
+        g_painter.adjustZoom(0, 0, 1);
+      }
+      //g_painter.adjustPan(-1700, 300);
+      //g_painter.adjustPan(-1800, 200);
+      g_painter.adjustPan(-2500, -1800);
+      */
 
     });
 

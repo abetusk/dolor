@@ -21,6 +21,7 @@ function dungeon0() {
   this.x = -200;
   this.y = -200;
 
+  this.debug=false;
 }
 
 
@@ -99,8 +100,10 @@ dungeon0.prototype.event = function(event_type, data) {
 
 var g_wtf = {};
 
-dungeon0.prototype.draw = function() {
+dungeon0.prototype.draw = function(display_height) {
   if (!this.ready) { return; }
+
+  if (display_height!=0) { return; }
 
   //var w = this.tilemap.width;
   //var h = this.tilemap.height;
@@ -155,6 +158,16 @@ dungeon0.prototype.draw = function() {
       }
 
       g_imgcache.draw_s(this.tilemap_name, imx, imy, 16, 16, x, y, this.world_w, this.world_h);
+
+      //DEBUG
+      if (this.debug) {
+        var tbbox = [[x,y],[x+this.world_w,y+this.world_h]];
+        var x0 = tbbox[0][0];
+        var y0 = tbbox[0][1];
+        var x1 = tbbox[1][0];
+        var y1 = tbbox[1][1];
+        g_painter.drawRectangle(x0,y0, x1-x0, y1-y0, 2, "rgba(255,0,0,0.6)");
+      }
 
     }
 

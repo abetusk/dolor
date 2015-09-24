@@ -6,6 +6,7 @@ function mainController() {
 
   this.player = null;
   this.level = null;
+  this.tool = null;
 }
 
 // update 'model' state
@@ -88,6 +89,7 @@ mainController.prototype.init = function(canvas_id) {
   this.context = this.canvas.getContext('2d');
 
   var controller = this;
+  this.tool = new toolNav();
 
   $(canvas_id).focus( function(ev) {
   });
@@ -95,11 +97,16 @@ mainController.prototype.init = function(canvas_id) {
   $(canvas_id).mouseup( function(e) {
     var xy = controller.canvas_coords_from_global( e.pageX, e.pageY );
     //controller.mouseUp( e.which , xy[0], xy[1] );
+
+    if (controller.tool)
+      controller.tool.mouseUp(e.which, xy[0], xy[1]);
   });
 
   $(canvas_id).mousedown( function(e) {
     var xy = controller.canvas_coords_from_global( e.pageX, e.pageY );
     //controller.mouseDown( e.which, xy[0], xy[1] );
+    if (controller.tool)
+      controller.tool.mouseDown(e.which, xy[0], xy[1]);
   });
 
   $(canvas_id).mouseover( function(e) {
@@ -116,12 +123,17 @@ mainController.prototype.init = function(canvas_id) {
   });
 
   $(canvas_id).mousemove( function(e) {
-    var xy = controller.canvas_coords_from_global( e.pageX, e.pageY );
+    var xy = controller.canvas_coords_from_global(e.pageX, e.pageY);
     //controller.mouseMove( xy[0], xy[1] );
+
+    if (controller.tool)
+      controller.tool.mouseMove(xy[0], xy[1]);
   });
 
   $(canvas_id).mousewheel( function(e, delta, detlax, deltay) {
     //controller.mouseWheel( delta );
+    if (controller.tool)
+      controller.tool.mouseWheel(delta);
     return false;
   });
 
