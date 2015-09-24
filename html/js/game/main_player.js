@@ -486,9 +486,6 @@ mainPlayer.prototype.swordAttack = function() {
 
   this.sword_bbox = this.swordBBox(jitxy[0], jitxy[1]);
 
-  //DEBUG
-  console.log(this.sword_bbox[0], this.sword_bbox[1]);
-
   this.intent  = { "type" : "swordAttack",
     "x" : this.x + jitxy[0],
     "y" : this.y + jitxy[1],

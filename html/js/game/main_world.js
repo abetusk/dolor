@@ -8,7 +8,10 @@ function mainWorld() {
 
   this.size = 32;
 
-  this.debug = true;
+  this.debug = false;
+
+  this.player_nudge_delay_count = 8;
+  this.player_nudge_delay = 8;
 }
 
 mainWorld.prototype.player_attack_level_collision = function() {
@@ -187,11 +190,68 @@ mainWorld.prototype.update = function() {
         var dst_x = player.intent.next.x;
         var dst_y = player.intent.next.y;
 
+        //...
+
+        var align_dx = 0;
+        var align_dy = 0;
+
+        if (this.player_nudge_delay==0) {
+
+          var align_sz = this.size;
+
+          var ofx = dst_x % align_sz;
+          var ofy = dst_y % align_sz;
+
+          if (ofx<0) { ofx = (ofx+align_sz)%align_sz; }
+          if (ofy<0) { ofy = (ofy+align_sz)%align_sz; }
+
+          // Align to grid
+          //
+          var player_dir = player.actualDirection();
+
+          if ((player_dir == "up") || (player_dir == "down")) {
+            if (ofx!=0) {
+              if (ofx<(align_sz/2)) { dst_x--; align_dx=-1; }
+              else { dst_x++; align_dx=1; }
+            }
+          }
+
+          if ((player_dir == "left") || (player_dir == "right")) {
+            if (ofy!=0) {
+              if (ofy<(align_sz/2)) { dst_y--; align_dy=-1; }
+              else { dst_y++; align_dy=1; }
+            }
+          }
+
+        }
 
         if (!this.player_level_collision(dst_x, dst_y)) {
-          player.x = player.intent.next.x;
-          player.y = player.intent.next.y;
+          player.x = dst_x;
+          player.y = dst_y;
+        } else {
+
+
+          if (this.player_nudge_delay==0) {
+
+            // We have a collision but we still want to update character grid
+            // alignment
+            //
+            if (!this.player_level_collision(player.x+align_dx,player.y)) {
+              player.x += align_dx;
+            }
+
+            if (!this.player_level_collision(player.x,player.y+align_dy)) {
+              player.y += align_dy;
+            }
+          }
+
         }
+
+        if (this.player_nudge_delay==0) {
+          this.player_nudge_delay = this.player_nudge_delay_count;
+        }
+        this.player_nudge_delay--;
+
       } else if (player.intent.type == "swordAttack") {
 
         if (this.player_attack_level_collision()) {

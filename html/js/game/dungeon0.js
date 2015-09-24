@@ -18,8 +18,8 @@ function dungeon0() {
   //this.x = -100;
   //this.y = -100;
 
-  this.x = -200;
-  this.y = -200;
+  this.x = -6*32;
+  this.y = -6*32;
 
   this.debug=false;
 }
