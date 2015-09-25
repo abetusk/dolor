@@ -6,7 +6,8 @@ function mainWorld() {
   this.enemy = [];
   this.particle = [];
 
-  this.size = 32;
+  //this.size = 32;
+  this.size = 16;
 
   this.debug = false;
 
@@ -15,6 +16,9 @@ function mainWorld() {
 
   var ee = new creatureSkel();
   this.enemy.push(ee);
+
+  this.collisionNudgeN=1;
+  //this.collisionNudgeN=0;
 }
 
 mainWorld.prototype.player_attack_level_collision = function() {
@@ -80,8 +84,10 @@ mainWorld.prototype.player_level_collision = function(player_x, player_y) {
     var w = layer.width;
     var h = layer.height;
 
-    var level_h = 32;
-    var level_w = 32;
+    //var level_h = 32;
+    //var level_w = 32;
+    var level_h = this.size;
+    var level_w = this.size;
     var level_x = this.level.x;
     var level_y = this.level.y;
 
@@ -199,44 +205,55 @@ mainWorld.prototype.update = function() {
         var align_dy = 0;
         var player_dir = player.actualDirection();
 
-        if (this.player_nudge_delay==0) {
+        var align_sz = this.size/2;
 
-          var align_sz = this.size;
+        var ofx = dst_x % align_sz;
+        var ofy = dst_y % align_sz;
 
-          var ofx = dst_x % align_sz;
-          var ofy = dst_y % align_sz;
+        var collision_align_dx = 0;
+        var collision_align_dy = 0;
 
-          if (ofx<0) { ofx = (ofx+align_sz)%align_sz; }
-          if (ofy<0) { ofy = (ofy+align_sz)%align_sz; }
+        if (ofx<0) { ofx = (ofx+align_sz)%align_sz; }
+        if (ofy<0) { ofy = (ofy+align_sz)%align_sz; }
 
-          // Align to grid
-          //
+        ofx = Math.floor(ofx+0.5);
+        ofy = Math.floor(ofy+0.5);
 
-          if ((player_dir == "up") || (player_dir == "down")) {
-            if (ofx!=0) {
-              if (ofx<(align_sz/2)) { dst_x--; align_dx=-1; }
-              else { dst_x++; align_dx=1; }
-            }
+
+        if ((player_dir == "up") || (player_dir == "down")) {
+          if (ofx!=0) {
+            if (ofx<(align_sz/2)) { collision_align_dx=-1; }
+            else { collision_align_dx=1; }
           }
-
-          if ((player_dir == "left") || (player_dir == "right")) {
-            if (ofy!=0) {
-              if (ofy<(align_sz/2)) { dst_y--; align_dy=-1; }
-              else { dst_y++; align_dy=1; }
-            }
-          }
-
         }
 
-        if (!this.player_level_collision(dst_x, dst_y)) {
+        if ((player_dir == "left") || (player_dir == "right")) {
+          if (ofy!=0) {
+            if (ofy<(align_sz/2)) { collision_align_dy=-1; }
+            else { collision_align_dy=1; }
+          }
+        }
+
+        var has_collision = false;
+
+        if (!this.player_level_collision(dst_x, player.y)) {
           player.x = dst_x;
+        } else { has_collision = true; }
+
+        if (!this.player_level_collision(player.x, dst_y)) {
           player.y = dst_y;
-        } else {
+        } else { has_collision = true; }
+
+
+        // not sure this is needed any more...
+        //
+        if (has_collision) {
 
           // 'hug' the wall if you walk into it.
           //
           if (player_dir=="right") {
-            var ovf_x = (((dst_x%32)+32)%32);
+            var sz = this.size;
+            var ovf_x = (((dst_x%sz)+sz)%sz);
             var nudge_x = dst_x - ovf_x;
 
             if (player.x != nudge_x) {
@@ -248,7 +265,8 @@ mainWorld.prototype.update = function() {
           }
 
           else if (player_dir=="left") {
-            var ovf_x = 32 - (((dst_x%32)+32)%32);
+            var sz = this.size;
+            var ovf_x = sz - (((dst_x%sz)+sz)%sz);
             var nudge_x = dst_x + ovf_x;
 
             if (player.x != nudge_x) {
@@ -261,7 +279,8 @@ mainWorld.prototype.update = function() {
           }
 
           else if (player_dir=="up") {
-            var ovf_y = 32 - (((dst_y%32)+32)%32);
+            var sz = this.size;
+            var ovf_y = sz - (((dst_y%sz)+sz)%sz);
             var nudge_y = dst_y + ovf_y;
 
             if (player.y != nudge_y) {
@@ -274,7 +293,8 @@ mainWorld.prototype.update = function() {
           }
 
           else if (player_dir=="down") {
-            var ovf_y = (((dst_y%32)+32)%32);
+            var sz = this.size;
+            var ovf_y = (((dst_y%sz)+sz)%sz);
             var nudge_y = dst_y - ovf_y;
 
             if (player.y != nudge_y) {
@@ -284,22 +304,6 @@ mainWorld.prototype.update = function() {
               }
             }
 
-          }
-
-
-
-          if (this.player_nudge_delay==0) {
-
-            // We have a collision but we still want to update character grid
-            // alignment
-            //
-            if (!this.player_level_collision(player.x+align_dx,player.y)) {
-              player.x += align_dx;
-            }
-
-            if (!this.player_level_collision(player.x,player.y+align_dy)) {
-              player.y += align_dy;
-            }
           }
 
         }

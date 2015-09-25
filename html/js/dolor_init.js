@@ -31,7 +31,7 @@
 
 
     var lastUpdateTime = new Date();
-    var updateThreshold = 33;
+    var updateThreshold = 15;
     function loop() {
       var d = new Date();
       var update = false;
@@ -123,7 +123,8 @@
       //g_imgcache.add("dungeon0", img_base + "/dungeon_sheet_0.png");
       g_imgcache.add("dungeon0", img_base + "/sheet_17.png");
 
-      g_imgcache.add("skel_blue", img_base + "/jade_skel_float_wip2.png");
+      //g_imgcache.add("skel_blue", img_base + "/jade_skel_float_wip4.png");
+      g_imgcache.add("skel_jade", img_base + "/jade_skel_wip.png");
 
       $.ajax({
         //url: "assets/dolor_room_test.json",
@@ -172,7 +173,7 @@
 
 
       // INIT
-      g_painter.setView(0, 0, 0.8);
+      g_painter.setView(0, 0, 1.5);
 
       /*
       for (var ii=0; ii<16; ii++)  {

@@ -9,8 +9,11 @@ function dungeon0() {
   //this.world_w = 64;
   //this.world_h = 64;
 
-  this.world_w = 32;
-  this.world_h = 32;
+  //this.world_w = 32;
+  //this.world_h = 32;
+
+  this.world_w = 16;
+  this.world_h = 16;
 
   //this.x = -1000;
   //this.y = -1000;

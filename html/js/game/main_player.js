@@ -1,8 +1,8 @@
 function mainPlayer(x,y,game) {
   this.game = game;
 
-  this.x = 80;
-  this.y = 200;
+  this.x = 64;
+  this.y = 32*6;
 
   this.d = "u"; // "d", "l", "r", and combinations?
 
@@ -16,7 +16,7 @@ function mainPlayer(x,y,game) {
   this.keyFrameRow = 0;
   this.keyFrame = 0;
   this.keyFrameN = 4;
-  this.updateFrameN = 2;
+  this.updateFrameN = 5;
   this.updateFrameDelay = 0;
 
   this.swordType = "eagle";
@@ -35,7 +35,7 @@ function mainPlayer(x,y,game) {
   this.walkLookup = { "up" : 0, "right" : 1, "down":2, "left":3 };
 
   //this.walkTransitionDelay = 2;
-  this.walkTransitionDelay = 3;
+  this.walkTransitionDelay = 6;
 
   this.walkDisplayQ = [];
 
@@ -49,8 +49,11 @@ function mainPlayer(x,y,game) {
   //this.dx = 6;
   //this.dy = 6;
 
-  this.dx = 8;
-  this.dy = 8;
+  //this.dx = 8;
+  //this.dy = 8;
+
+  this.dx = 2;
+  this.dy = 2;
 
 
   this.img_w = 16;
@@ -61,8 +64,12 @@ function mainPlayer(x,y,game) {
   //this.world_w = 64;
   //this.world_h = 64;
 
-  this.world_w = 32;
-  this.world_h = 32;
+  //this.world_w = 32;
+  //this.world_h = 32;
+
+  this.world_w = 16;
+  this.world_h = 16;
+  this.size = 16;
 
 
   //this.swordReady = true;
@@ -75,7 +82,7 @@ function mainPlayer(x,y,game) {
 
   this.swordKeyEvent = false;
   //this.swordDelayN = 3;
-  this.swordDelayN = 4;
+  this.swordDelayN = 8;
   this.swordDelay = 0;
 
   this.bombEvent = false;
@@ -461,23 +468,23 @@ mainPlayer.prototype.swordAttack = function() {
 
   this.swordKeyUp = false;
 
-  var jx = 5;
-  var jy = 5;
+  var jx = 2;
+  var jy = 2;
 
   var curdir = this.actualDirection();
 
   if        (curdir == "up") {
-    this.swordJitterX = Math.floor((Math.random()-0.3)*jx)
-    this.swordJitterY = Math.floor((Math.random()+1)*jy)
+    this.swordJitterX = Math.floor((Math.random()-0.15)*jx);
+    this.swordJitterY = Math.floor((Math.random()+1)*jy - 1);
   } else if (curdir == "down") {
-    this.swordJitterX = Math.floor((Math.random()-0.5)*jx)
-    this.swordJitterY = Math.floor((Math.random()-1)*jy)
+    this.swordJitterX = Math.floor((Math.random()-0.25)*jx);
+    this.swordJitterY = Math.floor((Math.random()-1)*jy + 1);
   } else if (curdir == "right") {
-    this.swordJitterX = Math.floor((Math.random()-1)*jx)
-    this.swordJitterY = Math.floor((Math.random()-0.5)*jy)
+    this.swordJitterX = Math.floor((Math.random()-1)*jx + 1);
+    this.swordJitterY = Math.floor((Math.random()-0.25)*jy);
   } else if (curdir == "left") {
-    this.swordJitterX = Math.floor((Math.random()+1)*jx)
-    this.swordJitterY = Math.floor((Math.random()-0.5)*jy)
+    this.swordJitterX = Math.floor((Math.random()+1)*jx - 1);
+    this.swordJitterY = Math.floor((Math.random()-0.25)*jy);
   }
 
   var di = this.currentDisplayDirection();
@@ -497,8 +504,8 @@ mainPlayer.prototype.swordAttack = function() {
 
 mainPlayer.prototype.swordBBox= function(dx, dy) {
 
-  var sword_w2 = 3;
-  var sword_h2 = 24;
+  var sword_w2 = 1;
+  var sword_h2 = 12;
 
   var curdir = this.actualDirection();
   var bbox = [[0,0],[0,0]];
@@ -668,7 +675,40 @@ mainPlayer.prototype.dxdy = function() {
   var dy = this.dy;
   var xy = { "up":[0,-dy], "right":[dx,0], "down":[0,dy], "left":[-dx,0], "stop":[0,0]  };
   var d = this.currentWalkDirection();
-  return xy[d];
+
+  var r = xy[d];
+
+  if ((d=="right") || (d=="left")) {
+    var gridsize = Math.floor((this.world_h/2) + 0.5);
+    var g2 = Math.floor((gridsize/2)+0.5);
+    var ofy = this.y % gridsize;
+    ofy = (ofy + gridsize)%gridsize;
+
+    if (ofy<g2) {
+      r[1] = -ofy;
+    } else {
+      r[1] = gridsize-ofy;
+    }
+
+  } else if ((d=="up") || (d=="down")) {
+    var gridsize = Math.floor((this.world_w/2) + 0.5);
+    var g2 = Math.floor((gridsize/2)+0.5);
+    var ofx = this.x % gridsize;
+    ofx = (ofx + gridsize)%gridsize;
+
+
+    if (ofx<g2) {
+      r[0] = -ofx;
+    } else {
+      r[0] = gridsize-ofx;
+    }
+
+  }
+
+  //console.log(d, r);
+
+  return r;
+  //return xy[d];
 }
 
 // returns text direction
@@ -769,23 +809,25 @@ mainPlayer.prototype.draw = function() {
     var ix = 0;
     var iy = 0;
 
+    var ds = Math.floor((this.size/2)+0.5);
+
     var di = this.currentDisplayDirection();
     if (di == "up") {
       a = -Math.PI/2.0;
-      iy=-16;
+      iy=-ds;
     }
     else if (di == "right") {
       a = 0.0;
-      ix = 16;
+      ix = ds;
     }
     else if (di == "down") {
       a = Math.PI/2.0;
-      iy = 16;
+      iy = ds;
       //ix = 16;
     }
     else if (di == "left") {
       a = Math.PI;
-      ix = -16;
+      ix = -ds;
     }
     //ix *= 4;
     //iy *= 4;
