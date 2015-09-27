@@ -7,15 +7,65 @@ function mainWorld() {
   this.particle = [];
 
   //this.size = 32;
-  this.size = 16;
+  this.size = g_GRIDSIZE;
 
   this.debug = false;
+  this.debug_rect = [[0,0],[1,1]];
 
   this.player_nudge_delay_count = 8;
   this.player_nudge_delay = 8;
 
   var ee = new creatureSkel();
   this.enemy.push(ee);
+
+  //var c0 = new creatureCritter("critter_bunny", g_GRIDSIZE/2, 8);
+  var c0 = new creatureCritter("critter_bunny", g_GRIDSIZE, 16);
+  this.enemy.push(c0);
+  c0.x +=16;
+
+  var c1 = new creatureCritter("critter_rat", g_GRIDSIZE/2, 8);
+  this.enemy.push(c1);
+  c1.x +=16*2;
+
+  var c2 = new creatureCritter("critter_spider", g_GRIDSIZE/2, 8);
+  this.enemy.push(c2);
+  c2.x +=16*3;
+
+  var c3 = new creatureCritter("critter_chicken", g_GRIDSIZE/2, 8);
+  this.enemy.push(c3);
+  c3.x +=16*4;
+
+  var c4 = new creatureCritter("critter_turtle", g_GRIDSIZE, 16);
+  this.enemy.push(c4);
+  c4.x +=16*5;
+
+  var c5 = new creatureCritter("critter_chick", g_GRIDSIZE, 16);
+  this.enemy.push(c5);
+  c5.x +=16*6;
+
+  var c6 = new creatureCritter("critter_bat", g_GRIDSIZE/2, 8);
+  this.enemy.push(c6);
+  c6.x +=16*7;
+
+  var c7 = new itemBomb("bomb_explosion", g_GRIDSIZE*2, 32);
+  this.enemy.push(c7);
+  c7.x +=16*9;
+
+  var c8 = new creatureCritter("critter_chicken_black", g_GRIDSIZE, 16, 8);
+  this.enemy.push(c8);
+  c8.x +=16*12;
+
+  var c9 = new debugSpriteAnimator("bomb_explosion2", g_GRIDSIZE*2, 32, 8, 3);
+  this.enemy.push(c9);
+  c9.x +=16*13;
+
+  var c19 = new debugSpriteAnimator("rotbow_w_string", 20, 20, 4, 4);
+  this.enemy.push(c19);
+  c19.x +=16*15;
+
+  var c19 = new debugSpriteAnimator("rotbow", 20, 20, 8, 4);
+  this.enemy.push(c19);
+  c19.x +=16*16;
 
   this.collisionNudgeN=1;
   //this.collisionNudgeN=0;
@@ -70,11 +120,116 @@ mainWorld.prototype.player_attack_level_collision = function() {
 
 }
 
+mainWorld.prototype.tile_bbox = function(col_val, tile_x, tile_y) {
+  var bbox = [[0,0],[0,0]];
+
+  col_val -= 145;
+
+  if (col_val==0) {
+    bbox[0][0] = tile_x;
+    bbox[0][1] = tile_y;
+
+    bbox[1][0] = tile_x + this.size-1;
+    bbox[1][1] = tile_y + this.size-1;
+  }
+
+  // upper half
+  //
+  else if (col_val==1) {
+    bbox[0][0] = tile_x;
+    bbox[0][1] = tile_y;
+
+    bbox[1][0] = tile_x + (this.size)-1;
+    bbox[1][1] = tile_y + (this.size/2)-1;
+  }
+
+  // left half
+  //
+  else if (col_val==2) {
+    bbox[0][0] = tile_x;
+    bbox[0][1] = tile_y;
+
+    bbox[1][0] = tile_x + (this.size/2)-1;
+    bbox[1][1] = tile_y + (this.size)-1;
+  }
+
+  // lower half
+  //
+  else if (col_val==3) {
+    bbox[0][0] = tile_x;
+    bbox[0][1] = tile_y + (this.size/2);
+
+    bbox[1][0] = tile_x + (this.size)-1;
+    bbox[1][1] = tile_y + (this.size)-1;
+  }
+
+  // right half
+  //
+  else if (col_val==4) {
+    bbox[0][0] = tile_x + (this.size/2);
+    bbox[0][1] = tile_y ;
+
+    bbox[1][0] = tile_x + (this.size)-1;
+    bbox[1][1] = tile_y + (this.size)-1;
+  }
+
+  // upper left
+  //
+  else if (col_val==5) {
+    bbox[0][0] = tile_x ;
+    bbox[0][1] = tile_y ;
+
+    bbox[1][0] = tile_x + (this.size/2)-1;
+    bbox[1][1] = tile_y + (this.size/2)-1;
+  }
+
+  // lower left
+  //
+  else if (col_val==6) {
+    bbox[0][0] = tile_x ;
+    bbox[0][1] = tile_y + (this.size/2);
+
+    bbox[1][0] = tile_x + (this.size/2)-1;
+    bbox[1][1] = tile_y + (this.size)-1;
+  }
+
+  // lower right
+  //
+  else if (col_val==7) {
+    bbox[0][0] = tile_x + (this.size/2);
+    bbox[0][1] = tile_y + (this.size/2);
+
+    bbox[1][0] = tile_x + (this.size)-1;
+    bbox[1][1] = tile_y + (this.size)-1;
+  }
+
+  // upper right
+  //
+  else if (col_val==8) {
+    bbox[0][0] = tile_x + (this.size/2);
+    bbox[0][1] = tile_y ;
+
+    bbox[1][0] = tile_x + (this.size)-1;
+    bbox[1][1] = tile_y + (this.size/2)-1;
+  }
+
+  return bbox;
+}
+
 mainWorld.prototype.player_level_collision = function(player_x, player_y) {
   var level = this.level;
   if (!level) { return false; }
 
   var layers = level.tilemap.layers;
+
+  var player_bbox = [[0,0],[0,0]];
+  var tile_bbox = [[0,0],[0,0]];
+
+  player_bbox[0][0] = player_x;
+  player_bbox[0][1] = player_y;
+
+  player_bbox[1][0] = player_x + this.player.size-1;
+  player_bbox[1][1] = player_y + this.player.size-1;
 
   for (var ii=0; ii<layers.length; ii++) {
     if (layers[ii].name != "collision") { continue; }
@@ -101,12 +256,39 @@ mainWorld.prototype.player_level_collision = function(player_x, player_y) {
       var tile_y = level_y + r*level_w;
 
       var sz = this.size;
+
+      tile_bbox = this.tile_bbox(layer.data[jj], tile_x, tile_y);
+
+      if ((tile_bbox[0][0] == 0) &&
+          (tile_bbox[0][1] == 0) &&
+          (tile_bbox[1][0] == 0) &&
+          (tile_bbox[1][1] == 0)) {
+            console.log("????", r, c);
+          }
+      /*
+      tile_bbox[0][0] = tile_x;
+      tile_bbox[0][1] = tile_y;
+
+      tile_bbox[1][0] = tile_x + this.size-1;
+      tile_bbox[1][1] = tile_y + this.size-1;
+      */
+
+
+      if (box_box_intersect(player_bbox, tile_bbox)) {
+
+        this.debug_rect = tile_bbox;
+
+        return true;
+      }
+
+      /*
       if ( ((player_x - tile_x) < sz) && ((player_x - tile_x) > -sz)  &&
            ((player_y - tile_y) < sz) && ((player_y - tile_y) > -sz)
          )
       {
         return true;
       }
+      */
 
 
     }
@@ -118,7 +300,7 @@ mainWorld.prototype.player_level_collision = function(player_x, player_y) {
 
 
 mainWorld.prototype.draw = function() {
-  this.painter.startDrawColor();
+  this.painter.startDrawColor( "rgba(210,210,220,1.0)" );
 
   if (this.level)
     this.level.draw(0);
@@ -155,6 +337,18 @@ mainWorld.prototype.draw = function() {
 
   if (this.level)
     this.level.draw(1);
+
+
+
+  /*
+  var x0 = this.debug_rect[0][0];
+  var y0 = this.debug_rect[0][1];
+  var x1 = this.debug_rect[1][0];
+  var y1 = this.debug_rect[1][1];
+  g_painter.drawRectangle(x0,y0, x1-x0, y1-y0, 1, "rgba(255,0,0,0.6)");
+  */
+
+
 
   this.painter.endDraw();
 }
@@ -245,14 +439,14 @@ mainWorld.prototype.update = function() {
         } else { has_collision = true; }
 
 
-        // not sure this is needed any more...
-        //
         if (has_collision) {
+
+          console.log("collision");
 
           // 'hug' the wall if you walk into it.
           //
           if (player_dir=="right") {
-            var sz = this.size;
+            var sz = this.size/2;
             var ovf_x = (((dst_x%sz)+sz)%sz);
             var nudge_x = dst_x - ovf_x;
 
@@ -265,7 +459,7 @@ mainWorld.prototype.update = function() {
           }
 
           else if (player_dir=="left") {
-            var sz = this.size;
+            var sz = this.size/2;
             var ovf_x = sz - (((dst_x%sz)+sz)%sz);
             var nudge_x = dst_x + ovf_x;
 
@@ -279,7 +473,7 @@ mainWorld.prototype.update = function() {
           }
 
           else if (player_dir=="up") {
-            var sz = this.size;
+            var sz = this.size/2;
             var ovf_y = sz - (((dst_y%sz)+sz)%sz);
             var nudge_y = dst_y + ovf_y;
 
@@ -293,7 +487,7 @@ mainWorld.prototype.update = function() {
           }
 
           else if (player_dir=="down") {
-            var sz = this.size;
+            var sz = this.size/2;
             var ovf_y = (((dst_y%sz)+sz)%sz);
             var nudge_y = dst_y - ovf_y;
 
@@ -335,8 +529,24 @@ mainWorld.prototype.update = function() {
 
           // Playe rkickback
           //
-          player.x -= Math.floor(Math.random()*dirxy[0]*2);
-          player.y -= Math.floor(Math.random()*dirxy[1]*2);
+          var kickback_pos_x = player.x - Math.floor(Math.random()*dirxy[0]*2);
+          var kickback_pos_y = player.y - Math.floor(Math.random()*dirxy[1]*2);
+
+          if (!this.player_level_collision(kickback_pos_x, player.y)) {
+            player.x = kickback_pos_x;
+          }
+
+          if (!this.player_level_collision(player.x, kickback_pos_y)) {
+            player.y = kickback_pos_y;
+          }
+
+
+          // sfx
+          //
+          var x = Math.floor(Math.random()*g_sfx["sword-thud"].length);
+          g_sfx["sword-thud"][x].play();
+
+
 
         }
       }
@@ -345,5 +555,6 @@ mainWorld.prototype.update = function() {
 
     }
   }
+
 
 }

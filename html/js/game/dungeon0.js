@@ -1,10 +1,13 @@
 
+
+
 function dungeon0() {
   this.tilemap = {};
   this.ready = false;
   this.init_flag = false;
 
-  this.tilemap_name = "dungeon0";
+  //this.tilemap_name = "dungeon0";
+  this.tilemap_name = "forrest";
 
   //this.world_w = 64;
   //this.world_h = 64;
@@ -12,8 +15,8 @@ function dungeon0() {
   //this.world_w = 32;
   //this.world_h = 32;
 
-  this.world_w = 16;
-  this.world_h = 16;
+  this.world_w = g_GRIDSIZE;
+  this.world_h = g_GRIDSIZE;
 
   //this.x = -1000;
   //this.y = -1000;
@@ -160,7 +163,16 @@ dungeon0.prototype.draw = function(display_height) {
         first = false;
       }
 
+      var ww = Math.floor(this.world_w);
+      var hh = Math.floor(this.world_h);
+
+      // wow, firefox is so fucked:
+      // http://stackoverflow.com/questions/17725840/canvas-drawimage-visible-edges-of-tiles-in-firefox-opera-ie-not-chrome
+      //
       g_imgcache.draw_s(this.tilemap_name, imx, imy, 16, 16, x, y, this.world_w, this.world_h);
+      //g_imgcache.draw_s(this.tilemap_name, imx, imy, 15, 15, x, y, 15, 15);
+
+      //g_imgcache.draw_s(this.tilemap_name, Math.floor(imx)+0.1, Math.floor(imy)+0.1, 15.5, 15.5, Math.floor(x), Math.floor(y), ww,hh);
 
       //DEBUG
       if (this.debug) {

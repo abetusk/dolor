@@ -5,14 +5,17 @@ function creatureSkel() {
   //this.world_w = 32;
   //this.world_h = 64;
 
-  this.world_w = 16;
-  this.world_h = 32;
+  this.world_w = g_GRIDSIZE;
+  this.world_h = g_GRIDSIZE*2;
 
   this.keyFrame = 0;
   this.keyFrameN = 8;
 
   this.frameDelayN = [ 16, 8, 8, 16, 8, 8, 8, 8 ];
   this.frameDelay = this.frameDelayN[0];
+
+  this.frameRow = 0;
+  this.frameRowN = 6;
 
   console.log("skel");
 }
@@ -25,6 +28,11 @@ creatureSkel.prototype.update = function() {
     this.keyFrame++;
     this.keyFrame = this.keyFrame % this.keyFrameN;
     this.frameDelay = this.frameDelayN[this.keyFrame];
+
+    if (this.keyFrame==0) {
+      this.frameRow++;
+      this.frameRow = this.frameRow % this.frameRowN;
+    }
   }
 }
 
@@ -33,7 +41,7 @@ creatureSkel.prototype.draw = function() {
   var imgx = 16*this.keyFrame;
 
   // right face float
-  var imgy = 0;
+  //var imgy = 0;
 
   // left face float
   //var imgy = 32;
@@ -43,6 +51,14 @@ creatureSkel.prototype.draw = function() {
 
   // left face rise
   //var imgy = 96;
+
+  // right face fire rise
+  //var imgy = 128;
+
+  // left face fire rise
+  //var imgy = 128+32;
+
+  var imgy = this.frameRow*32;
 
   //g_imgcache.draw_s("skel_blue", imgx, imgy, 16, 32, this.x, this.y, this.world_w, this.world_h);
   g_imgcache.draw_s("skel_jade", imgx, imgy, 16, 32, this.x, this.y, this.world_w, this.world_h);

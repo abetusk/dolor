@@ -1,6 +1,8 @@
 function mainPlayer(x,y,game) {
   this.game = game;
 
+  this.debug_flag = false;
+
   this.x = 64;
   this.y = 32*6;
 
@@ -11,6 +13,12 @@ function mainPlayer(x,y,game) {
   this.bomb = false;
   this.bow = false;
 
+  this.bowItem = true;
+  this.bowSword = true;
+  this.bowBomb = true;
+
+
+  this.player_bbox = [[0,0],[0,0]];
   this.sword_bbox = [[0,0],[0,0]];
 
   this.keyFrameRow = 0;
@@ -36,6 +44,7 @@ function mainPlayer(x,y,game) {
 
   //this.walkTransitionDelay = 2;
   this.walkTransitionDelay = 6;
+  //this.walkTransitionDelay = 10;
 
   this.walkDisplayQ = [];
 
@@ -52,8 +61,8 @@ function mainPlayer(x,y,game) {
   //this.dx = 8;
   //this.dy = 8;
 
-  this.dx = 2;
-  this.dy = 2;
+  this.dx = g_GRIDSIZE/8;
+  this.dy = g_GRIDSIZE/8;
 
 
   this.img_w = 16;
@@ -67,9 +76,9 @@ function mainPlayer(x,y,game) {
   //this.world_w = 32;
   //this.world_h = 32;
 
-  this.world_w = 16;
-  this.world_h = 16;
-  this.size = 16;
+  this.world_w = g_GRIDSIZE;
+  this.world_h = g_GRIDSIZE;
+  this.size = g_GRIDSIZE;
 
 
   //this.swordReady = true;
@@ -95,13 +104,14 @@ function mainPlayer(x,y,game) {
   //
   this.bowStep = 0;
   //this.bowStepN = 32;
-  this.bowStepN = 16;
-  this.bow_da = 2.0*Math.PI/this.bowStepN;
+  //this.bowStepN = 16;
+  this.bowStepN = 32;
 
   this.bowActive = false;
   this.bowEvent = "idle";
   this.bowTurnDelay = 0;
   this.bowTurnDelayN = 1;
+
 
   this.displayq.push({ "d":"down", "t":-1 });
   this.walkq.push({ "d":"down", "t":-1 });
@@ -147,29 +157,41 @@ mainPlayer.prototype.addToWalkq = function(d) {
 
 mainPlayer.prototype.alignBowToDirection = function() {
   var curdir = this.currentDisplayDirection();
-  var lookup = { "right":0, "up":8, "left":16, "down":24 };
-  var x = lookup[curdir];
+  //var lookup = { "right":0, "up":this.bowStepN/4, "left":this.bowStepN/2, "down":Math.floor(3*this.bowStepN/4) };
+  //var lookup = { "right":9, "up":13, "left":1, "down":5 };
+  //var lookup = { "right":8, "up":12, "left":0, "down":4 };
+  //var lookup = { "right":16, "up":24, "left":0, "down":8 };
+  var lookup = { "right":8, "up":0, "left":0, "down":8 };
+  var dest = lookup[curdir];
+
+  if (dest == this.bowStep) { return; }
 
   var z = this.bowStep;
-  if (Math.abs(this.bowStep - x) > 16) {
-    z = this.bowStep-32;
+  if (Math.abs(this.bowStep - dest) >= (this.bowStepN/2)) {
+
+    if (this.bowStep < (this.bowStepN/2)) {
+      z = this.bowStepN - this.bowStep;
+    } else {
+      z = this.bowStep - this.bowStepN;
+    }
   }
 
-  if ((x-z) > 0) {
-    this.bowStep += 2;
+  if ((dest-z) > 0) {
+    //this.bowStep ++;
+    this.bowStep += 2 ;
   } else {
-    this.bowStep -= 2;
+    //this.bowStep --;
+    this.bowStep -= 2 ;
   }
 
-  if (this.bowStep<0) { this.bowStep += 32; }
-  this.bowStep = this.bowStep % 32;
-
-  //this.bowStep = x;
+  if (this.bowStep<0) { this.bowStep += this.bowStepN; }
+  this.bowStep = this.bowStep % this.bowStepN;
 }
 
 mainPlayer.prototype.setBowToDirection = function() {
   var curdir = this.actualDirection();
-  var lookup = { "right":0, "up":8, "left":16, "down":24 };
+  //var lookup = { "right":0, "up":8, "left":16, "down":24 };
+  var lookup = { "right":16, "up":24, "left":0, "down":8 };
   var x = lookup[curdir];
   this.bowStep = x;
 }
@@ -205,10 +227,12 @@ mainPlayer.prototype.updateDisplayDirection = function() {
     // 'up' just looks better to me, don't know why...
     //
     if ((old_dir == "left") && (curdir == "right")) {
-      this.displayq.push({ "d":"up", "t":dl });
+      //this.displayq.push({ "d":"up", "t":dl });
+      this.displayq.push({ "d":"down", "t":dl });
     }
     else if ((old_dir == "right") && (curdir == "left")) {
-      this.displayq.push({ "d":"up", "t":dl });
+      //this.displayq.push({ "d":"up", "t":dl });
+      this.displayq.push({ "d":"down", "t":dl });
     }
     else if ((old_dir == "up") && (curdir == "down")) {
       this.displayq.push({ "d":"right", "t":dl });
@@ -283,8 +307,20 @@ mainPlayer.prototype.throwBomb = function() {
 mainPlayer.prototype.update = function() {
   g_painter.dirty_flag = true;
 
+  this.playerBBox();
+
   for (var ev in this.inputEvent) {
     //if (!this.inputEvent[ev]) { continue; }
+
+    //DEBUG
+    if (ev == "bowKeyDown") {
+      this.bow = true;
+      continue;
+    } else if (ev == "bowKeyUp") {
+      this.bow = false;
+      continue;
+    }
+
 
     if (ev == "swordKeyDown") {
 
@@ -334,6 +370,7 @@ mainPlayer.prototype.update = function() {
     }
 
     if (ev == "bombKeyUp") {
+
       continue;
     }
 
@@ -398,7 +435,7 @@ mainPlayer.prototype.update = function() {
       this.state = "walking";
       this._updateWalkQueue();
       this.updateWalkingFrame();
-      this.alignBowToDirection();
+      //this.alignBowToDirection();
     }
 
 
@@ -430,7 +467,13 @@ mainPlayer.prototype.update = function() {
     }
 
     this.updateDisplayDirection();
-    this.alignBowToDirection();
+
+    if (this.bowTurnDelay==0) {
+      this.alignBowToDirection();
+      this.bowTurnDelay = this.bowTurnDelayN;
+    }
+    this.bowTurnDelay--;
+
     return;
   }
 
@@ -500,6 +543,26 @@ mainPlayer.prototype.swordAttack = function() {
     "dy" : bxy[1],
     "d" : di };
 
+
+  var n = g_sfx["sword-swing"].length;
+  var x = Math.floor(Math.random()*n);
+
+  // swing sfx
+  //
+  g_sfx["sword-swing"][x].play();
+}
+
+mainPlayer.prototype.playerBBox= function() {
+  var bbox = this.player_bbox;
+
+  bbox[0][0] = this.x;
+  bbox[0][1] = this.y;
+  bbox[1][0] = this.x + this.size-1;
+  bbox[1][1] = this.y + this.size-1;
+
+  this.player_bbox = bbox;
+
+  return bbox;
 }
 
 mainPlayer.prototype.swordBBox= function(dx, dy) {
@@ -775,7 +838,8 @@ mainPlayer.prototype.draw = function() {
 
   if ((this.state == "idle") || (this.state == "walking")) {
 
-    if (d == "up") {
+    //if (d == "up") {
+    if (d == "wat") {
       g_imgcache.draw_s("noether", imgx, imgy, 16, 16, this.x, this.y, this.world_w, this.world_h);
 
       //var bow_imx = this.bowStep*2*16;
@@ -794,7 +858,32 @@ mainPlayer.prototype.draw = function() {
       //g_imgcache.draw_s("rotbow", bow_imx, 0, 16, 16, this.x, this.y + bow_jit_y, ff*this.world_w, ff*this.world_h);
 
 
-      g_imgcache.draw_s("noether", imgx, imgy, 16, 16, this.x, this.y, this.world_w, this.world_h);
+      var imx = (this.bowStep % (this.bowStepN/4))*20;
+      var imy = Math.floor(this.bowStep / 8)*20;
+
+      // bow fudge
+      var bf_x = -2;
+      var bf_y = -3;
+
+      //if ((d=="right") || (d=="left")) {
+        if ((kf%2)==1) {
+          bf_y++;
+        }
+      //}
+
+      if (d=="up") {
+        //g_imgcache.draw_s("rotstring", imx, imy, 20, 20, this.x+bf_x, this.y+bf_y, 20, 20);
+        g_imgcache.draw_s("noether", imgx, imgy, 16, 16, this.x, this.y, this.world_w, this.world_h);
+        g_imgcache.draw_s("rotbow", imx, imy, 20, 20, this.x+bf_x, this.y+bf_y, 20, 20);
+
+        //g_imgcache.draw_s("rotbow_w_string", imx, imy, 20, 20, this.x+bf_x, this.y+bf_y, 20, 20);
+      } else {
+        //g_imgcache.draw_s("rotbow_w_string", imx, imy, 20, 20, this.x+bf_x, this.y+bf_y, 20, 20);
+
+        g_imgcache.draw_s("rotbow", imx, imy, 20, 20, this.x+bf_x, this.y+bf_y, 20, 20);
+        g_imgcache.draw_s("noether", imgx, imgy, 16, 16, this.x, this.y, this.world_w, this.world_h);
+        //g_imgcache.draw_s("rotstring", imx, imy, 20, 20, this.x+bf_x, this.y+bf_y, 20, 20);
+      }
 
 
     }
@@ -870,15 +959,38 @@ mainPlayer.prototype.draw = function() {
     //g_imgcache.draw_s("item", 80, 16, 16, 16, this.x+ix, this.y+iy, this.world_w, this.world_h, a);
 
 
-    g_imgcache.draw_s("noether", imgx, imgy, 16, 16, this.x, this.y, this.world_w, this.world_h);
+    if (this.bowItem) {
+
+      var imx = ((this.bowStep+1) % (this.bowStepN/4))*20;
+      var imy = Math.floor((this.bowStep+1) / 8)*20;
+
+      var bf_x = -2;
+      var bf_y = -2;
+
+      if (di == "up") {
+        g_imgcache.draw_s("noether", imgx, imgy, 16, 16, this.x, this.y, this.world_w, this.world_h);
+        g_imgcache.draw_s("rotbow", imx, imy, 20, 20, this.x+bf_x, this.y+bf_y, 20, 20);
+      } else {
+        g_imgcache.draw_s("rotbow", imx, imy, 20, 20, this.x+bf_x, this.y+bf_y, 20, 20);
+        g_imgcache.draw_s("noether", imgx, imgy, 16, 16, this.x, this.y, this.world_w, this.world_h);
+      }
+
+    } else {
+      g_imgcache.draw_s("noether", imgx, imgy, 16, 16, this.x, this.y, this.world_w, this.world_h);
+    }
   }
 
   if (this.bomb) {
     var ix = 0, iy = -8;
+
+    var ds = Math.floor(this.size+0.5);
+
     var di = this.currentDisplayDirection();
     if (di == "up") {
       ix = 0;
-      iy = -8;
+      //iy = -8;
+      //iy = -(Math.floor(ds/2) + Math.floor(ds/16));
+      iy = -(Math.floor(ds/2));
 
     }
     else if (di == "right") {
@@ -886,7 +998,8 @@ mainPlayer.prototype.draw = function() {
     }
     else if (di == "down") {
       ix = -1;
-      iy = -10;
+      //iy = -10;
+      iy = -(Math.floor(ds/2) + Math.floor(ds/8));
     }
     else if (di == "left") {
       ix = 2;
@@ -894,19 +1007,34 @@ mainPlayer.prototype.draw = function() {
     //ix *= 4;
     //iy *= 4;
 
-    ix *= 2;
-    iy *= 2;
+    //ix *= 2;
+    //iy *= 2;
 
     g_imgcache.draw_s("item", 80, 16, 16, 16, this.x+ix, this.y+iy, this.world_w, this.world_h);
   }
 
+  if (this.debug_flag) {
+    var x0 = this.player_bbox[0][0];
+    var y0 = this.player_bbox[0][1];
+    var x1 = this.player_bbox[1][0];
+    var y1 = this.player_bbox[1][1];
+    g_painter.drawRectangle(x0,y0, x1-x0, y1-y0, 1, "rgba(255,0,0,0.6)");
+
+  }
+
+  /*
   if (this.bow) {
-    var imx = this.bowStep*2*16;
-    g_imgcache.draw_s("rotbow", imx, 0, 16, 16, this.x, this.y, this.world_w, this.world_h);
+    //var imx = this.bowStep*2*16;
+    //g_imgcache.draw_s("rotbow", imx, 0, 16, 16, this.x, this.y, this.world_w, this.world_h);
+
+    var imx = (this.bowStep % (this.bowStepN/4))*20;
+    var imy = Math.floor(this.bowStep / 4)*20;
+    //g_imgcache.draw_s("rotbow_w_string", imx, imy, 20, 20, this.x-2, this.y-2, 20, 20);
   } else {
     //var imx = kr *8 *16;
     //g_imgcache.draw_s("rotbow", imx, 0, 16, 16, this.x, this.y, this.world_w, this.world_h);
   }
+  */
 
 }
 

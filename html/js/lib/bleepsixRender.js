@@ -41,6 +41,8 @@ function bleepsixRender( canvas_param )
   }
   this.context = this.canvas.getContext('2d');
   this.context.imageSmoothingEnabled = false;
+  this.context.mozImageSmoothingEnabled = false;
+  this.context.webkitImageSmoothingEnabled = false;
 
   this.gridMode = 2;    // 0=none, 1=dots, 2=lines
 
@@ -1433,6 +1435,8 @@ bleepsixRender.prototype.drawSubImage = function(img, imgx, imgy, imgw, imgh, x,
   var ctx = this.context;
   ctx.imageSmoothingEnabled = false;
   ctx.mozImageSmoothingEnabled = false;
+  ctx.webkitImageSmoothingEnabled = false;
+
   //ctx.webkitImageSmoothingEnabled = false;
   //var angle_radian = 0.0;
 
@@ -1468,6 +1472,7 @@ bleepsixRender.prototype.drawSubImageRot = function(img, imgx, imgy, imgw, imgh,
   var ctx = this.context;
   ctx.imageSmoothingEnabled = false;
   ctx.mozImageSmoothingEnabled = false;
+  ctx.webkitImageSmoothingEnabled = false;
   //ctx.webkitImageSmoothingEnabled = false;
   //var angle_radian = 0.0;
 

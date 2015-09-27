@@ -3,6 +3,16 @@
   <meta charset='utf-8'>
 
   <head>
+    <style type="text/css">
+canvas {
+    image-rendering: optimizeSpeed;             // Older versions of FF
+    image-rendering: -moz-crisp-edges;          // FF 6.0+
+    image-rendering: -webkit-optimize-contrast; // Webkit
+    image-rendering: -o-crisp-edges;            // OS X & Windows Opera (12.02+)
+    image-rendering: optimize-contrast;         // Possible future browsers.
+    -ms-interpolation-mode: nearest-neighbor;   // IE
+}
+    </style>
 
     <!-- we don't want it pausing while loading if the server is down,
          so we use a local copy
@@ -12,6 +22,8 @@
     <script src='js/lib/jquery.capslockstate.js'/></script>
     <script src='js/lib/jquery.getUrlParam.js'/></script>
 
+    <script src='js/lib/howler.js'></script>
+
     <script src='js/lib/bleepsixRender.js'></script>
     <script src='js/lib/bleepsixAux.js'></script>
 
@@ -20,12 +32,18 @@
     <script src='js/lib/jquery.cookie.js'></script>
 
     <script src='js/game/dungeon0.js'></script>
+    <script src='js/game/homeLevel.js'></script>
+
     <script src='js/game/main_controller.js'></script>
     <script src='js/game/main_player.js'></script>
     <script src='js/game/main_world.js'></script>
     <script src='js/game/particleDebris.js'></script>
 
     <script src='js/game/creatureSkel.js'></script>
+    <script src='js/game/creatureCritter.js'></script>
+    <script src='js/game/itemBomb.js'></script>
+
+    <script src='js/game/debugSpriteAnimator.js'></script>
 
     <script src='js/tool/toolNav.js'></script>
 

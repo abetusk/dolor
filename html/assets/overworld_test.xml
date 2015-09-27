@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" width="32" height="32" tilewidth="16" tileheight="16">
+ <tileset firstgid="1" name="forrestup_0" tilewidth="16" tileheight="16">
+  <image source="forrestup_0.png" width="192" height="192"/>
+ </tileset>
+ <tileset firstgid="145" name="collision_full" tilewidth="16" tileheight="16">
+  <image source="collision_full.png" width="144" height="16"/>
+ </tileset>
+ <layer name="extra" width="32" height="32">
+  <data encoding="base64" compression="zlib">
+   eJzt0kEKABAQhWHnwhqHcnhZKCmZZEj938rC9J6JMcivCwAAsCl2Zy+csQrZTVrMuEPZs/xq3MPs3o0Omtm9k3vdJX3r6o9odgiK2QDwgwKeMwTv
+  </data>
+ </layer>
+ <layer name="extra1" width="32" height="32">
+  <data encoding="base64" compression="zlib">
+   eJztzSERAAAIADHScZShvyUBFsym3n0EAADcyMd3HX16aYBvA+fWAWk=
+  </data>
+ </layer>
+ <layer name="base" width="32" height="32">
+  <data encoding="base64" compression="zlib">
+   eJy9VclOAkEQbVxhknENcABU8KbCxYtyh79AvbqMxt2Lux9utakXKkUXwwzEl7xUT3V3vaqa7pmic65ErLAtMyO23ldkVtiWxFzEvoi5KVgSccCKmi+rPZMSeSHvUs4YXj8rIkFoRznioO9ZYdWTFV4b9R+yvSXeKd80OGJ7T3xQPqkPvBLfZqCr8U78UD6cR49Qrdp3JsYnxvg0Q0553/+sgLu5rPhfKLI+vim4z2moKqvRYFtjW1d+WGjmuUeWdhb4/hcC/lhZS9vKwaq3pmxB6FtaaXPTIHbh+heIi8SlHPEA9GCLuE3c4eeGWh+qbY24TtwIxB13V7pMiT3iPvHAyNfqfxJY7+HPJ/7PReE/Ju4y/bg+uvUPk9QfG2PkFborXrdF7BDbbrQPQJfz82y68Pu3kAhqtFm/xbk0WUNrt3gOayfRTwxK9Dku8pB9QL0dlaN/1u8g1O9rRasHPoce6yIPaWV+6AO+AYgbqt3P3TC1fuj89Di21kNPQJz/mGOP05ecBOgDet12w/43hTb0rfqRg+551aX/A3rMvhiDWl9r63OZpOhl+R8lQhd2FtBxrLjT6p8TL4iXxKuMewGpL3s9R5wXzzK3AdtH4hPxmfii5rBenxcd16p/hbiakvsn8Yv4TfwJzOPOyHOl41r61rfF+wbGnHPD+qW+daehD+209y+/P/gGWUD+ck8oB6ktz4HMS/sKgfVxIFY8hd/Ky9pnzVn79PgXLcBHSA==
+  </data>
+ </layer>
+ <layer name="collision" width="32" height="32" opacity="0.21">
+  <data encoding="base64" compression="zlib">
+   eJzlVtEOwyAI9P/f6rZ0n7uXLSWEAzmxXdJLSI0o1zOIbK217WLrSauOkwXiZ+NIPL/mAenxYMWV/N2Zm4EXlz23KkRa9VxPjjP8V6Aqj8/m7+ob+dEX1Y0RVNwNpDerL/JH+r1YkW8GSD+bi9Y91LHkGu/8ZS5YezK5ivKKqbX6/cvGG9VvjeWc1sTUkMp6Y/UFHueKemf1JxG3Xlf15mZ7sBmuin9YgUwPycZmEfGP9COjPoafgdcvVfK/29HP7sm9Eb93H3/jl1j3UD6kGfGszn8Ehv/f82+G/672Aey+1Go=
+  </data>
+ </layer>
+ <layer name="hover" width="32" height="32">
+  <data encoding="base64" compression="zlib">
+   eJztzrkJACAAA0BnVFfw2X8CLW0sFYU7CKQKCYGXlJl6YLfN9AO7N+Wlx01Pl74AAAD8ZgALwALm
+  </data>
+ </layer>
+ <objectgroup name="special_collision" width="32" height="32"/>
+</map>
