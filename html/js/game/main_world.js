@@ -5,6 +5,7 @@ function mainWorld() {
 
   this.enemy = [];
   this.particle = [];
+  this.element = [];
 
   //this.size = 32;
   this.size = g_GRIDSIZE;
@@ -298,6 +299,8 @@ mainWorld.prototype.player_level_collision = function(player_x, player_y) {
 }
 
 
+var debug_var = 0;
+var debug_del = 1;
 
 mainWorld.prototype.draw = function() {
   this.painter.startDrawColor( "rgba(210,210,220,1.0)" );
@@ -322,12 +325,27 @@ mainWorld.prototype.draw = function() {
 
   }
 
+  if (this.element) {
+    for (var key in this.element) {
+      this.element[key].draw();
+    }
+  }
 
   if (this.particle) {
     for (var key in this.particle) {
       this.particle[key].draw();
     }
   }
+
+  // playing around with a light column
+  //
+  /*
+  debug_var += debug_del;
+  if (debug_var < 0) { debug_var = 0; debug_del = 1; }
+  if (debug_var > 100) { debug_var = 100; debug_del = -1; }
+  var a = (debug_var/100)
+  this.painter.drawRectangle(this.player.x, this.player.y-1000, 16, 1000, 0, 0, true, "rgba(255,255,255," + a + ")");
+  */
 
   if (this.enemy) {
     for (var key in this.enemy) {
@@ -379,6 +397,12 @@ mainWorld.prototype.update = function() {
   {
     for (var key in this.enemy) {
       this.enemy[key].update();
+    }
+  }
+
+  if (this.element) {
+    for (var key in this.element) {
+      this.element[key].update();
     }
   }
 
@@ -549,12 +573,46 @@ mainWorld.prototype.update = function() {
 
 
         }
+      } else if (player.intent.type == "throwBomb") {
+
+        var tx = player.intent.x;
+        var ty = player.intent.y;
+        var tdx = player.intent.dx;
+        var tdy = player.intent.dy;
+        var td = player.intent.d;
+
+        var bo = new itemBomb("bomb_explosion", g_GRIDSIZE*2, 32);
+        bo.x = this.player.x;
+        bo.y = this.player.y;
+
+        this.element.push(bo);
+
+
+      } else if (player.intent.type == "particleFirefly") {
+
+        var tx = player.intent.x;
+        var ty = player.intent.y;
+        var tdx = player.intent.dx;
+        var tdy = player.intent.dy;
+        var td = player.intent.d;
+
+        var ee = new particleFirefly(tx,ty,tdx,tdy);
+        this.particle.push(ee);
       }
 
       player.intent = { "type" : "idle" };
 
     }
   }
+
+  if (this.element) {
+    for (var key in this.element) {
+      //this.element[key].update();
+
+      //if (this.element[key].intent.type == "
+    }
+  }
+
 
 
 }

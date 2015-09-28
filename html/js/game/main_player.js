@@ -191,7 +191,8 @@ mainPlayer.prototype.alignBowToDirection = function() {
 mainPlayer.prototype.setBowToDirection = function() {
   var curdir = this.actualDirection();
   //var lookup = { "right":0, "up":8, "left":16, "down":24 };
-  var lookup = { "right":16, "up":24, "left":0, "down":8 };
+  //var lookup = { "right":16, "up":24, "left":0, "down":8 };
+  var lookup = { "right":8, "up":0, "left":0, "down":8 };
   var x = lookup[curdir];
   this.bowStep = x;
 }
@@ -298,7 +299,18 @@ mainPlayer.prototype.throwBomb = function() {
     "dx" : bxy[0],
     "dy" : bxy[1],
     "d" : di };
+}
 
+mainPlayer.prototype.debugEvent = function() {
+  var di = this.currentDisplayDirection();
+  var bxy = this.dir_xy();
+
+  this.intent = { "type" : "particleFirefly",
+    "x" : this.x,
+    "y" : this.y,
+    "dx" : bxy[0],
+    "dy" : bxy[1],
+    "d" : di };
 }
 
 // walking, bow and sword are mutually exclusive
@@ -321,6 +333,10 @@ mainPlayer.prototype.update = function() {
       continue;
     }
 
+    if (ev == "debugKeyDown") {
+      this.debugEvent();
+      continue;
+    }
 
     if (ev == "swordKeyDown") {
 
@@ -544,11 +560,10 @@ mainPlayer.prototype.swordAttack = function() {
     "d" : di };
 
 
-  var n = g_sfx["sword-swing"].length;
-  var x = Math.floor(Math.random()*n);
-
   // swing sfx
   //
+  var n = g_sfx["sword-swing"].length;
+  var x = Math.floor(Math.random()*n);
   g_sfx["sword-swing"][x].play();
 }
 
@@ -669,6 +684,11 @@ mainPlayer.prototype.keyDown = function(code) {
   // down
   //
   else if (code == 40) { this.inputEvent["downKeyDown"] = true; } 
+
+  // y
+  //
+  else if (code == 89) { this.inputEvent["debugKeyDown"] = true; } 
+
 }
 
 // keyUp events only set flags that will be polled
