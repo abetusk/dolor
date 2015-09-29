@@ -48,7 +48,8 @@ function mainWorld() {
   this.enemy.push(c6);
   c6.x +=16*7;
 
-  var c7 = new itemBomb("bomb_explosion", g_GRIDSIZE*2, 32);
+  //var c7 = new itemBomb("bomb_explosion", g_GRIDSIZE*2, 32);
+  var c7 = new debugSpriteAnimator("bomb_explosion", g_GRIDSIZE*2, 32, 8, 3);
   this.enemy.push(c7);
   c7.x +=16*9;
 
@@ -464,8 +465,6 @@ mainWorld.prototype.update = function() {
 
 
         if (has_collision) {
-
-          console.log("collision");
 
           // 'hug' the wall if you walk into it.
           //

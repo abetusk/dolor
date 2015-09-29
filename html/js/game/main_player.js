@@ -128,6 +128,45 @@ function mainPlayer(x,y,game) {
 
   this.intent = { "type":"idle" };
 
+  // puff frequency
+  //
+  //this.puffDelayN = 100;
+  this.puffDelayN = 13;
+  this.puffDelay = this.puffDelayN;
+  this.puffDelayR = 2;  // random delta range
+
+  // Persistence before resizing
+  //
+  this.puffObjectDelayN = 6;
+  this.puffObjectDelay = this.puffObjectDelayN;
+
+  // Maximum point size
+  //
+  this.puffSizeMax = 3;
+
+  this.puffObject = {
+    "pos" : [],
+    "psize" : [],
+    "dpsize" : [],
+    "ttl" : [],
+    "alpha" : [],
+    "dalpha" : []
+  };
+
+  this.puffSizeDelayN = 8;
+  //this.puffTTL = 5;
+  this.puffTTL = 15;
+  this.puffAngleRange = 16;
+  this.puff = {
+    "d" : [],
+    "ttl" : [],
+    "pos" : [],
+    "dpos" : [],
+    "delayN" : [],
+    "delay" : [],
+    "alpha" : [],
+    "dalpha": []
+  };
 }
 
 mainPlayer.prototype.init = function(x, y, d) {
@@ -321,6 +360,9 @@ mainPlayer.prototype.update = function() {
 
   this.playerBBox();
 
+  this.updatePuffs();
+
+
   for (var ev in this.inputEvent) {
     //if (!this.inputEvent[ev]) { continue; }
 
@@ -490,6 +532,14 @@ mainPlayer.prototype.update = function() {
     }
     this.bowTurnDelay--;
 
+    var drpuff = Math.floor(Math.random()*this.puffDelayR)+1;
+    this.puffDelay-=drpuff;
+
+    if (this.puffDelay<=0) {
+      this.puffDelay = this.puffDelayN;
+      this.addPuffs();
+    }
+   
     return;
   }
 
@@ -515,6 +565,185 @@ mainPlayer.prototype.update = function() {
   }
 
 }
+
+mainPlayer.prototype.addPuffs = function() {
+  var di = this.currentDisplayDirection();
+
+  var dr = Math.random();
+  var ang = (Math.floor(Math.random()*this.puffAngleRange)/this.puffAngleRange)*2.0*Math.PI;
+
+  var dx = dr*Math.cos(ang);
+  var dy = dr*Math.sin(ang);
+  var x = this.x ;
+  var y = this.y ;
+
+  var s = this.size;
+  var s2 = Math.floor(this.size/2);
+
+  if (di=="down") {
+    x += s2;
+    y -= 2;
+    y -= Math.floor(Math.random()*2)
+  } else {
+    x += s2;
+    y += s;
+    y -= Math.floor(Math.random()*2)
+  }
+
+      /*
+  if (di == "left") {
+    x += s2;
+    y += s-3;
+    y -= Math.floor(Math.random()*2)
+  } else if (di == "right") {
+    x += s2;
+    y += s-3;
+    y -= Math.floor(Math.random()*2)
+  } else if (di == "up") {
+  }
+  */
+
+  this.puff.d.push( Math.floor(4*Math.random()) );
+  this.puff.ttl.push(this.puffTTL);
+  this.puff.pos.push([x,y]);
+  this.puff.dpos.push([dx,dy]);
+  this.puff.delayN.push(this.puffSizeDelayN);
+  this.puff.delay.push(this.puffSizeDelayN);
+  this.puff.alpha.push(0.6);
+  this.puff.dalpha.push(0);
+
+  return;
+
+
+  var ttl = 50;
+  var psize = 2;
+  var alpha = 0.6;
+  var dalpha = 0.01;
+
+  var p2 = Math.floor(psize/2);
+  // n0, n1, dx0, dy0, dx1, dy1
+  //
+  var vec = [0,0,0,0,0,0];
+  var s = this.size;
+  var s2 = Math.floor(s/2);
+  var rr = 8;
+  var r2 = Math.floor(rr/2);
+
+  var dn = Math.floor(Math.random()*2);
+  if (di == "left") {
+    //     n0  n1  dx0   dy0      dx1   dy1
+    vec = [2-dn,1, s-s2, s-p2-r2+2, s-s2, s-p2-r2+2];
+  } else if (di == "right") {
+    //     n0  n1   dx0   dy0    dx1   dy1
+    vec = [1, 2-dn, s2, s-p2-r2+2, s2, s-p2-r2+2];
+  }
+
+  for (var i=0; i<vec[0]; i++) {
+
+    var rx = Math.floor(Math.random()*rr)-r2;
+    //var ry = Math.floor(Math.random()*rr)-r2;
+    var ry = Math.floor(Math.random()*3)-1;
+
+    var x = this.x + vec[2] + rx;
+    var y = this.y + vec[3] + ry;
+    this.puffObject.pos.push([x, y]);
+    this.puffObject.psize.push(psize);
+    this.puffObject.dpsize.push(1);
+    this.puffObject.ttl.push(ttl);
+    this.puffObject.alpha.push(alpha);
+    this.puffObject.dalpha.push(dalpha);
+
+
+  }
+
+  for (var i=0; i<vec[1]; i++) {
+    var x = this.x + vec[4];
+    var y = this.y + vec[5];
+    this.puffObject.pos.push([x, y]);
+    this.puffObject.psize.push(psize);
+    this.puffObject.dpsize.push(1);
+    this.puffObject.ttl.push(ttl);
+    this.puffObject.alpha.push(alpha);
+    this.puffObject.dalpha.push(dalpha);
+  }
+
+
+}
+
+
+mainPlayer.prototype.updatePuffs = function() {
+
+  var newobj = { "pos":[], "dpos":[], "ttl":[], "alpha": [],  "dalpha":[], "delay" : [], "delayN": [], "d":[] };
+  var n = this.puff.pos.length;
+  for (var i=0; i<n; i++) {
+    this.puff.delay[i]--;
+    if (this.puff.delay[i]<=0) {
+      this.puff.delay[i]=this.puff.delayN[i];
+      newobj.d.push(this.puff.d[i]);
+      newobj.ttl.push(this.puff.ttl[i]);
+      newobj.pos.push(this.puff.pos[i]);
+      newobj.dpos.push(this.puff.dpos[i]);
+      newobj.alpha.push(this.puff.alpha[i]);
+      newobj.dalpha.push(this.puff.dalpha[i]);
+      newobj.delay.push(this.puff.delay[i]);
+      newobj.delayN.push(this.puff.delayN[i]);
+      continue;
+    }
+
+    this.puff.pos[i][0] += this.puff.dpos[i][0];
+    this.puff.pos[i][1] += this.puff.dpos[i][1];
+    this.puff.alpha[i] += this.puff.dalpha[i];
+
+    this.puff.ttl[i]--;
+    if (this.puff.ttl[i]>0) {
+      newobj.d.push(this.puff.d[i]);
+      newobj.ttl.push(this.puff.ttl[i]);
+      newobj.pos.push(this.puff.pos[i]);
+      newobj.dpos.push(this.puff.dpos[i]);
+      newobj.alpha.push(this.puff.alpha[i]);
+      newobj.dalpha.push(this.puff.dalpha[i]);
+      newobj.delay.push(this.puff.delay[i]);
+      newobj.delayN.push(this.puff.delayN[i]);
+    }
+
+  }
+
+  this.puff = newobj;
+
+  return;
+
+  this.puffObjectDelay--;
+  if (this.puffObjectDelay!=0) { return; }
+  this.puffObjectDelay = this.puffObjectDelayN;
+
+
+  var n = this.puffObject.pos.length;
+  var newobj = { "pos":[], "psize":[], "dpsize": [], "ttl":[], "alpha":[], "dalpha":[] };
+  for (var i=0; i<n; i++) {
+
+    var rpsize = Math.floor(Math.random()*3)
+
+    this.puffObject.ttl[i]--;
+
+    this.puffObject.psize[i] +=   this.puffObject.dpsize[i];
+    if (this.puffObject.psize[i]>=(this.puffSizeMax-rpsize)) { this.puffObject.dpsize[i]=-1; }
+    if (this.puffObject.psize[i]==0) { this.puffObject.ttl[i] = 0; }
+
+    this.puffObject.alpha[i] -=  this.puffObject.dalpha[i];
+
+    if (this.puffObject.ttl[i]>0) {
+      newobj.pos.push(this.puffObject.pos[i]);
+      newobj.psize.push(this.puffObject.psize[i]);
+      newobj.dpsize.push(this.puffObject.dpsize[i]);
+      newobj.ttl.push(this.puffObject.ttl[i]);
+      newobj.alpha.push(this.puffObject.alpha[i]);
+      newobj.dalpha.push(this.puffObject.dalpha[i]);
+    }
+
+  }
+  this.puffObject = newobj;
+}
+
 
 mainPlayer.prototype.swordAttack = function() {
 
@@ -1041,6 +1270,38 @@ mainPlayer.prototype.draw = function() {
     g_painter.drawRectangle(x0,y0, x1-x0, y1-y0, 1, "rgba(255,0,0,0.6)");
 
   }
+
+  for (var i=0; i<this.puff.pos.length; i++) {
+    var s = Math.floor( 4*this.puff.ttl[i]/this.puffTTL ) + 1;
+
+    var x = Math.floor(this.puff.pos[i][0] - s/2);
+    var y = Math.floor(this.puff.pos[i][1] - s/2);
+
+    var a = this.puff.alpha[i];
+    //var c = "rgba(0,0,0," + a +")";
+    //var c = "rgba(158,158,158," + a +")";
+    var c = "rgba(250,250,250," + a +")";
+    //g_painter.drawPoint(x, y, c, s);
+
+    var puff_frame = Math.floor( 4*(this.puffTTL - this.puff.ttl[i])/this.puffTTL );
+    if (puff_frame==4) { continue; }
+    var imx = 4*puff_frame;
+    var imy = 4*this.puff.d[i];
+    g_imgcache.draw_s("puff", imx, imy, 4, 4, x, y, 4, 4, 0, a);
+  }
+
+  /*
+  for (var i=0; i<this.puffObject.pos.length; i++) {
+    var x = this.puffObject.pos[i][0];
+    var y = this.puffObject.pos[i][1];
+    var s = this.puffObject.psize[i];
+    var a = this.puffObject.alpha[i];
+    //var c = "rgba(0,0,0," + a +")";
+    //var c = "rgba(158,158,158," + a +")";
+    var c = "rgba(250,250,250," + a +")";
+    g_painter.drawPoint(x, y, c, s);
+  }
+  */
 
   /*
   if (this.bow) {
