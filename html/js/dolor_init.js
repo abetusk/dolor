@@ -206,6 +206,10 @@
       g_sfx["enemy-hit"].push( new_sound_object("assets/sfx/49683__ejfortin__nano-blade-4.ogg") );
       g_sfx["enemy-hit"].push( new_sound_object("assets/sfx/49684__ejfortin__nano-blade-5.ogg") );
 
+      g_sfx["explosion"] = [];
+      g_sfx["explosion"].push( new_sound_object("assets/sfx/259962__thehorriblejoke__8-bit-explosion.ogg") );
+      g_sfx["explosion"].push( new_sound_object("assets/sfx/170146__timgormly__8-bit-explosion.ogg") );
+      g_sfx["explosion"].push( new_sound_object("assets/sfx/170144__timgormly__8-bit-explosion2.ogg") );
 
       g_music = {};
       g_music["home"] = new_sound_object("assets/music/mark.nine-the-little-things-02-devil-you-know.mp3");

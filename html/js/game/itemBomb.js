@@ -91,6 +91,22 @@ itemBomb.prototype.update = function() {
 
     }
 
+    if (this.fuse_ttl==8) {
+      var ex_ind = Math.floor( g_sfx["explosion"].length * Math.random() );
+      g_sfx["explosion"][ex_ind].play();
+    }
+
+    if (this.fuse_ttl==5) {
+      var ex_ind = Math.floor( g_sfx["explosion"].length * Math.random() );
+      g_sfx["explosion"][ex_ind].play();
+    }
+
+    if (this.fuse_ttl==2) {
+      var ex_ind = Math.floor( g_sfx["explosion"].length * Math.random() );
+      g_sfx["explosion"][ex_ind].play();
+    }
+
+
     if (this.fuse_ttl==0) {
 
       var se = this.sprite_explosion;
@@ -102,7 +118,6 @@ itemBomb.prototype.update = function() {
         "r" : 16
       };
       this.state = "explode";
-
 
       var of = [];
       for (var i=0; i<3; i++) {

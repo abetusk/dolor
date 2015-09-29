@@ -55,25 +55,25 @@ function mainWorld() {
   c6.x +=16*7;
 
   //var c7 = new itemBomb("bomb_explosion", g_GRIDSIZE*2, 32);
-  var c7 = new debugSpriteAnimator("bomb_explosion", g_GRIDSIZE*2, 32, 8, 3);
-  this.enemy.push(c7);
-  c7.x +=16*9;
+  //var c7 = new debugSpriteAnimator("bomb_explosion", g_GRIDSIZE*2, 32, 8, 3);
+  //this.enemy.push(c7);
+  //c7.x +=16*9;
 
   var c8 = new creatureCritter("critter_chicken_black", g_GRIDSIZE, 16, 8);
   this.enemy.push(c8);
   c8.x +=16*12;
 
-  var c9 = new debugSpriteAnimator("bomb_explosion2", g_GRIDSIZE*2, 32, 8, 3);
-  this.enemy.push(c9);
-  c9.x +=16*13;
+  //var c9 = new debugSpriteAnimator("bomb_explosion2", g_GRIDSIZE*2, 32, 8, 3);
+  //this.enemy.push(c9);
+  //c9.x +=16*13;
 
-  var c19 = new debugSpriteAnimator("rotbow_w_string", 20, 20, 4, 4);
-  this.enemy.push(c19);
-  c19.x +=16*15;
+  //var c19 = new debugSpriteAnimator("rotbow_w_string", 20, 20, 4, 4);
+  //this.enemy.push(c19);
+  //c19.x +=16*15;
 
-  var c19 = new debugSpriteAnimator("rotbow", 20, 20, 8, 4);
-  this.enemy.push(c19);
-  c19.x +=16*16;
+  //var c19 = new debugSpriteAnimator("rotbow", 20, 20, 8, 4);
+  //this.enemy.push(c19);
+  //c19.x +=16*16;
 
   this.collisionNudgeN=1;
   //this.collisionNudgeN=0;
