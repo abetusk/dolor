@@ -7,6 +7,12 @@ function mainWorld() {
   this.particle = [];
   this.element = [];
 
+  this.remnants = [];
+
+  this.camshake=[];
+  this.orig_dx = 0;
+  this.orig_dy = 0;
+
   //this.size = 32;
   this.size = g_GRIDSIZE;
 
@@ -306,8 +312,17 @@ var debug_del = 1;
 mainWorld.prototype.draw = function() {
   this.painter.startDrawColor( "rgba(210,210,220,1.0)" );
 
+  //this.painter
+
   if (this.level)
     this.level.draw(0);
+
+  if (this.element) {
+    for (var key in this.element) {
+      this.element[key].draw();
+    }
+  }
+
 
   if (this.player) {
     this.player.draw(1);
@@ -324,12 +339,6 @@ mainWorld.prototype.draw = function() {
     }
 
 
-  }
-
-  if (this.element) {
-    for (var key in this.element) {
-      this.element[key].draw();
-    }
   }
 
   if (this.particle) {
@@ -372,7 +381,56 @@ mainWorld.prototype.draw = function() {
   this.painter.endDraw();
 }
 
+mainWorld.prototype.camera_shake = function() {
+
+  console.log(">>>", this.painter.zoom);
+
+  var ds = 10 * this.painter.zoom;
+  var ds2 = Math.floor(ds/2);
+  for (var i=0; i<5; i++) {
+    var dx = Math.floor(Math.random()*ds)-ds2;
+    var dy = Math.floor(Math.random()*ds)-ds2;
+    this.camshake.push({ "initial_delay": i*4+1, "ttl" : 4, "dx" : dx, "dy" : dy });
+  }
+  //this.camshake.push({ "ttl" : 4, "dx" : -5, "dy" : -5 });
+  //this.camshake.push({ "ttl" : 4, "dx" : 5, "dy" : 5 });
+  //this.camshake.push({ "ttl" : 4, "dx" : 5, "dy" : 5 });
+
+  this.orig_dx = 0;
+  this.orig_dy = 0;
+
+  //this.painter.adjustPan(this.camshake[0].dx, this.camshake[0].dy);
+}
+
 mainWorld.prototype.update = function() {
+
+  // Camera shake for explosions
+  //
+  // initial_delay gets decremented no matter what.  A 0
+  // inidicates a 'start'.
+  // ttl to 0 indicates an end.
+  //
+  var new_camshake_a = [];
+  for (var i=0; i<this.camshake.length; i++) {
+    this.camshake[i].initial_delay--;
+
+    if (this.camshake[i].initial_delay>0) {
+      new_camshake_a.push(this.camshake[i]);
+      continue;
+    } else if (this.camshake[i].initial_delay==0) {
+      this.painter.adjustPan(this.camshake[i].dx, this.camshake[i].dy);
+    }
+
+    this.camshake[i].ttl--;
+    if (this.camshake[i].ttl<=0) {
+      this.painter.adjustPan(-this.camshake[i].dx, -this.camshake[i].dy);
+    } else {
+      new_camshake_a.push(this.camshake[i]);
+    }
+
+  }
+  this.camshake = new_camshake_a;
+
 
   if (this.player)
     this.player.update();
@@ -402,9 +460,21 @@ mainWorld.prototype.update = function() {
   }
 
   if (this.element) {
+    var new_ele_a = [];
     for (var key in this.element) {
       this.element[key].update();
+
+      if (this.element[key].ttl>0) {
+        new_ele_a.push(this.element[key]);
+      }
+
+      if (this.element[key].type == "bomb") {
+        if (this.element[key].intent.type == "explode") {
+          this.camera_shake();
+        }
+      }
     }
+    this.element = new_ele_a;
   }
 
 
@@ -572,7 +642,7 @@ mainWorld.prototype.update = function() {
 
 
         }
-      } else if (player.intent.type == "throwBomb") {
+      } else if (player.intent.type == "bombThrow") {
 
         var tx = player.intent.x;
         var ty = player.intent.y;
@@ -580,12 +650,11 @@ mainWorld.prototype.update = function() {
         var tdy = player.intent.dy;
         var td = player.intent.d;
 
-        var bo = new itemBomb("bomb_explosion", g_GRIDSIZE*2, 32);
+        var bo = new itemBomb(player.intent);
         bo.x = this.player.x;
         bo.y = this.player.y;
 
         this.element.push(bo);
-
 
       } else if (player.intent.type == "particleFirefly") {
 

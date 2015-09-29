@@ -135,6 +135,7 @@
       g_imgcache.add("noether", img_base + "/noether.png");
       //g_imgcache.add("item", img_base + "/items_11.png");
       g_imgcache.add("item", img_base + "/items_11.a.png");
+      g_imgcache.add("item_mask", img_base + "/items_mask.png");
 
       //g_imgcache.add("rotbow", img_base + "/rotbow3.png");
       //g_imgcache.add("dungeon0", img_base + "/dungeon_sheet_0.png");

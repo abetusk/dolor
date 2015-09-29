@@ -324,15 +324,16 @@ mainPlayer.prototype.actual_dir_xy = function() {
   return bxy;
 }
 
-mainPlayer.prototype.throwBomb = function() {
+mainPlayer.prototype.bombThrow = function() {
   console.log("bomb throw!");
   this.bomb = false;
   this.bombDelay = this.bombDelayN;
 
   var di = this.currentDisplayDirection();
   var bxy = this.dir_xy();
+  this.state = "bombThrow";
 
-  this.intent  = { "type" : "throwBomb",
+  this.intent  = { "type" : "bombThrow",
     "x" : this.x,
     "y" : this.y,
     "dx" : bxy[0],
@@ -383,7 +384,7 @@ mainPlayer.prototype.update = function() {
     if (ev == "swordKeyDown") {
 
       if (this.bomb) {
-        this.throwBomb();
+        this.bombThrow();
         continue;
       }
 
@@ -411,19 +412,21 @@ mainPlayer.prototype.update = function() {
 
     if (ev == "bombKeyDown") {
 
+      /*
       if (this.bomb) {
-        this.throwBomb();
+        this.bombThrow();
         continue;
       }
+      */
 
       if ((this.state == "swordAttack") ||
           (this.state == "bow")) { continue; }
       if (!this.bombReady()) { continue; }
       if (!this.bombKeyUp) { continue; }
 
-      console.log("bomb!");
+      //this.prepBomb();
+      this.bombThrow();
 
-      this.prepBomb();
       continue;
     }
 
@@ -562,7 +565,25 @@ mainPlayer.prototype.update = function() {
     this.setBowToDirection();
 
     return;
+  } else if (this.state == "bombThrow") {
+    if (this.bombDelay==0) {
+
+      if (this.walkFlag["up"] || this.walkFlag["down"] || this.walkFlag["left"] || this.walkFlag["right"]) {
+        this.state = "walking";
+        this._updateWalkQueue();
+
+      } else {
+        this.state = "idle";
+      }
+
+    } else {
+      this.bombDelay--;
+    }
+
+    this.setBowToDirection();
+    return;
   }
+
 
 }
 
@@ -863,16 +884,6 @@ mainPlayer.prototype.swordRetract = function() {
   this.sword = false;
 }
 
-mainPlayer.prototype.bombPrepare = function() {
-  console.log("bomb prepare");
-  this.bomb = true;
-}
-
-mainPlayer.prototype.bombThrow = function() {
-  console.log("bomb throw");
-  this.bomb = false;
-}
-
 mainPlayer.prototype.keyDownTransition = function(s) {
   if (s == "idle") { return "fire"; }
   if (s == "fire") { return "warm"; }
@@ -1085,7 +1096,7 @@ mainPlayer.prototype.draw = function() {
 
   var ff = 1.3;
 
-  if ((this.state == "idle") || (this.state == "walking")) {
+  if ((this.state == "idle") || (this.state == "walking") || (this.state=="bombThrow")) {
 
     //if (d == "up") {
     if (d == "wat") {
