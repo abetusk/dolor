@@ -429,7 +429,7 @@ mainPlayer.prototype.update = function() {
         this.bowAim.a = 2.0*Math.PI*(this.bowAim.a_step/this.bowAim.a_step_n);
 
         //this.bowAim.a_step_delay_n = 10;
-        this.bowAim.a_step_delay_n = 1;
+        this.bowAim.a_step_delay_n = 2;
 
         this.bowAim.a_step_delay = this.bowAim.a_step_delay_n;
 
@@ -444,10 +444,10 @@ mainPlayer.prototype.update = function() {
 
       if (this.bow) {
         this.shootArrow();
-        var curdir = this.actualDirection();
+        //var curdir = this.actualDirection();
         //this.resetDisplayDirection(curdir);
-       // this.resetWalkq();
-        this.setBowToDirection();
+        //this.resetWalkq();
+        //this.setBowToDirection();
 
         continue;
       }
@@ -725,9 +725,35 @@ mainPlayer.prototype.update = function() {
 
   } else if (this.state == "shootArrow") {
 
+    // If we have no walkin gkey pending, force the direction to be the one we're facing.
+    //
+    if (!this.walkFlag["up"] && !this.walkFlag["down"] && !this.walkFlag["left"] && !this.walkFlag["right"]) {
+      var a_n = this.bowAim.a_step_n;
+      var a_step = this.bowAim.a_step;
+      var curdir = "none";
+      if ((a_step < (a_n/8)) || (a_step > (7*a_n/8))) {
+        curdir = "right";
+      }
+      else if ((a_step <= (3*a_n/8)) && (a_step >= (a_n/8))) {
+        curdir = "up";
+      }
+      else if ((a_step < (5*a_n/8)) && (a_step > (3*a_n/8))) {
+        curdir = "left";
+      }
+      else {
+        curdir = "down";
+      }
+
+      this.resetDisplayDirection(curdir);
+      this.setBowToDirection();
+    }
+
     if (this.bowDelay==0) {
       if (this.walkFlag["up"] || this.walkFlag["down"] || this.walkFlag["left"] || this.walkFlag["right"]) {
         this.state = "walking";
+        this._updateWalkQueue();
+        this.setBowToDirection();
+
         //this._updateWalkQueue();
 
         //var curdir = this.actualDirection();
@@ -738,10 +764,13 @@ mainPlayer.prototype.update = function() {
 
       } else {
         this.state = "idle";
+
       }
 
     } else {
       this.bowDelay--;
+
+      console.log("??");
     }
 
   }
@@ -1401,29 +1430,26 @@ mainPlayer.prototype.draw = function() {
     var t_imgy = 0;
     var a_n = this.bowAim.a_step_n;
     var a_step = this.bowAim.a_step;
+    var curdir = "none";
 
-    // right
-    //
     if ((a_step < (a_n/8)) || (a_step > (7*a_n/8))) {
       t_imgy = 16;
+      curdir = "right";
     }
-    
-    // up
-    //
+
     else if ((a_step <= (3*a_n/8)) && (a_step >= (a_n/8))) {
       t_imgy = 0;
+      curdir = "up";
     }
 
-    // left
-    //
     else if ((a_step < (5*a_n/8)) && (a_step > (3*a_n/8))) {
       t_imgy = 16*3;
+      curdir = "left";
     }
 
-    // down
-    //
     else {
       t_imgy = 16*2;
+      curdir = "down";
     }
 
 
@@ -1439,7 +1465,6 @@ mainPlayer.prototype.draw = function() {
 
     rb_imy += 80*(2-this.bowAim.bow_knock_state);
 
-    var curdir = this.actualDirection();
     if (curdir == "down") {
       g_imgcache.draw_s("noether", t_imgx, t_imgy, 16, 16, this.x, this.y, this.world_w, this.world_h);
       //g_imgcache.draw_s("rotbow", rb_imx, rb_imy, 20, 20, this.x-2, this.y-2, 20, 20);
