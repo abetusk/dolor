@@ -724,6 +724,7 @@ mainPlayer.prototype.update = function() {
     }
 
   } else if (this.state == "shootArrow") {
+    console.log("wtf");
 
     // If we have no walkin gkey pending, force the direction to be the one we're facing.
     //
@@ -746,6 +747,8 @@ mainPlayer.prototype.update = function() {
 
       this.resetDisplayDirection(curdir);
       this.setBowToDirection();
+      this.resetWalkq(curdir);
+
     }
 
     if (this.bowDelay==0) {
