@@ -99,6 +99,9 @@ function mainPlayer(x,y,game) {
   this.bombDelayN = 10;
   this.bombKeyUp = true;;
 
+  this.bowDelayN = 10;
+  this.bowDelay = 0;
+
   // 0 is right.  past StepN/2 is below
   // so ccw
   //
@@ -125,6 +128,19 @@ function mainPlayer(x,y,game) {
   this.swordJitterX = 0;
   this.swordJitterY = 0;
 
+  this.bowAim = {
+    "frame_right" : 4,
+    "a" : 0,
+
+    "a_step" : 0,
+    "a_step_n" : 32,
+    "a_step_delay" : 0,
+    "a_step_delay_n" : 0,
+
+    "bow_knock_state" : 0,
+    "bow_knock_delay" : 0,
+    "bow_knock_delay_n" : 40
+  };
 
   this.intent = { "type":"idle" };
 
@@ -193,6 +209,10 @@ mainPlayer.prototype.addToWalkq = function(d) {
   this.walkq.push({ "d":d, "t":5 });
 }
 
+mainPlayer.prototype.resetWalkq = function(d) {
+  d = ((typeof d === "undefined") ? this.actualDirection() : d);
+  this.walkq = [{ "d":d, "t":-1 }];
+}
 
 mainPlayer.prototype.alignBowToDirection = function() {
   var curdir = this.currentDisplayDirection();
@@ -324,6 +344,26 @@ mainPlayer.prototype.actual_dir_xy = function() {
   return bxy;
 }
 
+mainPlayer.prototype.shootArrow = function() {
+  console.log("shoot arrow!");
+  this.bow = false;
+  this.bowDelay = this.bowDelayN;
+
+  var di = this.actualDirection();
+  var bxy = this.dir_xy();
+  this.state = "shootArrow";
+
+  this.intent  = { "type" : "shootArrow",
+    "x" : this.x,
+    "y" : this.y,
+    "dx" : bxy[0],
+    "dy" : bxy[1],
+    "a_step" : this.bowAim.a_step,
+    "a_step_n" : this.bowAim.a_step_n,
+    "a" : 2.0*Math.PI*(this.bowAim.a_step/this.bowAim.a_step_n),
+    "d" : di };
+}
+
 mainPlayer.prototype.bombThrow = function() {
   console.log("bomb throw!");
   this.bomb = false;
@@ -369,9 +409,49 @@ mainPlayer.prototype.update = function() {
 
     //DEBUG
     if (ev == "bowKeyDown") {
-      this.bow = true;
+
+      if (!this.bow) {
+        this.bow = true;
+        this.state = "bow";
+
+        var curdir = this.actualDirection();
+        this.resetDisplayDirection(curdir);
+        if (curdir == "right") {
+          this.bowAim.a_step = 0;
+        } else if (curdir == "up") {
+          this.bowAim.a_step = this.bowAim.a_step_n/4;
+        } else if (curdir == "left") {
+          this.bowAim.a_step = this.bowAim.a_step_n/2;
+        } else if (curdir == "down") {
+          this.bowAim.a_step = 3*this.bowAim.a_step_n/4;
+        }
+
+        this.bowAim.a = 2.0*Math.PI*(this.bowAim.a_step/this.bowAim.a_step_n);
+
+        //this.bowAim.a_step_delay_n = 10;
+        this.bowAim.a_step_delay_n = 1;
+
+        this.bowAim.a_step_delay = this.bowAim.a_step_delay_n;
+
+        this.bowAim.bow_knock_delay_n = 5;
+        this.bowAim.bow_knock_state = 2;
+        this.bowAim.bow_knock_delay = this.bowAim.bow_knock_delay_n;
+
+      }
+
       continue;
     } else if (ev == "bowKeyUp") {
+
+      if (this.bow) {
+        this.shootArrow();
+        var curdir = this.actualDirection();
+        this.resetDisplayDirection(curdir);
+        this.setBowToDirection();
+        this.resetWalkq();
+
+        continue;
+      }
+
       this.bow = false;
       continue;
     }
@@ -382,6 +462,11 @@ mainPlayer.prototype.update = function() {
     }
 
     if (ev == "swordKeyDown") {
+
+      if (this.bow) {
+        this.shootArrow();
+        continue;
+      }
 
       if (this.bomb) {
         this.bombThrow();
@@ -582,7 +667,86 @@ mainPlayer.prototype.update = function() {
 
     this.setBowToDirection();
     return;
+  } else if (this.state == "bow") {
+
+    console.log(this.bowAim.a_step);
+    //console.log(this.walkFlag);
+
+    var a_n = this.bowAim.a_step_n;
+    var a_step = this.bowAim.a_step;
+    if ((a_step < (a_n/8)) || (a_step > (7*a_n/8))) {
+      this.resetDisplayDirection("right");
+    }
+    
+    else if ((a_step <= (3*a_n/8)) && (a_step >= (a_n/8))) {
+      this.resetDisplayDirection("up");
+    }
+
+    else if ((a_step < (5*a_n/8)) && (a_step > (3*a_n/8))) {
+      this.resetDisplayDirection("left");
+    }
+
+    //else if ((a_step <= (5*a_n/8)) && (a_step > (3*a_n/8))) {
+    else {
+      this.resetDisplayDirection("down");
+    }
+
+    console.log("bow_knock_state", this.bowAim.bow_knock_state);
+
+    if (this.bowAim.bow_knock_state>0) {
+      if (this.bowAim.bow_knock_delay==0) {
+        this.bowAim.bow_knock_delay = this.bowAim.bow_knock_delay_n;
+        this.bowAim.bow_knock_state--;
+      }
+      this.bowAim.bow_knock_delay--;
+
+      console.log("knock!");
+    }
+
+    if (this.bowAim.a_step_delay>0) {
+      this.bowAim.a_step_delay--;
+    }
+
+    //console.log(this.bowAim.a_step_delay);
+
+    if (this.walkFlag["left"] || this.walkFlag["right"]) {
+      if (this.bowAim.a_step_delay==0) {
+
+        var da = 0;
+        if (this.walkFlag["left"]) { da ++; }
+        if (this.walkFlag["right"]) { da += this.bowAim.a_step_n-1; }
+        this.bowAim.a_step = (this.bowAim.a_step + da) % this.bowAim.a_step_n;
+
+        this.bowAim.a_step_delay=this.bowAim.a_step_delay_n;
+      }
+
+
+    }
+
+  } else if (this.state == "shootArrow") {
+
+    if (this.bowDelay==0) {
+      if (this.walkFlag["up"] || this.walkFlag["down"] || this.walkFlag["left"] || this.walkFlag["right"]) {
+        this.state = "walking";
+        //this._updateWalkQueue();
+
+        //var curdir = this.actualDirection();
+        //this.resetDisplayDirection(curdir);
+        //this.setBowToDirection();
+
+        console.log(">>>>>", curdir);
+
+      } else {
+        this.state = "idle";
+      }
+
+    } else {
+      this.bowDelay--;
+    }
+
   }
+
+  console.log(">>>", this.state);
 
 
 }
@@ -730,39 +894,6 @@ mainPlayer.prototype.updatePuffs = function() {
   }
 
   this.puff = newobj;
-
-  return;
-
-  this.puffObjectDelay--;
-  if (this.puffObjectDelay!=0) { return; }
-  this.puffObjectDelay = this.puffObjectDelayN;
-
-
-  var n = this.puffObject.pos.length;
-  var newobj = { "pos":[], "psize":[], "dpsize": [], "ttl":[], "alpha":[], "dalpha":[] };
-  for (var i=0; i<n; i++) {
-
-    var rpsize = Math.floor(Math.random()*3)
-
-    this.puffObject.ttl[i]--;
-
-    this.puffObject.psize[i] +=   this.puffObject.dpsize[i];
-    if (this.puffObject.psize[i]>=(this.puffSizeMax-rpsize)) { this.puffObject.dpsize[i]=-1; }
-    if (this.puffObject.psize[i]==0) { this.puffObject.ttl[i] = 0; }
-
-    this.puffObject.alpha[i] -=  this.puffObject.dalpha[i];
-
-    if (this.puffObject.ttl[i]>0) {
-      newobj.pos.push(this.puffObject.pos[i]);
-      newobj.psize.push(this.puffObject.psize[i]);
-      newobj.dpsize.push(this.puffObject.dpsize[i]);
-      newobj.ttl.push(this.puffObject.ttl[i]);
-      newobj.alpha.push(this.puffObject.alpha[i]);
-      newobj.dalpha.push(this.puffObject.dalpha[i]);
-    }
-
-  }
-  this.puffObject = newobj;
 }
 
 
@@ -1096,56 +1227,45 @@ mainPlayer.prototype.draw = function() {
 
   var ff = 1.3;
 
-  if ((this.state == "idle") || (this.state == "walking") || (this.state=="bombThrow")) {
+  if ((this.state == "idle") || (this.state == "walking") || (this.state=="bombThrow") || (this.state=="shootArrow")) {
 
-    //if (d == "up") {
-    if (d == "wat") {
+    var bow_jit_x = kf%2;
+    var bow_jit_y = 0;
+
+    if ((d == "right") || (d=="left")) {
+      bow_jit_y = (kf%2)*3;
+    }
+
+    //var bow_imx = this.bowStep*2*16;
+    var bow_imx = this.bowStep*16;
+    //g_imgcache.draw_s("rotbow", bow_imx, 0, 16, 16, this.x, this.y + bow_jit_y, ff*this.world_w, ff*this.world_h);
+
+
+    var imx = (this.bowStep % (this.bowStepN/4))*20;
+    var imy = Math.floor(this.bowStep / 8)*20;
+
+    // bow fudge
+    var bf_x = -2;
+    var bf_y = -3;
+
+    //if ((d=="right") || (d=="left")) {
+      if ((kf%2)==1) {
+        bf_y++;
+      }
+    //}
+
+    if (d=="up") {
+      //g_imgcache.draw_s("rotstring", imx, imy, 20, 20, this.x+bf_x, this.y+bf_y, 20, 20);
       g_imgcache.draw_s("noether", imgx, imgy, 16, 16, this.x, this.y, this.world_w, this.world_h);
+      g_imgcache.draw_s("rotbow", imx, imy, 20, 20, this.x+bf_x, this.y+bf_y, 20, 20);
 
-      //var bow_imx = this.bowStep*2*16;
-      var bow_imx = this.bowStep*16;
-      //g_imgcache.draw_s("rotbow", bow_imx, 0, 16, 16, this.x, this.y, ff*this.world_w, ff*this.world_h);
+      //g_imgcache.draw_s("rotbow_w_string", imx, imy, 20, 20, this.x+bf_x, this.y+bf_y, 20, 20);
     } else {
-      var bow_jit_x = kf%2;
-      var bow_jit_y = 0;
+      //g_imgcache.draw_s("rotbow_w_string", imx, imy, 20, 20, this.x+bf_x, this.y+bf_y, 20, 20);
 
-      if ((d == "right") || (d=="left")) {
-        bow_jit_y = (kf%2)*3;
-      }
-
-      //var bow_imx = this.bowStep*2*16;
-      var bow_imx = this.bowStep*16;
-      //g_imgcache.draw_s("rotbow", bow_imx, 0, 16, 16, this.x, this.y + bow_jit_y, ff*this.world_w, ff*this.world_h);
-
-
-      var imx = (this.bowStep % (this.bowStepN/4))*20;
-      var imy = Math.floor(this.bowStep / 8)*20;
-
-      // bow fudge
-      var bf_x = -2;
-      var bf_y = -3;
-
-      //if ((d=="right") || (d=="left")) {
-        if ((kf%2)==1) {
-          bf_y++;
-        }
-      //}
-
-      if (d=="up") {
-        //g_imgcache.draw_s("rotstring", imx, imy, 20, 20, this.x+bf_x, this.y+bf_y, 20, 20);
-        g_imgcache.draw_s("noether", imgx, imgy, 16, 16, this.x, this.y, this.world_w, this.world_h);
-        g_imgcache.draw_s("rotbow", imx, imy, 20, 20, this.x+bf_x, this.y+bf_y, 20, 20);
-
-        //g_imgcache.draw_s("rotbow_w_string", imx, imy, 20, 20, this.x+bf_x, this.y+bf_y, 20, 20);
-      } else {
-        //g_imgcache.draw_s("rotbow_w_string", imx, imy, 20, 20, this.x+bf_x, this.y+bf_y, 20, 20);
-
-        g_imgcache.draw_s("rotbow", imx, imy, 20, 20, this.x+bf_x, this.y+bf_y, 20, 20);
-        g_imgcache.draw_s("noether", imgx, imgy, 16, 16, this.x, this.y, this.world_w, this.world_h);
-        //g_imgcache.draw_s("rotstring", imx, imy, 20, 20, this.x+bf_x, this.y+bf_y, 20, 20);
-      }
-
-
+      g_imgcache.draw_s("rotbow", imx, imy, 20, 20, this.x+bf_x, this.y+bf_y, 20, 20);
+      g_imgcache.draw_s("noether", imgx, imgy, 16, 16, this.x, this.y, this.world_w, this.world_h);
+      //g_imgcache.draw_s("rotstring", imx, imy, 20, 20, this.x+bf_x, this.y+bf_y, 20, 20);
     }
 
   }
@@ -1271,6 +1391,32 @@ mainPlayer.prototype.draw = function() {
     //iy *= 2;
 
     g_imgcache.draw_s("item", 80, 16, 16, 16, this.x+ix, this.y+iy, this.world_w, this.world_h);
+  }
+
+  if (this.bow) {
+    var a_step = (this.bowAim.a_step + this.bowAim.frame_right)%this.bowAim.a_step_n;
+    var a_r = Math.floor(a_step/8);
+    var a_c = a_step%8;
+    var a_imx = 16*a_c;
+    var a_imy = 16*a_r;
+
+    var rb_imx = 20*a_c;
+    var rb_imy = 20*a_r;
+
+    rb_imy += 80*(2-this.bowAim.bow_knock_state);
+
+    var curdir = this.actualDirection();
+    if (curdir == "down") {
+      g_imgcache.draw_s("noether", imgx, imgy, 16, 16, this.x, this.y, this.world_w, this.world_h);
+      //g_imgcache.draw_s("rotbow", rb_imx, rb_imy, 20, 20, this.x-2, this.y-2, 20, 20);
+      g_imgcache.draw_s("rotbow_fulldraw", rb_imx, rb_imy, 20, 20, this.x-2, this.y-2, 20, 20);
+    } else {
+      //g_imgcache.draw_s("rotbow", rb_imx, rb_imy, 20, 20, this.x-2, this.y-2, 20, 20);
+      g_imgcache.draw_s("rotbow_fulldraw", rb_imx, rb_imy, 20, 20, this.x-2, this.y-2, 20, 20);
+      g_imgcache.draw_s("noether", imgx, imgy, 16, 16, this.x, this.y, this.world_w, this.world_h);
+    }
+    g_imgcache.draw_s("arrow", a_imx, a_imy, 16, 16, this.x, this.y, this.world_w, this.world_h);
+
   }
 
   if (this.debug_flag) {

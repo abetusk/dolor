@@ -22,8 +22,16 @@ function mainWorld() {
   this.player_nudge_delay_count = 8;
   this.player_nudge_delay = 8;
 
+  // enemy creatures
+  //
   var ee = new creatureSkel();
   this.enemy.push(ee);
+
+  var bones0 = new creatureBones();
+  this.enemy.push(bones0);
+  bones0.x -=16;
+
+  //---
 
   //var c0 = new creatureCritter("critter_bunny", g_GRIDSIZE/2, 8);
   var c0 = new creatureCritter("critter_bunny", g_GRIDSIZE, 16);
@@ -71,9 +79,26 @@ function mainWorld() {
   //this.enemy.push(c19);
   //c19.x +=16*15;
 
-  //var c19 = new debugSpriteAnimator("rotbow", 20, 20, 8, 4);
-  //this.enemy.push(c19);
-  //c19.x +=16*16;
+  var c19 = new debugSpriteAnimator("rotbow", 20, 20, 8, 4);
+  this.enemy.push(c19);
+  c19.x +=16*16;
+
+
+  var c20 = new debugSpriteAnimator("horns", 16, 16, 4, 4, 10)
+  this.enemy.push(c20);
+  c20.x +=16*17;
+
+  var c21 = new debugSpriteAnimator("knight", 16, 16, 4, 4, 10);
+  this.enemy.push(c21);
+  c21.x +=16*18;
+
+  var c22 = new debugSpriteAnimatorRotbow("rotbow_fulldraw", 20, 20, 8, 12);
+  this.enemy.push(c22);
+  c22.x +=16*19;
+
+  var c22 = new debugSpriteAnimator("arrow", 16, 16, 8, 4);
+  this.enemy.push(c22);
+  c22.x +=16*21;
 
   this.collisionNudgeN=1;
   //this.collisionNudgeN=0;

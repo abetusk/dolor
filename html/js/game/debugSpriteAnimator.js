@@ -1,6 +1,8 @@
-function debugSpriteAnimator(name, gridsize, tilesize, n, m) {
+function debugSpriteAnimator(name, gridsize, tilesize, n, m, default_delay) {
   this.x = 0;
   this.y = 0;
+
+  default_delay = ((typeof default_delay === "undefined") ? 4 : default_delay);
 
   this.name = name;
 
@@ -15,7 +17,7 @@ function debugSpriteAnimator(name, gridsize, tilesize, n, m) {
 
   this.frameDelayN = [];
   for (var i=0; i<this.keyFrameN; i++) {
-    this.frameDelayN.push(4);
+    this.frameDelayN.push(default_delay);
   }
 
   this.frameDelay = this.frameDelayN[0];

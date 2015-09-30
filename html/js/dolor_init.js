@@ -167,11 +167,20 @@
       //g_imgcache.add("rotbow_w_string", img_base + "/rotbow_w_string_18x18.png");
       g_imgcache.add("rotbow_w_string", img_base + "/rotbow_w_string_20x20.png");
       //g_imgcache.add("rotbow", img_base + "/rotbow_20x20.png");
-      g_imgcache.add("rotbow", img_base + "/rotbow32_20x20.png");
+      //g_imgcache.add("rotbow", img_base + "/rotbow32_20x20.png");
+      g_imgcache.add("rotbow", img_base + "/rotbow32_20x20_2.png");
+      g_imgcache.add("rotbow_fulldraw", img_base + "/rotbow_fulldraw_nostring2.png");
+      g_imgcache.add("arrow", img_base + "/arrow32.png");
       //g_imgcache.add("rotstring", img_base + "/rotstring_20x20.png");
       //g_imgcache.add("rotstring", img_base + "/rotstring_a2_20x20.png");
 
       g_imgcache.add("puff", img_base + "/puff.png");
+
+      g_imgcache.add("bones", img_base + "/bones2.png");
+      g_imgcache.add("horns", img_base + "/horns.png");
+      g_imgcache.add("knight", img_base + "/lattice_knight2.png");
+
+      g_imgcache.add("floatskull", img_base + "/floatskull.png");
 
       var welcome_music = new Howl({
           urls: ['assets/music/mark.nine-the-little-things-02-devil-you-know.mp3'],
