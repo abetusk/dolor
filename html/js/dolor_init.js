@@ -176,7 +176,7 @@
 
       g_imgcache.add("puff", img_base + "/puff.png");
 
-      g_imgcache.add("bones", img_base + "/bones2.png");
+      g_imgcache.add("bones", img_base + "/bones3.png");
       g_imgcache.add("horns", img_base + "/horns.png");
       g_imgcache.add("knight", img_base + "/lattice_knight2.png");
 
