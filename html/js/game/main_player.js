@@ -445,9 +445,9 @@ mainPlayer.prototype.update = function() {
       if (this.bow) {
         this.shootArrow();
         var curdir = this.actualDirection();
-        this.resetDisplayDirection(curdir);
+        //this.resetDisplayDirection(curdir);
+       // this.resetWalkq();
         this.setBowToDirection();
-        this.resetWalkq();
 
         continue;
       }
@@ -675,20 +675,20 @@ mainPlayer.prototype.update = function() {
     var a_n = this.bowAim.a_step_n;
     var a_step = this.bowAim.a_step;
     if ((a_step < (a_n/8)) || (a_step > (7*a_n/8))) {
-      this.resetDisplayDirection("right");
+      //this.resetDisplayDirection("right");
     }
     
     else if ((a_step <= (3*a_n/8)) && (a_step >= (a_n/8))) {
-      this.resetDisplayDirection("up");
+      //this.resetDisplayDirection("up");
     }
 
     else if ((a_step < (5*a_n/8)) && (a_step > (3*a_n/8))) {
-      this.resetDisplayDirection("left");
+      //this.resetDisplayDirection("left");
     }
 
     //else if ((a_step <= (5*a_n/8)) && (a_step > (3*a_n/8))) {
     else {
-      this.resetDisplayDirection("down");
+      //this.resetDisplayDirection("down");
     }
 
     console.log("bow_knock_state", this.bowAim.bow_knock_state);
@@ -1394,6 +1394,40 @@ mainPlayer.prototype.draw = function() {
   }
 
   if (this.bow) {
+
+    //override noether direction
+    //
+    var t_imgx = 0;
+    var t_imgy = 0;
+    var a_n = this.bowAim.a_step_n;
+    var a_step = this.bowAim.a_step;
+
+    // right
+    //
+    if ((a_step < (a_n/8)) || (a_step > (7*a_n/8))) {
+      t_imgy = 16;
+    }
+    
+    // up
+    //
+    else if ((a_step <= (3*a_n/8)) && (a_step >= (a_n/8))) {
+      t_imgy = 0;
+    }
+
+    // left
+    //
+    else if ((a_step < (5*a_n/8)) && (a_step > (3*a_n/8))) {
+      t_imgy = 16*3;
+    }
+
+    // down
+    //
+    else {
+      t_imgy = 16*2;
+    }
+
+
+
     var a_step = (this.bowAim.a_step + this.bowAim.frame_right)%this.bowAim.a_step_n;
     var a_r = Math.floor(a_step/8);
     var a_c = a_step%8;
@@ -1407,13 +1441,13 @@ mainPlayer.prototype.draw = function() {
 
     var curdir = this.actualDirection();
     if (curdir == "down") {
-      g_imgcache.draw_s("noether", imgx, imgy, 16, 16, this.x, this.y, this.world_w, this.world_h);
+      g_imgcache.draw_s("noether", t_imgx, t_imgy, 16, 16, this.x, this.y, this.world_w, this.world_h);
       //g_imgcache.draw_s("rotbow", rb_imx, rb_imy, 20, 20, this.x-2, this.y-2, 20, 20);
       g_imgcache.draw_s("rotbow_fulldraw", rb_imx, rb_imy, 20, 20, this.x-2, this.y-2, 20, 20);
     } else {
       //g_imgcache.draw_s("rotbow", rb_imx, rb_imy, 20, 20, this.x-2, this.y-2, 20, 20);
       g_imgcache.draw_s("rotbow_fulldraw", rb_imx, rb_imy, 20, 20, this.x-2, this.y-2, 20, 20);
-      g_imgcache.draw_s("noether", imgx, imgy, 16, 16, this.x, this.y, this.world_w, this.world_h);
+      g_imgcache.draw_s("noether", t_imgx, t_imgy, 16, 16, this.x, this.y, this.world_w, this.world_h);
     }
     g_imgcache.draw_s("arrow", a_imx, a_imy, 16, 16, this.x, this.y, this.world_w, this.world_h);
 
