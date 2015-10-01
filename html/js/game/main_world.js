@@ -489,15 +489,24 @@ mainWorld.prototype.update = function() {
     for (var key in this.element) {
       this.element[key].update();
 
-      if (this.element[key].ttl>0) {
-        new_ele_a.push(this.element[key]);
-      }
-
       if (this.element[key].type == "bomb") {
         if (this.element[key].intent.type == "explode") {
           this.camera_shake();
         }
+      } else if (this.element[key].type == "arrow") {
+        if (this.player_level_collision(this.element[key].x, this.element[key].y)) {
+
+          console.log("bang!");
+
+          this.element[key].ttl = 0;
+        }
       }
+
+      if (this.element[key].ttl>0) {
+        new_ele_a.push(this.element[key]);
+      }
+
+
     }
     this.element = new_ele_a;
   }
@@ -691,11 +700,21 @@ mainWorld.prototype.update = function() {
 
         var ee = new particleFirefly(tx,ty,tdx,tdy);
         this.particle.push(ee);
+      } else if (player.intent.type == "shootArrow") {
+        var nt = player.intent;
+
+        console.log("arrow", nt.x, nt.y, nt.a_step, nt.a_step_n);
+
+        var ar = new itemArrow(player.intent);
+        this.element.push(ar);
       }
+
 
       player.intent = { "type" : "idle" };
 
     }
+
+
   }
 
   if (this.element) {

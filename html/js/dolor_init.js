@@ -169,7 +169,9 @@
       //g_imgcache.add("rotbow", img_base + "/rotbow_20x20.png");
       //g_imgcache.add("rotbow", img_base + "/rotbow32_20x20.png");
       g_imgcache.add("rotbow", img_base + "/rotbow32_20x20_2.png");
-      g_imgcache.add("rotbow_fulldraw", img_base + "/rotbow_fulldraw_nostring2.png");
+      //g_imgcache.add("rotbow_fulldraw", img_base + "/rotbow_fulldraw_nostring2.png");
+      g_imgcache.add("rotbow_fulldraw", img_base + "/rotbow_fulldraw_nostring3.png");
+      g_imgcache.add("rotbow_fulldraw_w_string", img_base + "/rotbow_fulldraw_w_string2.png");
       g_imgcache.add("arrow", img_base + "/arrow32.png");
       //g_imgcache.add("rotstring", img_base + "/rotstring_20x20.png");
       //g_imgcache.add("rotstring", img_base + "/rotstring_a2_20x20.png");

@@ -139,7 +139,7 @@ function mainPlayer(x,y,game) {
 
     "bow_knock_state" : 0,
     "bow_knock_delay" : 0,
-    "bow_knock_delay_n" : 40
+    "bow_knock_delay_n" : 8
   };
 
   this.intent = { "type":"idle" };
@@ -433,7 +433,7 @@ mainPlayer.prototype.update = function() {
 
         this.bowAim.a_step_delay = this.bowAim.a_step_delay_n;
 
-        this.bowAim.bow_knock_delay_n = 5;
+        //this.bowAim.bow_knock_delay_n = 5;
         this.bowAim.bow_knock_state = 2;
         this.bowAim.bow_knock_delay = this.bowAim.bow_knock_delay_n;
 
@@ -669,9 +669,6 @@ mainPlayer.prototype.update = function() {
     return;
   } else if (this.state == "bow") {
 
-    console.log(this.bowAim.a_step);
-    //console.log(this.walkFlag);
-
     var a_n = this.bowAim.a_step_n;
     var a_step = this.bowAim.a_step;
     if ((a_step < (a_n/8)) || (a_step > (7*a_n/8))) {
@@ -691,16 +688,12 @@ mainPlayer.prototype.update = function() {
       //this.resetDisplayDirection("down");
     }
 
-    console.log("bow_knock_state", this.bowAim.bow_knock_state);
-
     if (this.bowAim.bow_knock_state>0) {
       if (this.bowAim.bow_knock_delay==0) {
         this.bowAim.bow_knock_delay = this.bowAim.bow_knock_delay_n;
         this.bowAim.bow_knock_state--;
       }
       this.bowAim.bow_knock_delay--;
-
-      console.log("knock!");
     }
 
     if (this.bowAim.a_step_delay>0) {
@@ -724,7 +717,6 @@ mainPlayer.prototype.update = function() {
     }
 
   } else if (this.state == "shootArrow") {
-    console.log("wtf");
 
     // If we have no walkin gkey pending, force the direction to be the one we're facing.
     //
@@ -763,8 +755,6 @@ mainPlayer.prototype.update = function() {
         //this.resetDisplayDirection(curdir);
         //this.setBowToDirection();
 
-        console.log(">>>>>", curdir);
-
       } else {
         this.state = "idle";
 
@@ -772,14 +762,9 @@ mainPlayer.prototype.update = function() {
 
     } else {
       this.bowDelay--;
-
-      console.log("??");
     }
 
   }
-
-  console.log(">>>", this.state);
-
 
 }
 
@@ -1435,26 +1420,42 @@ mainPlayer.prototype.draw = function() {
     var a_step = this.bowAim.a_step;
     var curdir = "none";
 
+    // arrow offset
+    var ax = 0;
+    var ay = 0;
+    var ks = this.bowAim.bow_knock_state;
+
+
     if ((a_step < (a_n/8)) || (a_step > (7*a_n/8))) {
       t_imgy = 16;
       curdir = "right";
+      ax=(2-ks);
     }
 
     else if ((a_step <= (3*a_n/8)) && (a_step >= (a_n/8))) {
       t_imgy = 0;
       curdir = "up";
+      ay=-(2-ks);
     }
 
     else if ((a_step < (5*a_n/8)) && (a_step > (3*a_n/8))) {
       t_imgy = 16*3;
       curdir = "left";
+      ax=-(2-ks);
     }
 
     else {
       t_imgy = 16*2;
       curdir = "down";
+      ay=(2-ks);
     }
 
+    if (this.bowAim.bow_knock_state==0) {
+      ax=0; ay=0;
+    }
+
+    var bow_ontop = true;
+    if (a_step<=a_n/2) { bow_ontop = false; }
 
 
     var a_step = (this.bowAim.a_step + this.bowAim.frame_right)%this.bowAim.a_step_n;
@@ -1468,16 +1469,22 @@ mainPlayer.prototype.draw = function() {
 
     rb_imy += 80*(2-this.bowAim.bow_knock_state);
 
-    if (curdir == "down") {
+    //if (curdir == "down") {
+    if (bow_ontop) {
       g_imgcache.draw_s("noether", t_imgx, t_imgy, 16, 16, this.x, this.y, this.world_w, this.world_h);
       //g_imgcache.draw_s("rotbow", rb_imx, rb_imy, 20, 20, this.x-2, this.y-2, 20, 20);
-      g_imgcache.draw_s("rotbow_fulldraw", rb_imx, rb_imy, 20, 20, this.x-2, this.y-2, 20, 20);
+      //g_imgcache.draw_s("rotbow_fulldraw", rb_imx, rb_imy, 20, 20, this.x-2, this.y-2, 20, 20);
+      g_imgcache.draw_s("rotbow_fulldraw_w_string", rb_imx, rb_imy, 20, 20, this.x-2, this.y-2, 20, 20);
     } else {
       //g_imgcache.draw_s("rotbow", rb_imx, rb_imy, 20, 20, this.x-2, this.y-2, 20, 20);
-      g_imgcache.draw_s("rotbow_fulldraw", rb_imx, rb_imy, 20, 20, this.x-2, this.y-2, 20, 20);
+      //g_imgcache.draw_s("rotbow_fulldraw", rb_imx, rb_imy, 20, 20, this.x-2, this.y-2, 20, 20);
+      g_imgcache.draw_s("rotbow_fulldraw_w_string", rb_imx, rb_imy, 20, 20, this.x-2, this.y-2, 20, 20);
       g_imgcache.draw_s("noether", t_imgx, t_imgy, 16, 16, this.x, this.y, this.world_w, this.world_h);
     }
-    g_imgcache.draw_s("arrow", a_imx, a_imy, 16, 16, this.x, this.y, this.world_w, this.world_h);
+
+
+
+    g_imgcache.draw_s("arrow", a_imx, a_imy, 16, 16, this.x+ax, this.y+ay, this.world_w, this.world_h);
 
   }
 
