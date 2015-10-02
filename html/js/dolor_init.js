@@ -222,6 +222,15 @@
       g_sfx["explosion"].push( new_sound_object("assets/sfx/170146__timgormly__8-bit-explosion.ogg") );
       g_sfx["explosion"].push( new_sound_object("assets/sfx/170144__timgormly__8-bit-explosion2.ogg") );
 
+      g_sfx["arrow-shoot"] = [];
+      g_sfx["arrow-shoot"].push( new_sound_object("assets/sfx/49664__ejfortin__dual-energy-daggers-1.s.ogg") );
+      g_sfx["arrow-shoot"].push( new_sound_object("assets/sfx/49663__ejfortin__dual-energy-daggers-4.s.ogg") );
+      g_sfx["arrow-shoot"].push( new_sound_object("assets/sfx/49666__ejfortin__dual-energy-daggers-3.s.ogg") );
+      g_sfx["arrow-shoot"].push( new_sound_object("assets/sfx/49669__ejfortin__dual-energy-daggers-7.s.ogg") );
+      g_sfx["arrow-shoot"].push( new_sound_object("assets/sfx/49667__ejfortin__dual-energy-daggers-5.s.ogg") );
+      g_sfx["arrow-shoot"].push( new_sound_object("assets/sfx/49665__ejfortin__dual-energy-daggers-2.s.ogg") );
+      g_sfx["arrow-shoot"].push( new_sound_object("assets/sfx/49668__ejfortin__dual-energy-daggers-6.s.ogg") );
+
       g_music = {};
       g_music["home"] = new_sound_object("assets/music/mark.nine-the-little-things-02-devil-you-know.mp3");
       g_music["home-ambient"] = new_sound_object("assets/music/317363__frankum__ambient-electronic-loop-001.mp3");

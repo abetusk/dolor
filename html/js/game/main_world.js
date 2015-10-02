@@ -249,20 +249,13 @@ mainWorld.prototype.tile_bbox = function(col_val, tile_x, tile_y) {
   return bbox;
 }
 
-mainWorld.prototype.player_level_collision = function(player_x, player_y) {
+mainWorld.prototype.bbox_level_collision = function(bbox) {
   var level = this.level;
   if (!level) { return false; }
 
   var layers = level.tilemap.layers;
 
-  var player_bbox = [[0,0],[0,0]];
   var tile_bbox = [[0,0],[0,0]];
-
-  player_bbox[0][0] = player_x;
-  player_bbox[0][1] = player_y;
-
-  player_bbox[1][0] = player_x + this.player.size-1;
-  player_bbox[1][1] = player_y + this.player.size-1;
 
   for (var ii=0; ii<layers.length; ii++) {
     if (layers[ii].name != "collision") { continue; }
@@ -272,8 +265,6 @@ mainWorld.prototype.player_level_collision = function(player_x, player_y) {
     var w = layer.width;
     var h = layer.height;
 
-    //var level_h = 32;
-    //var level_w = 32;
     var level_h = this.size;
     var level_w = this.size;
     var level_x = this.level.x;
@@ -298,31 +289,12 @@ mainWorld.prototype.player_level_collision = function(player_x, player_y) {
           (tile_bbox[1][1] == 0)) {
             console.log("????", r, c);
           }
-      /*
-      tile_bbox[0][0] = tile_x;
-      tile_bbox[0][1] = tile_y;
 
-      tile_bbox[1][0] = tile_x + this.size-1;
-      tile_bbox[1][1] = tile_y + this.size-1;
-      */
-
-
-      if (box_box_intersect(player_bbox, tile_bbox)) {
-
+      //if (box_box_intersect(player_bbox, tile_bbox)) {
+      if (box_box_intersect(bbox, tile_bbox)) {
         this.debug_rect = tile_bbox;
-
         return true;
       }
-
-      /*
-      if ( ((player_x - tile_x) < sz) && ((player_x - tile_x) > -sz)  &&
-           ((player_y - tile_y) < sz) && ((player_y - tile_y) > -sz)
-         )
-      {
-        return true;
-      }
-      */
-
 
     }
   }
@@ -494,7 +466,7 @@ mainWorld.prototype.update = function() {
           this.camera_shake();
         }
       } else if (this.element[key].type == "arrow") {
-        if (this.player_level_collision(this.element[key].x, this.element[key].y)) {
+        if (this.bbox_level_collision(this.element[key].bbox)) {
 
           console.log("bang!");
 
@@ -559,11 +531,17 @@ mainWorld.prototype.update = function() {
 
         var has_collision = false;
 
-        if (!this.player_level_collision(dst_x, player.y)) {
+        //if (!this.player_level_collision(dst_x, player.y)) {
+
+        var dstx_bbox = [[dst_x, player.y], [dst_x+player.size-1,player.y+player.size-1]];
+        var dsty_bbox = [[player.x, dst_y], [player.x+player.size-1,dst_y+player.size-1]];
+
+
+        if (!this.bbox_level_collision(dstx_bbox)) {
           player.x = dst_x;
         } else { has_collision = true; }
 
-        if (!this.player_level_collision(player.x, dst_y)) {
+        if (!this.bbox_level_collision(dsty_bbox)) {
           player.y = dst_y;
         } else { has_collision = true; }
 
@@ -577,8 +555,10 @@ mainWorld.prototype.update = function() {
             var ovf_x = (((dst_x%sz)+sz)%sz);
             var nudge_x = dst_x - ovf_x;
 
+            var tbbox = [[nudge_x,dst_y],[nudge_x+player.size-1,dst_y+player.size-1]];
+
             if (player.x != nudge_x) {
-              if (!this.player_level_collision(nudge_x, dst_y)) {
+              if (!this.bbox_level_collision(tbbox)) {
                 player.x = nudge_x;
                 player.y = dst_y;
               }
@@ -590,8 +570,10 @@ mainWorld.prototype.update = function() {
             var ovf_x = sz - (((dst_x%sz)+sz)%sz);
             var nudge_x = dst_x + ovf_x;
 
+            var tbbox = [[nudge_x,dst_y],[nudge_x+player.size-1,dst_y+player.size-1]];
+
             if (player.x != nudge_x) {
-              if (!this.player_level_collision(nudge_x, dst_y)) {
+              if (!this.bbox_level_collision(tbbox)) {
                 player.x = nudge_x;
                 player.y = dst_y;
               }
@@ -604,8 +586,10 @@ mainWorld.prototype.update = function() {
             var ovf_y = sz - (((dst_y%sz)+sz)%sz);
             var nudge_y = dst_y + ovf_y;
 
+            var tbbox = [[dst_x,nudge_y],[dst_x+player.size-1,nudge_y+player.size-1]];
+
             if (player.y != nudge_y) {
-              if (!this.player_level_collision(dst_x, nudge_y)) {
+              if (!this.bbox_level_collision(tbbox)) {
                 player.x = dst_x;
                 player.y = nudge_y;
               }
@@ -618,8 +602,10 @@ mainWorld.prototype.update = function() {
             var ovf_y = (((dst_y%sz)+sz)%sz);
             var nudge_y = dst_y - ovf_y;
 
+            var tbbox = [[dst_x,nudge_y],[dst_x+player.size-1,nudge_y+player.size-1]];
+
             if (player.y != nudge_y) {
-              if (!this.player_level_collision(dst_x, nudge_y)) {
+              if (!this.bbox_level_collision(tbbox)) {
                 player.x = dst_x;
                 player.y = nudge_y;
               }
@@ -659,11 +645,15 @@ mainWorld.prototype.update = function() {
           var kickback_pos_x = player.x - Math.floor(Math.random()*dirxy[0]*2);
           var kickback_pos_y = player.y - Math.floor(Math.random()*dirxy[1]*2);
 
-          if (!this.player_level_collision(kickback_pos_x, player.y)) {
+          var tbbox = [[kickback_pos_x,player.y],[kickback_pos_x+player.size-1,player.y+player.size-1]];
+
+          if (!this.bbox_level_collision(tbbox)) {
             player.x = kickback_pos_x;
           }
 
-          if (!this.player_level_collision(player.x, kickback_pos_y)) {
+          tbbox = [[player.x,kickback_pos_y],[player.x+player.size-1,kickback_pos_y+player.size-1]];
+
+          if (!this.bbox_level_collision(tbbox)) {
             player.y = kickback_pos_y;
           }
 
@@ -707,6 +697,15 @@ mainWorld.prototype.update = function() {
 
         var ar = new itemArrow(player.intent);
         this.element.push(ar);
+
+        // sfx
+        //
+        var x = Math.floor(Math.random()*g_sfx["arrow-shoot"].length);
+        g_sfx["arrow-shoot"][x].play();
+        //g_sfx["arrow-shoot"][x].stop();
+        //g_sfx["arrow-shoot"][x].play();
+
+
       }
 
 
