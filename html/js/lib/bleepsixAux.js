@@ -132,6 +132,55 @@ if (typeof module !== 'undefined')
   };
 }
 
+// thank you to user [user37968] on stackoverflow.com
+// (answered from Nov 15 2008 at 21:07):
+// http://stackoverflow.com/questions/99353/how-to-test-if-a-line-segment-intersects-an-axis-aligned-rectange-in-2d
+//
+function box_line_intersect(bbox, l0, l1, box_fudge) {
+  box_fudge = ( (typeof box_fudge === 'undefined') ? 0 : box_fudge );
+
+  var A = l1.y - l0.y;
+  var B = l0.x - l1.x;
+
+  var C = (l1.x*l0.y) - (l0.x*l1.y);
+
+  var f = function(a, b) { return (A*a + B*b + C) > 0; };
+
+  var xm = bbox[0][0] - box_fudge;
+  var ym = bbox[0][1] - box_fudge;
+  var xM = bbox[1][0] + box_fudge;
+  var yM = bbox[1][1] + box_fudge;
+
+  // handle degenerate line (point)
+  //
+  if ( (l0.x == l1.x) && (l0.y == l1.y) )
+  {
+    if ( (xm <= l0.x) && (l0.x <= xM) &&
+         (ym <= l0.y) && (l0.y <= yM) )
+      return true;
+  }
+
+
+  var s0 = f( xm, ym );
+  var s1 = f( xM, yM );
+  var s2 = f( xM, ym );
+  var s3 = f( xm, yM );
+
+  if ( (s0 == s1) && (s1 == s2) && (s2 == s3) )
+  {
+    return false;
+  }
+
+  if ( ((l0.x < xm) && (l1.x < xm)) ||
+       ((l0.x > xM) && (l1.x > xM)) ||
+       ((l0.y < ym) && (l1.y < ym)) ||
+       ((l0.y > yM) && (l1.y > yM)) )
+  {
+    return false;
+  }
+
+  return true;
+}
 
 
 function box_box_intersect(bb0, bb1, box_fudge)

@@ -31,6 +31,7 @@ function mainWorld() {
   this.enemy.push(bones0);
   bones0.x -=16;
 
+
   //---
 
   //var c0 = new creatureCritter("critter_bunny", g_GRIDSIZE/2, 8);
@@ -302,6 +303,62 @@ mainWorld.prototype.bbox_level_collision = function(bbox) {
   return false;
 }
 
+mainWorld.prototype.line_level_collision = function(l0, l1) {
+  var level = this.level;
+  if (!level) { return false; }
+
+  var layers = level.tilemap.layers;
+
+  var tile_bbox = [[0,0],[0,0]];
+
+  for (var ii=0; ii<layers.length; ii++) {
+    if (layers[ii].name != "collision") { continue; }
+
+    var layer = layers[ii];
+
+    var w = layer.width;
+    var h = layer.height;
+
+    var level_h = this.size;
+    var level_w = this.size;
+    var level_x = this.level.x;
+    var level_y = this.level.y;
+
+    for (var jj=0; jj<layer.data.length; jj++) {
+      if (layer.data[jj]==0) { continue; }
+
+      var r = Math.floor(jj / w);
+      var c = Math.floor(jj % h);
+
+      var tile_x = level_x + c*level_h;
+      var tile_y = level_y + r*level_w;
+
+      var sz = this.size;
+
+      tile_bbox = this.tile_bbox(layer.data[jj], tile_x, tile_y);
+
+      if ((tile_bbox[0][0] == 0) &&
+          (tile_bbox[0][1] == 0) &&
+          (tile_bbox[1][0] == 0) &&
+          (tile_bbox[1][1] == 0)) {
+            console.log("????", r, c);
+          }
+
+      //DEBUG
+      //console.log("??", tile_bbox[0], tile_bbox[1], l0.x, l0.y, l1.x, l1.y);
+
+      //if (box_box_intersect(player_bbox, tile_bbox)) {
+      if (box_line_intersect(tile_bbox, l0, l1, 1)) {
+        this.debug_rect = tile_bbox;
+        return true;
+      }
+
+    }
+  }
+
+  return false;
+}
+
 
 var debug_var = 0;
 var debug_del = 1;
@@ -365,13 +422,13 @@ mainWorld.prototype.draw = function() {
 
 
 
-  /*
-  var x0 = this.debug_rect[0][0];
-  var y0 = this.debug_rect[0][1];
-  var x1 = this.debug_rect[1][0];
-  var y1 = this.debug_rect[1][1];
-  g_painter.drawRectangle(x0,y0, x1-x0, y1-y0, 1, "rgba(255,0,0,0.6)");
-  */
+  if (this.debug) {
+    var x0 = this.debug_rect[0][0];
+    var y0 = this.debug_rect[0][1];
+    var x1 = this.debug_rect[1][0];
+    var y1 = this.debug_rect[1][1];
+    g_painter.drawRectangle(x0,y0, Math.abs(x1-x0), Math.abs(y1-y0), 1, "rgba(255,0,0,0.6)");
+  }
 
 
 
@@ -466,12 +523,39 @@ mainWorld.prototype.update = function() {
           this.camera_shake();
         }
       } else if (this.element[key].type == "arrow") {
-        if (this.bbox_level_collision(this.element[key].bbox)) {
 
-          console.log("bang!");
+        var abbox = this.element[key].bbox;
+        var cx = abbox[0][0];
+        var cy = abbox[0][1];
+        var dx = this.element[key].next_x - this.element[key].x;
+        var dy = this.element[key].next_y - this.element[key].y;
 
+        var l0 = { "x" : cx, "y" : cy };
+        var l1 = { "x" : cx+dx, "y" : cy+dy };
+
+        this.debug_rect[0][0] = l0.x -1;
+        this.debug_rect[0][1] = l0.y -1;
+
+        this.debug_rect[1][0] = l1.x +1;
+        this.debug_rect[1][1] = l1.y +1;
+
+        if (this.line_level_collision(l0, l1)) {
           this.element[key].ttl = 0;
+
+          var ax = ((dx>0)?1:-1);
+          var ay = ((dy>0)?1:-1);
+
+          var arrow_dust = new particleDebris(l0.x, l0.y, ax, ay);
+          this.particle.push(arrow_dust);
+
+          var s = new sprite();
+          s.x = l0.x;
+          s.y = l0.y;
+          this.particle.push(s);
+
+
         }
+
       }
 
       if (this.element[key].ttl>0) {

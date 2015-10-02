@@ -22,9 +22,9 @@ function particleDebris(x,y,dx,dy) {
   //this.accel = [-dx/5.0, -dy/5.0];
 
   var rho = 0;
-       if (dy>0.5)  { rho=Math.PI/2; }
-  else if (dx<-.05) { rho=Math.PI; }
-  else if (dy<-.05) { rho=3*Math.PI/2; }
+       if (dy>0.5) { rho=Math.PI/2; }
+  else if (dx<-.5) { rho=Math.PI; }
+  else if (dy<-.5) { rho=3*Math.PI/2; }
 
   var theta = [ 2*Math.PI/3, 4*Math.PI/3, 2*Math.PI/3.3, 4*Math.PI/2.7];
 
