@@ -88,6 +88,9 @@ function mainPlayer(x,y,game) {
   this.bowTurnDelay = 0;
   this.bowTurnDelayN = 1;
 
+  this.bowInitialDelayN = 10;
+  this.bowInitialDelay = this.bowInitialDelayN;
+
 
   this.displayq.push({ "d":"down", "t":-1 });
   this.walkq.push({ "d":"down", "t":-1 });
@@ -356,9 +359,15 @@ mainPlayer.prototype.bombThrow = function() {
   var bxy = this.dir_xy();
   this.state = "bombThrow";
 
+  var r = 5;
+  var r2 = Math.floor(r/2);
+
+  var fudge_x = Math.floor(Math.random()*r)-r2;
+  var fudge_y = Math.floor(Math.random()*r)-r2;
+
   this.intent  = { "type" : "bombThrow",
-    "x" : this.x,
-    "y" : this.y,
+    "x" : this.x + fudge_x,
+    "y" : this.y + fudge_y,
     "dx" : bxy[0],
     "dy" : bxy[1],
     "d" : di };
@@ -388,10 +397,9 @@ mainPlayer.prototype.update = function() {
 
 
   for (var ev in this.inputEvent) {
-    //if (!this.inputEvent[ev]) { continue; }
 
-    //DEBUG
     if (ev == "bowKeyDown") {
+      //BOW DRAW
 
       if (this.state == "swordAttack") { continue; }
       if (this.state == "teleport") { continue; }
@@ -400,6 +408,7 @@ mainPlayer.prototype.update = function() {
       if (!this.bow) {
         this.bow = true;
         this.state = "bow";
+        this.bowInitialDelay = this.bowInitialDelayN;
 
         var curdir = this.actualDirection();
         this.resetDisplayDirection(curdir);
@@ -724,19 +733,25 @@ mainPlayer.prototype.update = function() {
       this.bowAim.a_step_delay--;
     }
 
-    //console.log(this.bowAim.a_step_delay);
+    // Pause before allowing to draw fully.  This
+    // also allows walking and shooting without it
+    // pointing down when walking left and right.
+    //
+    if (this.bowInitialDelay>0) {
+      this.bowInitialDelay--;
+    } else {
 
-    if (this.walkFlag["left"] || this.walkFlag["right"]) {
-      if (this.bowAim.a_step_delay==0) {
+      if (this.walkFlag["left"] || this.walkFlag["right"]) {
+        if (this.bowAim.a_step_delay==0) {
 
-        var da = 0;
-        if (this.walkFlag["left"]) { da ++; }
-        if (this.walkFlag["right"]) { da += this.bowAim.a_step_n-1; }
-        this.bowAim.a_step = (this.bowAim.a_step + da) % this.bowAim.a_step_n;
+          var da = 0;
+          if (this.walkFlag["left"]) { da ++; }
+          if (this.walkFlag["right"]) { da += this.bowAim.a_step_n-1; }
+          this.bowAim.a_step = (this.bowAim.a_step + da) % this.bowAim.a_step_n;
 
-        this.bowAim.a_step_delay=this.bowAim.a_step_delay_n;
+          this.bowAim.a_step_delay=this.bowAim.a_step_delay_n;
+        }
       }
-
 
     }
 

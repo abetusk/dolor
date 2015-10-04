@@ -551,13 +551,13 @@ mainWorld.prototype.update = function() {
           var ax = ((dx>0)?1:-1);
           var ay = ((dy>0)?1:-1);
 
-          var arrow_dust = new particleDebris(l0.x, l0.y, ax, ay);
-          this.particle.push(arrow_dust);
+          //var arrow_dust = new particleDebris(l0.x, l0.y, ax, ay);
+          //this.particle.push(arrow_dust);
 
-          var s = new sprite();
-          s.x = l0.x;
-          s.y = l0.y;
-          this.particle.push(s);
+          var arrow_dust2 = new dust();
+          arrow_dust2.x = l0.x;
+          arrow_dust2.y = l0.y;
+          this.particle.push(arrow_dust2);
 
         }
 
@@ -763,11 +763,17 @@ mainWorld.prototype.update = function() {
         var tdy = player.intent.dy;
         var td = player.intent.d;
 
+        var r = 3;
+        var r2 = Math.floor(r/2);
+        var fudge_x = Math.floor(Math.random()*r)-r2;
+        var fudge_y = Math.floor(Math.random()*r)-r2;
+
         var bo = new itemBomb(player.intent);
-        bo.x = this.player.x;
-        bo.y = this.player.y;
+        bo.x = this.player.x + fudge_x;
+        bo.y = this.player.y + fudge_y;
 
         this.element.push(bo);
+
 
       } else if (player.intent.type == "particleFirefly") {
 
@@ -782,8 +788,6 @@ mainWorld.prototype.update = function() {
       } else if (player.intent.type == "shootArrow") {
         var nt = player.intent;
 
-        console.log("arrow", nt.x, nt.y, nt.a_step, nt.a_step_n);
-
         var ar = new itemArrow(player.intent);
         this.element.push(ar);
 
@@ -791,9 +795,6 @@ mainWorld.prototype.update = function() {
         //
         var x = Math.floor(Math.random()*g_sfx["arrow-shoot"].length);
         g_sfx["arrow-shoot"][x].play();
-        //g_sfx["arrow-shoot"][x].stop();
-        //g_sfx["arrow-shoot"][x].play();
-
 
       }
 
