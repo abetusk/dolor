@@ -12,6 +12,7 @@ function mainPlayer(x,y,game) {
   this.walking = false;
   this.bomb = false;
   this.bow = false;
+  this.teleport = false;
 
   this.bowItem = true;
   this.bowSword = true;
@@ -34,7 +35,6 @@ function mainPlayer(x,y,game) {
 
   this.displayq = [];
   this.walkq = [];
-  //this.walkQueue = 0;
   this.walkFlag = {
     "left" : false, "right" : false, "up":false, "down":false,
     "leftq":0, "rightq":0, "upq":0, "downq":0
@@ -42,24 +42,9 @@ function mainPlayer(x,y,game) {
   this.walkKey = ["up", "right", "down", "left"];
   this.walkLookup = { "up" : 0, "right" : 1, "down":2, "left":3 };
 
-  //this.walkTransitionDelay = 2;
   this.walkTransitionDelay = 6;
-  //this.walkTransitionDelay = 10;
 
   this.walkDisplayQ = [];
-
-  // for 64
-  //this.dx = 12;
-  //this.dy = 12;
-
-  // for 32
-  //this.dx = 8;
-  //this.dy = 8;
-  //this.dx = 6;
-  //this.dy = 6;
-
-  //this.dx = 8;
-  //this.dy = 8;
 
   this.dx = g_GRIDSIZE/8;
   this.dy = g_GRIDSIZE/8;
@@ -70,19 +55,10 @@ function mainPlayer(x,y,game) {
   this.img_x = 0;
   this.img_y = 0;
 
-  //this.world_w = 64;
-  //this.world_h = 64;
-
-  //this.world_w = 32;
-  //this.world_h = 32;
-
   this.world_w = g_GRIDSIZE;
   this.world_h = g_GRIDSIZE;
   this.size = g_GRIDSIZE;
 
-
-  //this.swordReady = true;
-  //this.bombReady = true;
   this.bowReady = true;
 
   this.swordKeyState = "idle"; // "fire", "warm"
@@ -90,7 +66,6 @@ function mainPlayer(x,y,game) {
   this.bowKeyState = "idle"; // "fire", "warm"
 
   this.swordKeyEvent = false;
-  //this.swordDelayN = 3;
   this.swordDelayN = 8;
   this.swordDelay = 0;
 
@@ -106,8 +81,6 @@ function mainPlayer(x,y,game) {
   // so ccw
   //
   this.bowStep = 0;
-  //this.bowStepN = 32;
-  //this.bowStepN = 16;
   this.bowStepN = 32;
 
   this.bowActive = false;
@@ -146,7 +119,6 @@ function mainPlayer(x,y,game) {
 
   // puff frequency
   //
-  //this.puffDelayN = 100;
   this.puffDelayN = 13;
   this.puffDelay = this.puffDelayN;
   this.puffDelayR = 2;  // random delta range
@@ -170,7 +142,6 @@ function mainPlayer(x,y,game) {
   };
 
   this.puffSizeDelayN = 8;
-  //this.puffTTL = 5;
   this.puffTTL = 15;
   this.puffAngleRange = 16;
   this.puff = {
@@ -183,6 +154,18 @@ function mainPlayer(x,y,game) {
     "alpha" : [],
     "dalpha": []
   };
+
+  this.teleportAnimDelayN = 4;
+  this.teleportAnimDelay = this.teleportAnimDelayN;
+  this.teleportFrame = 0;
+  this.teleportFrameN = 4;
+
+  this.teleport_x = 0;
+  this.teleport_y = 0;
+
+  this.teleport_ttl_N = this.teleportFrameN*this.teleportAnimDelayN;
+  this.teleport_ttl = this.teleport_ttl_N;
+
 }
 
 mainPlayer.prototype.init = function(x, y, d) {
@@ -410,6 +393,10 @@ mainPlayer.prototype.update = function() {
     //DEBUG
     if (ev == "bowKeyDown") {
 
+      if (this.state == "swordAttack") { continue; }
+      if (this.state == "teleport") { continue; }
+
+
       if (!this.bow) {
         this.bow = true;
         this.state = "bow";
@@ -463,6 +450,8 @@ mainPlayer.prototype.update = function() {
 
     if (ev == "swordKeyDown") {
 
+      if (this.state == "teleport") { continue; }
+
       if (this.bow) {
         this.shootArrow();
         continue;
@@ -506,6 +495,7 @@ mainPlayer.prototype.update = function() {
 
       if ((this.state == "swordAttack") ||
           (this.state == "bow")) { continue; }
+      if (this.state == "teleport") { continue; }
       if (!this.bombReady()) { continue; }
       if (!this.bombKeyUp) { continue; }
 
@@ -516,6 +506,40 @@ mainPlayer.prototype.update = function() {
     }
 
     if (ev == "bombKeyUp") {
+      continue;
+    }
+
+    if (ev == "teleportKeyDown") {
+      // could hold down to "charge"
+      continue;
+    }
+
+    if (ev == "teleportKeyUp") {
+
+      if (this.state == "swordAttack") { continue; }
+      if (this.state == "bow") { continue; }
+      if (this.state == "teleport") { continue; }
+
+      if ((this.state == "swordAttack") || (this.state == "bow")) {
+        continue;
+      }
+
+      this.state = "teleport";
+      this.teleport = true;
+
+      this.teleport_ttl = this.teleport_ttl_N;
+      this.teleportFrame = 0;
+
+      var ds = 16*2;
+      var dxdy = { "up": [0,-ds], "right" : [ds,0], "left":[-ds,0], "down":[0,ds], "none":[0,0] };
+      var curdir = this.actualDirection();
+
+      this.teleport_x = this.x + dxdy[curdir][0];
+      this.teleport_y = this.y + dxdy[curdir][1];
+
+      var n = g_sfx["teleport"].length;
+      var x = Math.floor(Math.random()*n);
+      g_sfx["teleport"][x].play();
 
       continue;
     }
@@ -764,6 +788,29 @@ mainPlayer.prototype.update = function() {
       this.bowDelay--;
     }
 
+  } else if (this.state == "teleport") {
+
+    // TELEPORT STATE
+
+    this.teleport_ttl--;
+
+    if (this.teleport_ttl<=0) {
+      this.x = this.teleport_x;
+      this.y = this.teleport_y;
+      this.state = "idle";
+      this.teleport = false;
+      this.keyFrame = 3;
+    } else {
+
+      this.teleportAnimDelay--;
+      if (this.teleportAnimDelay<=0) {
+        this.teleportAnimDelay = this.teleportAnimDelayN;
+        this.teleportFrame++;
+        if (this.teleportFrame >= this.teleportFrameN) {
+          this.teleportFrame = this.teleportFrameN-1;
+        }
+      }
+    }
   }
 
 }
@@ -1077,6 +1124,9 @@ mainPlayer.prototype.keyDown = function(code) {
   //
   else if (code == 89) { this.inputEvent["debugKeyDown"] = true; } 
 
+  // v
+  else if (code == 86) { this.inputEvent["teleportKeyDown"] = true; }
+
 }
 
 // keyUp events only set flags that will be polled
@@ -1113,6 +1163,8 @@ mainPlayer.prototype.keyUp = function(code) {
   //
   else if (code == 40) { this.inputEvent["downKeyUp"] = true; }
 
+  // v
+  else if (code == 86) { this.inputEvent["teleportKeyUp"] = true; }
 }
 
 
@@ -1408,6 +1460,20 @@ mainPlayer.prototype.draw = function() {
     //iy *= 2;
 
     g_imgcache.draw_s("item", 80, 16, 16, 16, this.x+ix, this.y+iy, this.world_w, this.world_h);
+  }
+
+  if (this.teleport) {
+    var curdir = this.currentDisplayDirection();
+
+    var tele_col = { "up":0, "right":1, "down":2, "left":3, "none":0 };
+
+    var tele_imx = this.teleportFrame*24;
+    var tele_imy = tele_col[curdir]*24;
+
+    var dst_tele_imx = (3-this.teleportFrame)*24;
+
+    g_imgcache.draw_s("tele", tele_imx, tele_imy, 24, 24, this.x-4, this.y-4, 24, 24);
+    g_imgcache.draw_s("tele", dst_tele_imx, tele_imy, 24, 24, this.teleport_x-4, this.teleport_y-4, 24, 24);
   }
 
   if (this.bow) {

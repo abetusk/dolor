@@ -101,6 +101,12 @@ function mainWorld() {
   this.enemy.push(c22);
   c22.x +=16*21;
 
+  //var c23 = new debugSpriteAnimator("tele", 20, 20, 4, 1);
+  var c23 = new debugSpriteAnimator("tele", 24, 24, 4, 4);
+  this.enemy.push(c23);
+  c23.x +=16*19;
+  c23.y += 24;
+
   this.collisionNudgeN=1;
   //this.collisionNudgeN=0;
 }
@@ -552,7 +558,6 @@ mainWorld.prototype.update = function() {
           s.x = l0.x;
           s.y = l0.y;
           this.particle.push(s);
-
 
         }
 

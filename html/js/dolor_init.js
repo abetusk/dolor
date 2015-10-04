@@ -184,6 +184,11 @@
 
       g_imgcache.add("floatskull", img_base + "/floatskull.png");
 
+      //g_imgcache.add("tele", img_base + "/tests/tele_test0.png");
+      //g_imgcache.add("tele", img_base + "/tests/tele_test1.png");
+      //g_imgcache.add("tele", img_base + "/tests/tele_test2.png");
+      g_imgcache.add("tele", img_base + "/noether_tele.png");
+
       var welcome_music = new Howl({
           urls: ['assets/music/mark.nine-the-little-things-02-devil-you-know.mp3'],
           //autoplay: true,
@@ -230,6 +235,12 @@
       g_sfx["arrow-shoot"].push( new_sound_object("assets/sfx/49667__ejfortin__dual-energy-daggers-5.s.ogg") );
       g_sfx["arrow-shoot"].push( new_sound_object("assets/sfx/49665__ejfortin__dual-energy-daggers-2.s.ogg") );
       g_sfx["arrow-shoot"].push( new_sound_object("assets/sfx/49668__ejfortin__dual-energy-daggers-6.s.ogg") );
+
+      g_sfx["teleport"] = [];
+      //g_sfx["teleport"].push( new_sound_object("assets/sfx/133279__fins__game-teleport.s.ogg", 0.25) );
+      //g_sfx["teleport"].push( new_sound_object("assets/sfx/172206__fins__teleport.s.ogg", 0.25) );
+      g_sfx["teleport"].push( new_sound_object("assets/sfx/51465__smcameron__flak-gun-sound.ogg", 0.25) );
+      //g_sfx["teleport"].push( new_sound_object("assets/sfx/96556__robinhood76__01667-slow-laser-shot.ogg", 0.25));
 
       g_music = {};
       g_music["home"] = new_sound_object("assets/music/mark.nine-the-little-things-02-devil-you-know.mp3");
