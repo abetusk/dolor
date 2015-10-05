@@ -194,6 +194,7 @@
       //g_imgcache.add("breath", img_base + "/breath2.png");
 
       g_imgcache.add("dust", img_base + "/dust_black.png");
+      g_imgcache.add("grundge", img_base + "/grundge.png");
 
       var welcome_music = new Howl({
           urls: ['assets/music/mark.nine-the-little-things-02-devil-you-know.mp3'],
@@ -245,7 +246,7 @@
       g_sfx["teleport"] = [];
       //g_sfx["teleport"].push( new_sound_object("assets/sfx/133279__fins__game-teleport.s.ogg", 0.25) );
       //g_sfx["teleport"].push( new_sound_object("assets/sfx/172206__fins__teleport.s.ogg", 0.25) );
-      g_sfx["teleport"].push( new_sound_object("assets/sfx/51465__smcameron__flak-gun-sound.ogg", 0.25) );
+      g_sfx["teleport"].push( new_sound_object("assets/sfx/51465__smcameron__flak-gun-sound.ogg", 0.75) );
       //g_sfx["teleport"].push( new_sound_object("assets/sfx/96556__robinhood76__01667-slow-laser-shot.ogg", 0.25));
 
       g_music = {};

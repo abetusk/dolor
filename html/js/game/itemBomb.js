@@ -43,7 +43,6 @@ function itemBomb(intent) {
     "d" : intent.d
   };
 
-
   this.type = "bomb";
   this.fuse_ttl = 60*3 + 30;
   this.state = "fuse"; // explode, dead
@@ -55,12 +54,10 @@ function itemBomb(intent) {
   this.ay = -2;
 
   this.explode_ttl = 10;
-
   this.ttl = this.fuse_ttl + this.explode_ttl;
-
   this.explosion = [];
 
-  console.log("bomb", intent);
+  this.intent = { "type" : "idle" };
 }
 
 itemBomb.prototype.update = function() {

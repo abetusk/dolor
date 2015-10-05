@@ -6,6 +6,7 @@ function mainWorld() {
   this.enemy = [];
   this.particle = [];
   this.element = [];
+  this.debris = [];
 
   this.remnants = [];
 
@@ -388,13 +389,14 @@ mainWorld.prototype.draw = function() {
   {
     this.level.draw_layer("bottom.-2");
     this.level.draw_layer("bottom.-1");
-    this.level.draw_layer("bottom");
-  }
 
-  if (this.element) {
-    for (var key in this.element) {
-      this.element[key].draw();
+    if (this.debris) {
+      for (var key in this.debris) {
+        this.debris[key].draw();
+      }
     }
+
+    this.level.draw_layer("bottom");
   }
 
 
@@ -422,11 +424,24 @@ mainWorld.prototype.draw = function() {
     this.level.draw_layer("height");
   }
 
-  if (this.particle) {
-    for (var key in this.particle) {
-      this.particle[key].draw();
+  if (this.element) {
+    for (var key in this.element) {
+      if ("type" in this.element[key]) {
+
+        if (this.element[key].type == "bomb") {
+          if ("intent" in  this.element[key]) {
+            if ((this.element[key].intent.type == "explode") ||
+                (this.element[key].intent.type == "exploded")) {
+              continue;
+            }
+          }
+        }
+
+      }
+      this.element[key].draw();
     }
   }
+
 
   // playing around with a light column
   //
@@ -447,6 +462,36 @@ mainWorld.prototype.draw = function() {
   if (this.level)
   {
     this.level.draw_layer("top");
+  }
+
+  // Make sure to render the explosion above all else.
+  // Might want to convert the explosion into a particle effect...
+  //
+  if (this.element) {
+    for (var key in this.element) {
+
+      if ("type" in this.element[key]) {
+
+        if (this.element[key].type == "bomb") {
+          if ("intent" in  this.element[key]) {
+
+            if ((this.element[key].intent.type == "explode") ||
+                (this.element[key].intent.type == "exploded")) {
+              this.element[key].draw();
+            }
+          }
+        }
+
+      }
+
+    }
+  }
+
+
+  if (this.particle) {
+    for (var key in this.particle) {
+      this.particle[key].draw();
+    }
   }
 
 
@@ -508,6 +553,11 @@ mainWorld.prototype.update = function() {
   }
   this.camshake = new_camshake_a;
 
+  if (this.debris) {
+    for (var key in this.debris) {
+      this.debris[key].update();
+    }
+  }
 
   if (this.player)
     this.player.update();
@@ -544,6 +594,9 @@ mainWorld.prototype.update = function() {
       if (this.element[key].type == "bomb") {
         if (this.element[key].intent.type == "explode") {
           this.camera_shake();
+
+          var bg = new bombGrundge(this.element[key].x, this.element[key].y);
+          this.debris.push(bg);
         }
       } else if (this.element[key].type == "arrow") {
 

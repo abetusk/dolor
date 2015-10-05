@@ -333,7 +333,6 @@ mainPlayer.prototype.actual_dir_xy = function() {
 }
 
 mainPlayer.prototype.shootArrow = function() {
-  console.log("shoot arrow!");
   this.bow = false;
   this.bowDelay = this.bowDelayN;
 
@@ -353,7 +352,6 @@ mainPlayer.prototype.shootArrow = function() {
 }
 
 mainPlayer.prototype.bombThrow = function() {
-  console.log("bomb throw!");
   this.bomb = false;
   this.bombDelay = this.bombDelayN;
 
@@ -394,6 +392,18 @@ mainPlayer.prototype.teleportStart = function(dest_x, dest_y) {
   var bxy = this.dir_xy();
 
   this.intent = { "type" : "teleport",
+    "x" : this.x,
+    "y" : this.y,
+    "dx" : bxy[0],
+    "dy" : bxy[1],
+    "d" : di };
+}
+
+mainPlayer.prototype.flyStart = function(dest_x, dest_y) {
+  var di = this.currentDisplayDirection();
+  var bxy = this.dir_xy();
+
+  this.intent = { "type" : "fly",
     "x" : this.x,
     "y" : this.y,
     "dx" : bxy[0],
@@ -503,8 +513,6 @@ mainPlayer.prototype.update = function() {
           (this.state == "bow")) { continue; }
       if (!this.swordReady()) { continue; }
       if (!this.swordKeyUp) { continue; }
-
-      console.log("attack!");
 
       this.swordAttack();
 
@@ -1006,10 +1014,6 @@ mainPlayer.prototype.updatePuffs = function() {
 
 
 mainPlayer.prototype.swordAttack = function() {
-
-  //DEBUG
-  console.log("sword attack");
-
   this.sword = true;
   this.swordDelay = this.swordDelayN-1;
   this.state = "swordAttack";
