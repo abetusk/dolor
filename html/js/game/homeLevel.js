@@ -111,11 +111,6 @@ homeLevel.prototype.init = function() {
 
   }
 
-  console.log(this.tile_info);
-  console.log("ok");
-
-  console.log(this.layer_name_index_lookup);
-
 }
 
 homeLevel.prototype.bbox = function(r,c) {

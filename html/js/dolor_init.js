@@ -264,9 +264,6 @@
         url: "assets/overworld_v2.json",
         dataType:"json",
         success: function(a,b,c) {
-          console.log("!!!", a,b,c);
-
-          //g_data["dungeon0"] = a;
           g_data["homeArea"] = a;
           g_level.tilemap = a;
           g_level.ready = true;

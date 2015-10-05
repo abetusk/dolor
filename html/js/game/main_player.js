@@ -379,8 +379,6 @@ mainPlayer.prototype.teleportIntent = function(dest_x, dest_y) {
   var di = this.currentDisplayDirection();
   var bxy = this.dir_xy();
 
-  console.log("tele intent", dest_x, dest_y);
-
   this.intent = { "type" : "teleport",
     "x" : this.x,
     "y" : this.y,
