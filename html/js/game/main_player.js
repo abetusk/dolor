@@ -169,6 +169,8 @@ function mainPlayer(x,y,game) {
   this.teleport_ttl_N = this.teleportFrameN*this.teleportAnimDelayN;
   this.teleport_ttl = this.teleport_ttl_N;
 
+  this.teleport_dest_ready = false;
+
 }
 
 mainPlayer.prototype.init = function(x, y, d) {
@@ -373,6 +375,34 @@ mainPlayer.prototype.bombThrow = function() {
     "d" : di };
 }
 
+mainPlayer.prototype.teleportIntent = function(dest_x, dest_y) {
+  var di = this.currentDisplayDirection();
+  var bxy = this.dir_xy();
+
+  console.log("tele intent", dest_x, dest_y);
+
+  this.intent = { "type" : "teleport",
+    "x" : this.x,
+    "y" : this.y,
+    "dest_x" : dest_x,
+    "dest_y" : dest_y,
+    "dx" : bxy[0],
+    "dy" : bxy[1],
+    "d" : di };
+}
+
+mainPlayer.prototype.teleportStart = function(dest_x, dest_y) {
+  var di = this.currentDisplayDirection();
+  var bxy = this.dir_xy();
+
+  this.intent = { "type" : "teleport",
+    "x" : this.x,
+    "y" : this.y,
+    "dx" : bxy[0],
+    "dy" : bxy[1],
+    "d" : di };
+}
+
 mainPlayer.prototype.debugEvent = function() {
   var di = this.currentDisplayDirection();
   var bxy = this.dir_xy();
@@ -543,12 +573,15 @@ mainPlayer.prototype.update = function() {
       var dxdy = { "up": [0,-ds], "right" : [ds,0], "left":[-ds,0], "down":[0,ds], "none":[0,0] };
       var curdir = this.actualDirection();
 
-      this.teleport_x = this.x + dxdy[curdir][0];
-      this.teleport_y = this.y + dxdy[curdir][1];
+      this.teleport_dest_ready = false;
+      //this.teleport_x = this.x + dxdy[curdir][0];
+      //this.teleport_y = this.y + dxdy[curdir][1];
 
       var n = g_sfx["teleport"].length;
       var x = Math.floor(Math.random()*n);
       g_sfx["teleport"][x].play();
+
+      this.teleportIntent(this.x + dxdy[curdir][0], this.y + dxdy[curdir][1]);
 
       continue;
     }
@@ -597,11 +630,9 @@ mainPlayer.prototype.update = function() {
     console.log("ev", ev);
   }
 
-  //console.log("state:", this.state);
+
 
   this.inputEvent = {};
-
-  //if (this.state!="idle") { console.log(this.state); }
 
   // initial processing of input is done.
   //
@@ -1488,7 +1519,10 @@ mainPlayer.prototype.draw = function() {
     var dst_tele_imx = (3-this.teleportFrame)*24;
 
     g_imgcache.draw_s("tele", tele_imx, tele_imy, 24, 24, this.x-4, this.y-4, 24, 24);
-    g_imgcache.draw_s("tele", dst_tele_imx, tele_imy, 24, 24, this.teleport_x-4, this.teleport_y-4, 24, 24);
+
+    if (this.teleport_dest_ready) {
+      g_imgcache.draw_s("tele", dst_tele_imx, tele_imy, 24, 24, this.teleport_x-4, this.teleport_y-4, 24, 24);
+    }
   }
 
   if (this.bow) {

@@ -141,6 +141,7 @@
       //g_imgcache.add("dungeon0", img_base + "/dungeon_sheet_0.png");
       g_imgcache.add("dungeon0", img_base + "/sheet_17.png");
       g_imgcache.add("forrest", img_base + "/forrestup_0.png");
+      g_imgcache.add("forrestup_0", img_base + "/forrestup_0.png");
 
       //g_imgcache.add("skel_jade", img_base + "/float_skel_white.png");
       //g_imgcache.add("skel_jade", img_base + "/float_skel_purple.png");
@@ -259,7 +260,8 @@
         //url: "assets/dolor_room_test.json",
         //url: "assets/tele_room.json",
         //url: "assets/home.json",
-        url: "assets/overworld_test.json",
+        //url: "assets/overworld_test.json",
+        url: "assets/overworld_v2.json",
         dataType:"json",
         success: function(a,b,c) {
           console.log("!!!", a,b,c);
