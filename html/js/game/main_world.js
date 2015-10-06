@@ -34,10 +34,9 @@ function mainWorld() {
 
   this.snow = [];
   this.snow_flag = false;
-  this.snow_ds = 10;
   this.snow_v = 8;
   this.snow_N = 200;
-  this.snow_dt = 100;
+  this.snow_dt = 200;
 
 
   // enemy creatures
@@ -53,10 +52,15 @@ function mainWorld() {
   //---
 
   //var c0 = new creatureCritter("critter_bunny", g_GRIDSIZE/2, 8);
-  var c0 = new creatureCritter("cat", g_GRIDSIZE, 16);
-  this.enemy.push(c0);
-  c0.x = 112;
-  c0.y = 304;
+  //var c0 = new creatureCritter("cat", g_GRIDSIZE, 16);
+  //this.enemy.push(c0);
+  //c0.x = 112;
+  //c0.y = 304;
+
+  var neko = new creatureNeko();
+  neko.x = 112;
+  neko.y = 304;
+  this.enemy.push(neko);
 
   /*
   //var c0 = new creatureCritter("critter_bunny", g_GRIDSIZE/2, 8);
@@ -519,10 +523,20 @@ mainWorld.prototype.draw = function() {
 
 
   // rain
+  //
   if (this.rain_flag) {
     for (var i=0; i<this.rain.length; i++) {
-      //g_painter.line( this.rain[i].x, this.rain[i].y, this.rain[i].x-ds, this.rain[i].y+ds, "rgba(128,128,200,0.5)", 1);
       g_imgcache.draw_s("rain", 0, 0, 5, 10, this.rain[i].x, this.rain[i].y, 5, 10);
+    }
+  }
+
+  // snow
+  //
+  if (this.snow_flag) {
+    for (var i=0; i<this.snow.length; i++) {
+      var imx = 4*this.snow[i].frame;
+      var imy = 4*this.snow[i].yframe;
+      g_imgcache.draw_s("puff", imx, imy, 4, 4, this.snow[i].x, this.snow[i].y, 4, 4, 0, 0.75);
     }
   }
 
@@ -592,6 +606,55 @@ mainWorld.prototype.update = function() {
 
   }
 
+  if (this.snow_flag) {
+    var n = this.snow.length;
+    var dr = 32*16;
+    var N = this.snow_N;
+    var dt = this.snow_dt;
+    //var fudge = Math.floor( (dt/2) );
+    var fudge = 0;
+    for (var i=0; i<N-n; i++) {
+      var f = Math.floor(Math.random()*2) + 2;
+      var yf = Math.floor(Math.random()*4);
+      var ttl = Math.floor(Math.random()*dt)+1;
+
+      this.snow.push({ "ttl": ttl, "x": Math.floor(Math.random()*dr)+fudge, "y": Math.floor(Math.random()*dr)-fudge, "frame":f, "yframe":yf });
+    }
+
+    n = this.snow.length;
+
+    var new_snow = [];
+    for (var i=0; i<n; i++) {
+      this.snow[i].ttl--;
+
+      if (Math.random()<0.08) {
+        if (Math.random()<0.8) {
+          this.snow[i].x--;
+        } else {
+          this.snow[i].x++;
+        }
+      }
+
+
+      //if ((this.snow[i].ttl%19)==0) { this.snow[i].x--; }
+      //if ((this.snow[i].ttl%29)==0) { this.snow[i].x++; }
+
+      if ((this.snow[i].ttl%3)==0) { this.snow[i].y ++; }
+
+
+      if (this.snow[i].ttl>0) {
+        new_snow.push(this.snow[i]);
+      } else {
+
+        //var ri = new snowImpact(this.snow[i].x, this.snow[i].y);
+        //this.particle.push(ri);
+      }
+    }
+
+    this.snow = new_snow;
+
+  }
+
 
   // Camera shake for explosions
   //
@@ -649,7 +712,7 @@ mainWorld.prototype.update = function() {
   if (this.enemy)
   {
     for (var key in this.enemy) {
-      this.enemy[key].update();
+      this.enemy[key].update(this);
     }
   }
 

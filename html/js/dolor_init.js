@@ -34,11 +34,13 @@
       c.focus();
     }
 
-    function new_sound_object(path, volume) {
+    function new_sound_object(path, volume, loop) {
+      loop = ((typeof loop === "undefined")? false : loop);
       volume = ((typeof volume === "undefined") ? 1 : volume);
       var snd = new Howl({
           urls: [path],
           volume: volume,
+          loop: loop,
           onened: function() { console.log("finish music"); }
       });
       return snd;
@@ -200,7 +202,10 @@
       g_imgcache.add("rain", img_base + "/rain8.png");
       g_imgcache.add("rain_impact", img_base + "/rain_impact.png");
 
-      g_imgcache.add("cat", img_base + "/catxperiment.png");
+      g_imgcache.add("cat", img_base + "/catxperiment2.png");
+
+      g_imgcache.add("bubble", img_base + "/speech_thought_bubble8.png");
+      g_imgcache.add("font", img_base + "/font_attempt3.png");
 
       var welcome_music = new Howl({
           urls: ['assets/music/mark.nine-the-little-things-02-devil-you-know.mp3'],
@@ -254,6 +259,13 @@
       //g_sfx["teleport"].push( new_sound_object("assets/sfx/172206__fins__teleport.s.ogg", 0.25) );
       g_sfx["teleport"].push( new_sound_object("assets/sfx/51465__smcameron__flak-gun-sound.ogg", 0.75) );
       //g_sfx["teleport"].push( new_sound_object("assets/sfx/96556__robinhood76__01667-slow-laser-shot.ogg", 0.25));
+
+      g_sfx["purr"] = [];
+      g_sfx["purr"].push( new_sound_object("assets/sfx/51810__kyles__kitten-meow-not-cute-purr.ogg", 0.75) );
+      g_sfx["purr"].push( new_sound_object("assets/sfx/220949__islabonita__cat-purring.ogg", 0.75) );
+
+      g_sfx["rain"] = [];
+      g_sfx["rain"].push( new_sound_object("assets/sfx/157433__timgormly__medium-rain.ogg", 0.5, true) );
 
       g_music = {};
       g_music["home"] = new_sound_object("assets/music/mark.nine-the-little-things-02-devil-you-know.mp3");
