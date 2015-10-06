@@ -23,6 +23,23 @@ function mainWorld() {
   this.player_nudge_delay_count = 8;
   this.player_nudge_delay = 8;
 
+  this.rain = [];
+  this.rain_flag = false;
+  this.rain_ds = 10;
+  this.rain_v = 8;
+  this.rain_vx = -2;
+  this.rain_vy = 4;
+  this.rain_N = 50;
+  this.rain_dt = 80;
+
+  this.snow = [];
+  this.snow_flag = false;
+  this.snow_ds = 10;
+  this.snow_v = 8;
+  this.snow_N = 200;
+  this.snow_dt = 100;
+
+
   // enemy creatures
   //
   //var ee = new creatureSkel();
@@ -34,6 +51,12 @@ function mainWorld() {
 
 
   //---
+
+  //var c0 = new creatureCritter("critter_bunny", g_GRIDSIZE/2, 8);
+  var c0 = new creatureCritter("cat", g_GRIDSIZE, 16);
+  this.enemy.push(c0);
+  c0.x = 112;
+  c0.y = 304;
 
   /*
   //var c0 = new creatureCritter("critter_bunny", g_GRIDSIZE/2, 8);
@@ -495,6 +518,15 @@ mainWorld.prototype.draw = function() {
   }
 
 
+  // rain
+  if (this.rain_flag) {
+    for (var i=0; i<this.rain.length; i++) {
+      //g_painter.line( this.rain[i].x, this.rain[i].y, this.rain[i].x-ds, this.rain[i].y+ds, "rgba(128,128,200,0.5)", 1);
+      g_imgcache.draw_s("rain", 0, 0, 5, 10, this.rain[i].x, this.rain[i].y, 5, 10);
+    }
+  }
+
+
 
   if (this.debug) {
     var x0 = this.debug_rect[0][0];
@@ -525,6 +557,41 @@ mainWorld.prototype.camera_shake = function() {
 }
 
 mainWorld.prototype.update = function() {
+
+  //...
+
+  if (this.rain_flag) {
+    var n = this.rain.length;
+    var dr = 32*16;
+    var N = this.rain_N;
+    var dt = this.rain_dt;
+    var fudge = Math.floor( (dt/2) );
+    for (var i=0; i<N-n; i++) {
+      var ttl = Math.floor(Math.random()*dt)+1;
+
+      this.rain.push({ "ttl": ttl, "x": Math.floor(Math.random()*dr)+fudge, "y": Math.floor(Math.random()*dr)-fudge });
+    }
+
+    n = this.rain.length;
+
+    var new_rain = [];
+    for (var i=0; i<n; i++) {
+      this.rain[i].ttl--;
+      this.rain[i].x += this.rain_vx;
+      this.rain[i].y += this.rain_vy;
+      if (this.rain[i].ttl>0) {
+        new_rain.push(this.rain[i]);
+      } else {
+
+        var ri = new rainImpact(this.rain[i].x, this.rain[i].y);
+        this.particle.push(ri);
+      }
+    }
+
+    this.rain = new_rain;
+
+  }
+
 
   // Camera shake for explosions
   //

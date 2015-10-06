@@ -132,7 +132,9 @@
       var img_base = "assets";
       g_imgcache = new imageCache();
 
-      g_imgcache.add("noether", img_base + "/noether.png");
+      //g_imgcache.add("noether", img_base + "/noether.png");
+      g_imgcache.add("noether", img_base + "/noether_foxshield.png");
+
       //g_imgcache.add("item", img_base + "/items_11.png");
       g_imgcache.add("item", img_base + "/items_11.a.png");
       g_imgcache.add("item_mask", img_base + "/items_mask.png");
@@ -195,6 +197,10 @@
 
       g_imgcache.add("dust", img_base + "/dust_black.png");
       g_imgcache.add("grundge", img_base + "/grundge.png");
+      g_imgcache.add("rain", img_base + "/rain8.png");
+      g_imgcache.add("rain_impact", img_base + "/rain_impact.png");
+
+      g_imgcache.add("cat", img_base + "/catxperiment.png");
 
       var welcome_music = new Howl({
           urls: ['assets/music/mark.nine-the-little-things-02-devil-you-know.mp3'],
