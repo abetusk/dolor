@@ -69,7 +69,7 @@ creatureNeko.prototype.update = function(world_state) {
          (Math.abs(player.y - this.y)<(2*16)) ) {
 
       if (this.state == "idle") {
-        this.message_bubble = new messageBubble(this.x, this.y-16, "It's dangereous out there\nand you are alone");
+        this.message_bubble = new messageBubble(this.x, this.y-16, "It's dangereous and\nyou are alone");
 
         var n = g_sfx["purr"].length;
         n = Math.floor(Math.random()*n);

@@ -38,6 +38,8 @@ function mainWorld() {
   this.snow_N = 200;
   this.snow_dt = 200;
 
+  this.ticker = 0;
+  this.environment_state = "idle";
 
   // enemy creatures
   //
@@ -571,6 +573,25 @@ mainWorld.prototype.camera_shake = function() {
 }
 
 mainWorld.prototype.update = function() {
+
+  this.ticker++;
+
+  if ((this.ticker%1000)==0) {
+    var s = Math.floor(Math.random()*3);
+    if (s==0) {
+      this.environment_state = "idle";
+      this.rain_flag = false;
+      this.snow_flag = false;
+    } else if (s==1) {
+      this.environment_state = "rain";
+      this.rain_flag = true;
+      this.snow_flag = false;
+    } else if (s==2) {
+      this.environment_state = "snow";
+      this.rain_flag = false;
+      this.snow_flag = true;
+    }
+  }
 
   //...
 
