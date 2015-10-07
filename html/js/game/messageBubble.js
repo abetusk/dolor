@@ -1,4 +1,14 @@
 function messageBubble(info) {
+  this.font_y = 6;
+  this.font_spacing = {
+    " " : 144,
+    "!" : 148,
+    "?" : 152,
+    "," : 156,
+    "." : 160,
+    "'" : 164
+  };
+
 
   this.x = 0;
   this.y = 0;
@@ -51,6 +61,10 @@ function messageBubble(info) {
   this.y = this.info.y;
 
   this.dy=0;
+  this.dx=0;
+  this.cur_height = 0;
+  this.cur_width = 0;
+  this.line_x_offset = [];
 
   this.name = "font";
 
@@ -75,16 +89,6 @@ function messageBubble(info) {
   //this.small_font_y = 11;
 
   this.ttl = 1;
-
-  this.font_y = 6;
-  this.font_spacing = {
-    " " : 144,
-    "!" : 148,
-    "?" : 152,
-    "," : 156,
-    "." : 160,
-    "'" : 164
-  };
 
   var a_p = "a".charCodeAt(0);
   var A_p = "A".charCodeAt(0);
@@ -111,7 +115,7 @@ messageBubble.prototype.init = function() {
   this.y = this.info.y;
 
   this.type = "speak";
-  this.bubble_type = "speech";
+  this.bubble_type = "speech";  // none, thought
   this.message = this.info.message;
 }
 
@@ -121,7 +125,41 @@ messageBubble.prototype.calc_helper = function() {
   //var helper = {};
   //helper["dy"] = z.height;
 
-  this.dy = z.height;
+
+  this.dy = -z.height;
+  this.dx = 0;
+
+  this.cur_height = z.height;
+  this.cur_width = z.max_x;
+
+  var ofx = 0;
+  var text_dx = 4;
+
+
+  this.line_x_offset = [];
+
+  if (this.message) {
+    for (var i=0; i<this.message.length; i++) {
+
+      if (this.message[i] == "\n") {
+        this.line_x_offset.push( Math.floor((this.cur_width-ofx)/2) );
+        ofx = 0;
+        continue;
+      }
+
+      if (!(this.message[i] in this.font_spacing)) { continue; }
+      ofx += text_dx;
+    }
+    this.line_x_offset.push( Math.floor((this.cur_width-ofx)/2) );
+  }
+
+  if (this.bubble_type == "speech") {
+    this.dy -= 8*1 + 2;
+    this.dx += 4;
+  } else if (this.bubble_type == "thought") {
+    this.dy -= 8*1 + 2;
+    this.dx += 4;
+  }
 }
 
 messageBubble.prototype.setup_info = function(info) {
@@ -134,8 +172,6 @@ messageBubble.prototype.setup_info = function(info) {
   this.info.easeIn = ((typeof info.easeIn === "undefined") ? this.info.easeIn : info.easeIn );
   this.info.easeOut = ((typeof info.easeOut === "undefined") ? this.info.easeOut : info.easeOut );
   this.info.message = ((typeof info.message === "undefined") ? this.info.message : info.message );
-
-  console.log(">>>", this.info);
 
   this.x = this.info.x;
   this.y = this.info.y;
@@ -223,39 +259,170 @@ messageBubble.prototype.draw = function() {
 
   if (this.state != "hidden") {
 
-    if (this.bubble_type == "speech") {
-
-      var disp_x = this.x;
-      var disp_y = this.y;
-
-      var orig_x = this.x;
-
-      var a_p = "a".charCodeAt(0);
-
-      for (var i=0; i<this.message.length; i++) {
-
-        if (this.message[i] == "\n") {
-          disp_y += this.font_y;
-          disp_x = orig_x;
-          continue;
-        }
-
-        if (!(this.message[i] in this.font_spacing)) { continue; }
-
-        var txt_x = this.font_spacing[this.message[i]];
-        var txt_y = 0;
-        var dtxt = 4;
+    var font_a = this.fade_step / this.fade_step_N;
+    var txt_y = 0;
+    var dtxt = 4;
 
 
-        var font_a = this.fade_step / this.fade_step_N;
+    if (this.bubble_type == "none") {
 
-        g_imgcache.draw_s("font", txt_x, txt_y, dtxt, this.font_y, disp_x, disp_y-this.dy, dtxt, this.font_y, 0, font_a);
+    } else if (this.bubble_type=="speech") {
 
-        disp_x += dtxt;
+      var ofy=0;
+
+      ofy+=8;
+
+      // bubble jag
+      //
+      g_imgcache.draw_s("bubble",
+          24, 8,
+          8, 8,
+          this.x, this.y-ofy,
+          8, 8,
+          0, font_a);
+
+      ofy+=8;
+
+      // open lower left
+      //
+      g_imgcache.draw_s("bubble",
+          24, 0,
+          8, 8,
+          this.x, this.y-ofy,
+          8, 8,
+          0, font_a);
+
+      var m = Math.floor((this.cur_width+8)/8);
+
+      for (var jj=0; jj<(m-1); jj++) {
+        var ofx = (jj+1)*8;
+
+        // bottom
+        //
+        g_imgcache.draw_s("bubble",
+            8, 16,
+            8, 8,
+            this.x+ofx, this.y-ofy,
+            8, 8,
+            0, font_a);
 
       }
 
+      // lower right
+      //
+      g_imgcache.draw_s("bubble",
+          16, 16,
+          8, 8,
+          this.x+(m)*8, this.y-ofy,
+          8, 8,
+          0, font_a);
+
+      ofy+=8;
+
+      //var n = (this.cur_height - this.font_y) / this.font_y;
+      var n = (this.cur_height - this.font_y) / 8;
+      for (var ii=0; ii<(n-1); ii++) {
+        // left 
+        //
+        g_imgcache.draw_s("bubble",
+            0, 8,
+            8, 8,
+            this.x, this.y-ofy,
+            8, 8,
+            0, font_a);
+
+        for (var jj=0; jj<(m-1); jj++) {
+          var ofx = (jj+1)*8;
+
+          // middle
+          //
+          g_imgcache.draw_s("bubble",
+              8, 8,
+              8, 8,
+              this.x+ofx, this.y-ofy,
+              8, 8,
+              0, font_a);
+
+        }
+
+        // right
+        //
+        g_imgcache.draw_s("bubble",
+            16, 8,
+            8, 8,
+            this.x+(m)*8, this.y-ofy,
+            8, 8,
+            0, font_a);
+
+
+
+        ofy+=8;
+      }
+
+      // upper left
+      //
+      g_imgcache.draw_s("bubble",
+          0, 0,
+          8, 8,
+          this.x, this.y-ofy,
+          8, 8,
+          0, font_a);
+
+      for (var jj=0; jj<(m-1); jj++) {
+        var ofx = (jj+1)*8;
+
+        // up
+        //
+        g_imgcache.draw_s("bubble",
+            8, 0,
+            8, 8,
+            this.x+ofx, this.y-ofy,
+            8, 8,
+            0, font_a);
+
+      }
+
+      // upper right
+      //
+      g_imgcache.draw_s("bubble",
+          16, 0,
+          8, 8,
+          this.x+(m)*8, this.y-ofy,
+          8, 8,
+          0, font_a);
+
+
+
     }
+
+    var bub_h = Math.floor((this.cur_height + 8)/8)*8;
+
+    var disp_x = this.x;
+    var disp_y = this.y;
+
+    var orig_x = this.x;
+
+    var a_p = "a".charCodeAt(0);
+
+    var cur_line = 0;
+    for (var i=0; i<this.message.length; i++) {
+
+      if (this.message[i] == "\n") {
+        disp_y += this.font_y;
+        disp_x = orig_x;
+        cur_line++;
+        continue;
+      }
+
+      if (!(this.message[i] in this.font_spacing)) { continue; }
+
+      var ox = this.line_x_offset[cur_line];
+
+      var txt_x = this.font_spacing[this.message[i]];
+      g_imgcache.draw_s("font", txt_x, txt_y, dtxt, this.font_y, disp_x+this.dx+ox, disp_y+this.dy, dtxt, this.font_y, 0, font_a);
+      disp_x += dtxt;
+    }
+
 
   } else if (this.type == "thought") {
 
