@@ -31,9 +31,15 @@ function creatureNeko(name, gridsize, tilesize, nframe) {
 
   this.state = "idle";
 
-  this.message_bubble = null;
-
-
+  this.message_bubble = new messageBubble({
+    x:this.x,
+    y:this.y-16,
+    easeIn: "fade",
+    easeOut: "fade",
+    origin: "lower_left",
+    style: "center",
+    message:"It's dangereous and\nyou are alone"
+  });
 
 }
 
@@ -69,20 +75,29 @@ creatureNeko.prototype.update = function(world_state) {
          (Math.abs(player.y - this.y)<(2*16)) ) {
 
       if (this.state == "idle") {
-        this.message_bubble = new messageBubble(this.x, this.y-16, "It's dangereous and\nyou are alone");
+        //this.message_bubble.x = this.x;
+        //this.message_bubble.y = this.y;
+        this.message_bubble.start({x:this.x, y:this.y});
 
-        var n = g_sfx["purr"].length;
-        n = Math.floor(Math.random()*n);
-        g_sfx["purr"][n].play();
+        //var n = g_sfx["purr"].length;
+        //n = Math.floor(Math.random()*n);
+        //g_sfx["purr"][n].play();
+      } else if (this.message_bubble) {
       }
 
       this.state = "speak";
       this.message = "hello, friend";
     } else {
+
+      if (this.message_bubble.state != "hidden") {
+        this.message_bubble.stop();
+      }
+
       this.state = "idle";
     }
   }
 
+  this.message_bubble.update();
 }
 
 creatureNeko.prototype.draw = function() {
@@ -92,7 +107,8 @@ creatureNeko.prototype.draw = function() {
 
   g_imgcache.draw_s(this.name, imgx, imgy, this.crit_w, this.crit_h, this.x, this.y, this.world_w, this.world_h);
 
-  if (this.state == "speak") {
+  //if (this.state == "speak") {
+  if (this.message_bubble.state != "hidden") {
     if (this.message_bubble) {
       this.message_bubble.draw();
     }

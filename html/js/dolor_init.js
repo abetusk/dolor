@@ -194,7 +194,7 @@
       //g_imgcache.add("tele", img_base + "/tests/tele_test2.png");
       g_imgcache.add("tele", img_base + "/noether_tele.png");
 
-      g_imgcache.add("breath", img_base + "/breath.png");
+      //g_imgcache.add("breath", img_base + "/breath.png");
       //g_imgcache.add("breath", img_base + "/breath2.png");
 
       g_imgcache.add("dust", img_base + "/dust_black.png");

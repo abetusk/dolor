@@ -30,6 +30,7 @@ function mainWorld() {
   this.rain_vx = -2;
   this.rain_vy = 4;
   this.rain_N = 50;
+  this.rain_max = 100;
   this.rain_dt = 80;
 
   this.snow = [];
@@ -37,6 +38,7 @@ function mainWorld() {
   this.snow_v = 8;
   this.snow_N = 200;
   this.snow_dt = 200;
+  this.snow_max = 400;
 
   this.ticker = 0;
   this.environment_state = "idle";
@@ -143,6 +145,9 @@ function mainWorld() {
 
   this.collisionNudgeN=1;
   //this.collisionNudgeN=0;
+
+  this.init_rain();
+  this.init_snow();
 }
 
 mainWorld.prototype.player_attack_level_collision = function() {
@@ -527,15 +532,23 @@ mainWorld.prototype.draw = function() {
   // rain
   //
   if (this.rain_flag) {
-    for (var i=0; i<this.rain.length; i++) {
+    for (var i=0; i<this.rain_N; i++) {
       g_imgcache.draw_s("rain", 0, 0, 5, 10, this.rain[i].x, this.rain[i].y, 5, 10);
+    }
+
+    for (var i=0; i<this.rain_N; i++) {
+      if (this.rain_impact[i].state != "idle") {
+        this.rain_impact[i].draw();
+      }
     }
   }
 
   // snow
   //
   if (this.snow_flag) {
-    for (var i=0; i<this.snow.length; i++) {
+    for (var i=0; i<this.snow_N; i++) {
+
+      //console.log(">>>", i, this.snow[i]);
       var imx = 4*this.snow[i].frame;
       var imy = 4*this.snow[i].yframe;
       g_imgcache.draw_s("puff", imx, imy, 4, 4, this.snow[i].x, this.snow[i].y, 4, 4, 0, 0.75);
@@ -572,6 +585,96 @@ mainWorld.prototype.camera_shake = function() {
 
 }
 
+mainWorld.prototype.init_rain = function() {
+  this.rain = [];
+  this.rain_impact = [];
+  var N = this.rain_max;
+  var dr = 32*16;
+  var dt = this.rain_dt;
+  var fudge = Math.floor( (dt/2) );
+  n = this.rain.length;
+
+  for (var i=0; i<N; i++) {
+    var ttl = Math.floor(Math.random()*dt)+1;
+
+    this.rain.push({ "ttl": ttl, "x": Math.floor(Math.random()*dr)+fudge, "y": Math.floor(Math.random()*dr)-fudge });
+    var ri = new rainImpact(this.rain[i].x, this.rain[i].y);
+    this.rain_impact.push(ri);
+  }
+
+}
+
+mainWorld.prototype.update_rain = function() {
+  var dt = this.rain_dt;
+  var fudge = Math.floor( (dt/2) );
+  var N = this.rain_N;
+  var dr = 32*16;
+
+  for (var i=0; i<N; i++) {
+    this.rain[i].ttl--;
+    this.rain[i].x += this.rain_vx;
+    this.rain[i].y += this.rain_vy;
+    if (this.rain[i].ttl<=0) {
+
+      this.rain_impact[i].start(this.rain[i].x, this.rain[i].y);
+
+      this.rain[i].ttl = Math.floor(Math.random()*dt)+1;
+      this.rain[i].x = Math.floor(Math.random()*dr)+fudge;
+      this.rain[i].y = Math.floor(Math.random()*dr)-fudge;
+    }
+
+    if (this.rain_impact[i].state != "idle") {
+      this.rain_impact[i].update();
+    }
+
+  }
+
+}
+
+mainWorld.prototype.init_snow = function() {
+  this.snow = [];
+  for (var i=0; i<this.snow_max; i++) {
+    this.snow.push({ "ttl": 0, "x": 0, "y": 0, "frame":0, "yframe":0 });
+  }
+}
+
+mainWorld.prototype.update_snow = function() {
+  var n = this.snow.length;
+  var dr = 32*16;
+  var N = this.snow_N;
+  var dt = this.snow_dt;
+  var fudge = 0;
+
+  for (var i=0; i<this.snow_N; i++) {
+    this.snow[i].ttl--;
+
+    if (Math.random()<0.08) {
+      if (Math.random()<0.8) {
+        this.snow[i].x--;
+      } else {
+        this.snow[i].x++;
+      }
+    }
+
+    if ((this.snow[i].ttl%3)==0) { this.snow[i].y ++; }
+
+    if (this.snow[i].ttl<0) {
+      var f = Math.floor(Math.random()*2) + 2;
+      var yf = Math.floor(Math.random()*4);
+      var ttl = Math.floor(Math.random()*dt)+1;
+
+      this.snow[i].ttl = ttl;
+      this.snow[i].x = Math.floor(Math.random()*dr)+fudge;
+      this.snow[i].y = Math.floor(Math.random()*dr)-fudge;
+      this.snow[i].frame = f;
+      this.snow[i].yframe = yf;
+
+    }
+
+  }
+
+}
+
 mainWorld.prototype.update = function() {
 
   this.ticker++;
@@ -595,87 +698,8 @@ mainWorld.prototype.update = function() {
 
   //...
 
-  if (this.rain_flag) {
-    var n = this.rain.length;
-    var dr = 32*16;
-    var N = this.rain_N;
-    var dt = this.rain_dt;
-    var fudge = Math.floor( (dt/2) );
-    for (var i=0; i<N-n; i++) {
-      var ttl = Math.floor(Math.random()*dt)+1;
-
-      this.rain.push({ "ttl": ttl, "x": Math.floor(Math.random()*dr)+fudge, "y": Math.floor(Math.random()*dr)-fudge });
-    }
-
-    n = this.rain.length;
-
-    var new_rain = [];
-    for (var i=0; i<n; i++) {
-      this.rain[i].ttl--;
-      this.rain[i].x += this.rain_vx;
-      this.rain[i].y += this.rain_vy;
-      if (this.rain[i].ttl>0) {
-        new_rain.push(this.rain[i]);
-      } else {
-
-        var ri = new rainImpact(this.rain[i].x, this.rain[i].y);
-        this.particle.push(ri);
-      }
-    }
-
-    this.rain = new_rain;
-
-  }
-
-  if (this.snow_flag) {
-    var n = this.snow.length;
-    var dr = 32*16;
-    var N = this.snow_N;
-    var dt = this.snow_dt;
-    //var fudge = Math.floor( (dt/2) );
-    var fudge = 0;
-    for (var i=0; i<N-n; i++) {
-      var f = Math.floor(Math.random()*2) + 2;
-      var yf = Math.floor(Math.random()*4);
-      var ttl = Math.floor(Math.random()*dt)+1;
-
-      this.snow.push({ "ttl": ttl, "x": Math.floor(Math.random()*dr)+fudge, "y": Math.floor(Math.random()*dr)-fudge, "frame":f, "yframe":yf });
-    }
-
-    n = this.snow.length;
-
-    var new_snow = [];
-    for (var i=0; i<n; i++) {
-      this.snow[i].ttl--;
-
-      if (Math.random()<0.08) {
-        if (Math.random()<0.8) {
-          this.snow[i].x--;
-        } else {
-          this.snow[i].x++;
-        }
-      }
-
-
-      //if ((this.snow[i].ttl%19)==0) { this.snow[i].x--; }
-      //if ((this.snow[i].ttl%29)==0) { this.snow[i].x++; }
-
-      if ((this.snow[i].ttl%3)==0) { this.snow[i].y ++; }
-
-
-      if (this.snow[i].ttl>0) {
-        new_snow.push(this.snow[i]);
-      } else {
-
-        //var ri = new snowImpact(this.snow[i].x, this.snow[i].y);
-        //this.particle.push(ri);
-      }
-    }
-
-    this.snow = new_snow;
-
-  }
-
+  if (this.rain_flag) { this.update_rain(); }
+  if (this.snow_flag) { this.update_snow(); }
 
   // Camera shake for explosions
   //

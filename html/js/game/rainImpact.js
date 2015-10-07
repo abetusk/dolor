@@ -12,10 +12,23 @@ function rainImpact(x,y) {
 
   this.x = x;
   this.y = y;
-  this.keyFrame = 0;
 
   this.size_x = 7;
   this.size_y = 7;
+
+  this.state = "idle";
+}
+
+rainImpact.prototype.start = function(x,y) {
+  this.keyFrame = 0;
+  this.frameDelay = this.frameDelayN;
+  this.ttl = this.ttl_orig;
+  this.x = x;
+  this.y = y;
+
+  this.state = "active";
+
+
 }
 
 rainImpact.prototype.update = function() {
@@ -26,6 +39,11 @@ rainImpact.prototype.update = function() {
     this.keyFrame  = (this.keyFrame+1)%this.keyFrameN;
     this.frameDelay=this.frameDelayN;
   }
+
+  if (this.ttl<=0) {
+    this.state = "idle";
+  }
+
 }
 
 rainImpact.prototype.draw = function() {
