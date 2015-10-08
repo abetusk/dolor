@@ -187,10 +187,18 @@ function box_box_intersect(bb0, bb1, box_fudge)
 {
   box_fudge = ( (typeof box_fudge === 'undefined') ? 0 : box_fudge );
 
+  /*
   return !( ( bb1[0][0] >  (bb0[1][0] + box_fudge)) ||
             ( bb1[1][0] <  (bb0[0][0] - box_fudge)) ||
             (-bb1[1][1] > -(bb0[0][1] - box_fudge)) ||
             (-bb1[0][1] < -(bb0[1][1] + box_fudge)) );
+            */
+
+  return !( ( bb1[0][0] >  (bb0[1][0] + box_fudge)) ||
+            ( bb1[1][0] <  (bb0[0][0] - box_fudge)) ||
+            ( bb1[1][1] <  (bb0[0][1] - box_fudge)) ||
+            ( bb1[0][1] >  (bb0[1][1] + box_fudge)) );
+
 }
 
 

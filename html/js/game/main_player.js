@@ -29,6 +29,7 @@ function mainPlayer(x,y,game) {
   this.updateFrameDelay = 0;
 
   this.swordType = "eagle";
+  this.sword_damage = 8;
 
   this.speaking = false;
   this.text = "";

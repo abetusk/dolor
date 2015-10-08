@@ -38,6 +38,7 @@ function creatureNeko(name, gridsize, tilesize, nframe) {
     easeOut: "fade",
     origin: "lower_left",
     style: "center",
+    //message:"It's dangereous and\nyou are alone"
     message:"It's dangereous and\nyou are alone"
   });
 

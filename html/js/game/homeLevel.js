@@ -216,7 +216,7 @@ homeLevel.prototype.draw_layer_bottom = function(display_name, cmp_x, cmp_y) {
       var y0 = tbbox[0][1];
       var x1 = tbbox[1][0];
       var y1 = tbbox[1][1];
-      g_painter.drawRectangle(x0,y0, x1-x0, y1-y0, 2, "rgba(255,0,0,0.6)");
+      g_painter.drawRectangle(x0,y0, x1-x0, y1-y0, 1, "rgba(255,0,0,0.6)");
     }
 
   }
@@ -277,7 +277,7 @@ homeLevel.prototype.draw_layer_top = function(display_name, cmp_x, cmp_y) {
       var y0 = tbbox[0][1];
       var x1 = tbbox[1][0];
       var y1 = tbbox[1][1];
-      g_painter.drawRectangle(x0,y0, x1-x0, y1-y0, 2, "rgba(255,0,0,0.6)");
+      g_painter.drawRectangle(x0,y0, x1-x0, y1-y0, 1, "rgba(255,0,0,0.6)");
     }
 
   }
@@ -336,7 +336,7 @@ homeLevel.prototype.draw_layer = function(display_name) {
       var y0 = tbbox[0][1];
       var x1 = tbbox[1][0];
       var y1 = tbbox[1][1];
-      g_painter.drawRectangle(x0,y0, x1-x0, y1-y0, 2, "rgba(255,0,0,0.6)");
+      g_painter.drawRectangle(x0,y0, x1-x0, y1-y0, 1, "rgba(255,0,0,0.6)");
     }
 
   }
@@ -403,7 +403,7 @@ homeLevel.prototype.draw = function(display_height, data) {
         var y0 = tbbox[0][1];
         var x1 = tbbox[1][0];
         var y1 = tbbox[1][1];
-        g_painter.drawRectangle(x0,y0, x1-x0, y1-y0, 2, "rgba(255,0,0,0.6)");
+        g_painter.drawRectangle(x0,y0, x1-x0, y1-y0, 1, "rgba(255,0,0,0.6)");
       }
 
     }

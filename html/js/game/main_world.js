@@ -14,7 +14,6 @@ function mainWorld() {
   this.orig_dx = 0;
   this.orig_dy = 0;
 
-  //this.size = 32;
   this.size = g_GRIDSIZE;
 
   this.debug = false;
@@ -65,6 +64,20 @@ function mainWorld() {
   neko.x = 112;
   neko.y = 304;
   this.enemy.push(neko);
+
+  /*
+  var bones = new creatureBones();
+  //bones.x = 112 + 16;
+  //bones.y = 304;
+  bones.init(112+16, 304);
+  this.enemy.push(bones);
+  */
+
+  for (i=0; i<10; i++) {
+    var bones = new creatureBones();
+    bones.init(128+16*i, 304);
+    this.enemy.push(bones);
+  }
 
   /*
   //var c0 = new creatureCritter("critter_bunny", g_GRIDSIZE/2, 8);
@@ -148,6 +161,8 @@ function mainWorld() {
 
   this.init_rain();
   this.init_snow();
+
+  this.ready = false;
 }
 
 mainWorld.prototype.player_attack_level_collision = function() {
@@ -187,8 +202,22 @@ mainWorld.prototype.player_attack_level_collision = function() {
 
 
       var sz = this.size;
-      var tile_bbox = [[tile_x, tile_y], [tile_x+sz,tile_y+sz]];
-      if (box_box_intersect(sword_bbox, tile_bbox)) {
+
+      //var tile_bbox = [[tile_x, tile_y], [tile_x+sz-1,tile_y+sz-1]];
+
+      var ti = level.tile_info[layer.data[jj]];
+      tile_bbox = this.tile_bbox(layer.data[jj] - ti.firstgid, tile_x, tile_y);
+
+      if (box_box_intersect(sword_bbox, tile_bbox, 0.125)) {
+
+        if (this.debug) {
+          this.debug_rect[0][0] = tile_bbox[0][0];
+          this.debug_rect[0][1] = tile_bbox[0][1];
+
+          this.debug_rect[1][0] = tile_bbox[1][0];
+          this.debug_rect[1][1] = tile_bbox[1][1];
+        }
+
         return true;
       }
 
@@ -312,6 +341,41 @@ mainWorld.prototype.bbox_level_collision = function(bbox) {
     collision_index.push( level.layer_name_index_lookup["collision.bottom"]);
   }
 
+  var base_c = Math.floor(bbox[0][0]/16);
+  var base_r = Math.floor(bbox[0][1]/16);
+
+  //console.log(collision_index[0]);
+
+  for (var ind=0; ind<collision_index.length; ind++) {
+    for (var cc=-1; cc<2; cc++) {
+      for (var rr=-1; rr<2; rr++) {
+        var key = (base_r+rr) + ":" + (base_c+cc);
+
+        var z = collision_index[ind];
+        if (key in this.level.layer_lookup[z]) {
+          var tile_x = (base_c + cc) * 16;
+          var tile_y = (base_r + rr) * 16;
+
+          var val = this.level.layer_lookup[z][key];
+
+          var ti = level.tile_info[val];
+
+          tile_bbox = this.tile_bbox(val - ti.firstgid, tile_x, tile_y);
+
+          if (box_box_intersect(bbox, tile_bbox, .25)) {
+            this.debug_rect = tile_bbox;
+            return true;
+          }
+
+        }
+      }
+    }
+  }
+
+  return false;
+
+
+  /*
   for (var ind=0; ind<collision_index.length; ind++) {
     var layer = layers[collision_index[ind]];
 
@@ -344,7 +408,11 @@ mainWorld.prototype.bbox_level_collision = function(bbox) {
             console.log("????", r, c);
           }
 
-      if (box_box_intersect(bbox, tile_bbox)) {
+      //if (box_box_intersect(bbox, tile_bbox, .125)) {
+      if (box_box_intersect(bbox, tile_bbox, .5)) {
+
+        //console.log(bbox[0], bbox[1], tile_bbox[0], tile_bbox[1]);
+
         this.debug_rect = tile_bbox;
         return true;
       }
@@ -353,6 +421,7 @@ mainWorld.prototype.bbox_level_collision = function(bbox) {
   }
 
   return false;
+  */
 }
 
 mainWorld.prototype.line_level_collision = function(l0, l1) {
@@ -434,6 +503,16 @@ mainWorld.prototype.draw = function() {
   }
 
 
+  if (this.enemy) {
+    for (var key in this.enemy) {
+      if ("state" in this.enemy[key]) {
+        if (this.enemy[key].state == "dead") {
+          this.enemy[key].draw();
+        }
+      }
+    }
+  }
+
 
   if (this.player) {
 
@@ -489,7 +568,13 @@ mainWorld.prototype.draw = function() {
 
   if (this.enemy) {
     for (var key in this.enemy) {
-      this.enemy[key].draw();
+      if ("state" in this.enemy[key]) {
+        if (this.enemy[key].state != "dead") {
+          this.enemy[key].draw();
+        }
+      } else {
+        this.enemy[key].draw();
+      }
     }
   }
 
@@ -675,7 +760,70 @@ mainWorld.prototype.update_snow = function() {
 
 }
 
+
+mainWorld.prototype.player_attack_enemy = function() {
+  var hit_enemy = false;
+
+  if (!this.enemy) { return; }
+  if (!this.player) { return; }
+
+  for (var key in this.enemy) {
+    if (!("hit_bounding_box" in this.enemy[key])) { continue; }
+    if (this.enemy[key].state == "dead") { continue; }
+
+    var en_bbox = this.enemy[key].hit_bounding_box;
+    var sword_bbox = this.player.sword_bbox;
+
+    if (box_box_intersect(en_bbox, sword_bbox,.125)) {
+
+      this.enemy[key].hit(this.player.sword_damage);
+
+      var cx = Math.floor((this.player.sword_bbox[1][0] - this.player.sword_bbox[0][0])/2);
+      var cy = Math.floor((this.player.sword_bbox[1][1] - this.player.sword_bbox[0][1])/2);
+      cx += this.player.sword_bbox[0][0];
+      cy += this.player.sword_bbox[0][1];
+
+      var dirxy = this.player.actual_dir_xy();
+      var dx = dirxy[0];
+      var dy = dirxy[1];
+
+      var p = new particleDebris(cx,cy,dx,dy,1,1,"rgba(255,255,255,0.7)");
+      this.particle.push(p);
+
+      hit_enemy=true;
+    }
+  }
+
+  return hit_enemy;
+
+}
+
+mainWorld.prototype.player_kickback = function() {
+  var player = this.player;
+
+  var dirxy = player.actual_dir_xy();
+  var dx = dirxy[0];
+  var dy = dirxy[1];
+
+  var kickback_pos_x = player.x - Math.floor(Math.random()*dirxy[0]*2);
+  var kickback_pos_y = player.y - Math.floor(Math.random()*dirxy[1]*2);
+  
+  var tbbox = [[kickback_pos_x,player.y],[kickback_pos_x+player.size-1,player.y+player.size-1]];
+  
+  if (!this.bbox_level_collision(tbbox)) {
+    player.x = kickback_pos_x;
+  }
+  
+  tbbox = [[player.x,kickback_pos_y],[player.x+player.size-1,kickback_pos_y+player.size-1]];
+  
+  if (!this.bbox_level_collision(tbbox)) {
+    player.y = kickback_pos_y;
+  }
+}
+  
 mainWorld.prototype.update = function() {
+
+  if (!this.ready) { return; }
 
   this.ticker++;
 
@@ -953,6 +1101,14 @@ mainWorld.prototype.update = function() {
 
       } else if (player.intent.type == "swordAttack") {
 
+        if (this.player_attack_enemy()) {
+          var n = g_sfx["enemy-hit"].length;
+          n = Math.floor(Math.random()*n);
+          g_sfx["enemy-hit"][n].play();
+
+          this.player_kickback();
+        }
+
         if (this.player_attack_level_collision()) {
 
           var cx = Math.floor((player.sword_bbox[1][0] - player.sword_bbox[0][0])/2);
@@ -973,6 +1129,9 @@ mainWorld.prototype.update = function() {
 
           // Playe rkickback
           //
+          this.player_kickback();
+          
+          /*
           var kickback_pos_x = player.x - Math.floor(Math.random()*dirxy[0]*2);
           var kickback_pos_y = player.y - Math.floor(Math.random()*dirxy[1]*2);
 
@@ -987,14 +1146,13 @@ mainWorld.prototype.update = function() {
           if (!this.bbox_level_collision(tbbox)) {
             player.y = kickback_pos_y;
           }
+          */
 
 
           // sfx
           //
           var x = Math.floor(Math.random()*g_sfx["sword-thud"].length);
           g_sfx["sword-thud"][x].play();
-
-
 
         }
       } else if (player.intent.type == "bombThrow") {
@@ -1063,6 +1221,24 @@ mainWorld.prototype.update = function() {
     }
 
   }
+
+  if (this.enemy)
+  {
+    for (var key in this.enemy) {
+      if ("intent" in this.enemy[key]) {
+        var intent = this.enemy[key].intent;
+        var bbox = this.enemy[key].intent.bounding_box;
+
+        if (!this.bbox_level_collision(bbox)) {
+          this.enemy[key].realize_intent();
+        } else {
+          this.enemy[key].world_collision(this);
+        }
+
+      }
+    }
+  }
+
 
   if (this.element) {
     for (var key in this.element) {

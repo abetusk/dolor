@@ -1,4 +1,8 @@
-function particleDebris(x,y,dx,dy) {
+function particleDebris(x,y,dx,dy,vv,ttl,color) {
+  vv = ((typeof vv === "undefined")?2:vv);
+  ttl = ((typeof ttl === "undefined")?12:ttl);
+  color = ((typeof color === "undefined")?"rgba(88,52,40,1)":color);
+
   this.ttl = 12;
   this.pos = [];
   this.dpos = [];
@@ -16,10 +20,6 @@ function particleDebris(x,y,dx,dy) {
 
   var opdx = dy;
   var opdy =-dx;
-
-  //this.accel = [0,1];
-  //this.accel = [dx,dy];
-  //this.accel = [-dx/5.0, -dy/5.0];
 
   var rho = 0;
        if (dy>0.5) { rho=Math.PI/2; }
@@ -44,10 +44,9 @@ function particleDebris(x,y,dx,dy) {
     var vx = Math.cos(theta[i] + dtheta + rho);
     var vy = Math.sin(theta[i] + dtheta + rho);
 
-    this.dpos.push([vx*2,vy*2]);
+    this.dpos.push([vx*vv,vy*vv]);
     this.accel.push([vx/10,vy/10]);
-
-    this.color.push( "rgba( 88, 52, 40,1)" );
+    this.color.push(color);
 
     var s = Math.floor(Math.random()*2) + 1;
     this.psize.push(s);

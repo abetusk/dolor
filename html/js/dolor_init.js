@@ -26,7 +26,8 @@
     var g_canvas = "canvas";
     var g_context = null;
 
-    var g_show_fps = false;
+    var g_show_fps = true;
+    //var g_show_fps = true;
 
     function canvasFocus()
     {
@@ -184,6 +185,10 @@
       g_imgcache.add("puff", img_base + "/puff.png");
 
       g_imgcache.add("bones", img_base + "/bones3.png");
+      g_imgcache.add("dead_bones", img_base + "/dead_bones.png");
+      g_imgcache.add("mask_bones", img_base + "/mask_bones.png");
+      g_imgcache.add("mask_dead_bones", img_base + "/mask_dead_bones.png");
+
       g_imgcache.add("horns", img_base + "/horns.png");
       g_imgcache.add("knight", img_base + "/lattice_knight2.png");
 
@@ -280,13 +285,16 @@
         //url: "assets/tele_room.json",
         //url: "assets/home.json",
         //url: "assets/overworld_test.json",
-        url: "assets/overworld_v2.json",
+        //url: "assets/overworld_v2.json",
+        url: "assets/exia_overworld.json",
         dataType:"json",
         success: function(a,b,c) {
           g_data["homeArea"] = a;
           g_level.tilemap = a;
           g_level.ready = true;
           g_level.init();
+
+          g_world.ready = true;
         },
         error: function(e) {
           console.log("err", e);

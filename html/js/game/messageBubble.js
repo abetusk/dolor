@@ -23,6 +23,7 @@ function messageBubble(info) {
     message:"hello, friend"
   };
 
+  this.alpha_factor = 0.9;
   this.init();
   this.setup_info(info);
   //this.setup_info(this.default_info);
@@ -263,6 +264,7 @@ messageBubble.prototype.draw = function() {
     var txt_y = 0;
     var dtxt = 4;
 
+    font_a *= this.alpha_factor;
 
     if (this.bubble_type == "none") {
 
