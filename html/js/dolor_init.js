@@ -27,7 +27,6 @@
     var g_context = null;
 
     var g_show_fps = true;
-    //var g_show_fps = true;
 
     function canvasFocus()
     {
@@ -295,6 +294,18 @@
           g_level.init();
 
           g_world.ready = true;
+
+          g_level.meta_map(0, function(dat, x, y) {
+            var bones = new creatureBones();
+            bones.init(x,y);
+            g_world.enemy.push(bones);
+          });
+
+          g_level.meta_map(15, function(dat, x, y) {
+            g_player.x = x;
+            g_player.y = y;
+          });
+
         },
         error: function(e) {
           console.log("err", e);

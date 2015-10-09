@@ -14,6 +14,8 @@ function mainWorld() {
   this.orig_dx = 0;
   this.orig_dy = 0;
 
+  this.display_speedup = true;
+
   this.size = g_GRIDSIZE;
 
   this.debug = false;
@@ -64,20 +66,6 @@ function mainWorld() {
   neko.x = 112;
   neko.y = 304;
   this.enemy.push(neko);
-
-  /*
-  var bones = new creatureBones();
-  //bones.x = 112 + 16;
-  //bones.y = 304;
-  bones.init(112+16, 304);
-  this.enemy.push(bones);
-  */
-
-  for (i=0; i<10; i++) {
-    var bones = new creatureBones();
-    bones.init(128+16*i, 304);
-    this.enemy.push(bones);
-  }
 
   /*
   //var c0 = new creatureCritter("critter_bunny", g_GRIDSIZE/2, 8);
@@ -499,7 +487,13 @@ mainWorld.prototype.draw = function() {
       }
     }
 
-    this.level.draw_layer("bottom");
+    // from 15fps to 60fps
+    //
+    if (this.display_speedup) {
+      this.level.draw_layer_w("bottom", this.player.x, this.player.y, 16, 30);
+    } else {
+      this.level.draw_layer("bottom");
+    }
   }
 
 
@@ -693,7 +687,16 @@ mainWorld.prototype.update_rain = function() {
   var dt = this.rain_dt;
   var fudge = Math.floor( (dt/2) );
   var N = this.rain_N;
-  var dr = 32*16;
+  //var dr = 32*16;
+  var dr = 40*16;
+
+  var center_x = 0;
+  var center_y = 0;
+
+  if (this.player) {
+    center_x = this.player.x - dr/2;
+    center_y = this.player.y - dr/2;
+  }
 
   for (var i=0; i<N; i++) {
     this.rain[i].ttl--;
@@ -704,8 +707,8 @@ mainWorld.prototype.update_rain = function() {
       this.rain_impact[i].start(this.rain[i].x, this.rain[i].y);
 
       this.rain[i].ttl = Math.floor(Math.random()*dt)+1;
-      this.rain[i].x = Math.floor(Math.random()*dr)+fudge;
-      this.rain[i].y = Math.floor(Math.random()*dr)-fudge;
+      this.rain[i].x = Math.floor(Math.random()*dr)+fudge + center_x;
+      this.rain[i].y = Math.floor(Math.random()*dr)-fudge + center_y;
     }
 
     if (this.rain_impact[i].state != "idle") {
@@ -828,16 +831,20 @@ mainWorld.prototype.update = function() {
   this.ticker++;
 
   if ((this.ticker%1000)==0) {
-    var s = Math.floor(Math.random()*3);
-    if (s==0) {
+    //var s = Math.floor(Math.random()*3);
+    var r = Math.random();
+    //if (s==0) {
+    if (r < 0.1) {
       this.environment_state = "idle";
       this.rain_flag = false;
       this.snow_flag = false;
-    } else if (s==1) {
+    //} else if (s==1) {
+    } else if (r<.9) {
       this.environment_state = "rain";
       this.rain_flag = true;
       this.snow_flag = false;
-    } else if (s==2) {
+    //} else if (s==2) {
+    } else {
       this.environment_state = "snow";
       this.rain_flag = false;
       this.snow_flag = true;
