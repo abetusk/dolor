@@ -1364,11 +1364,153 @@ mainWorld.prototype.updateCam = function() {
 
 }
 
+mainWorld.prototype.update_wave_sfx = function() {
+  var max_y = 1952;
+  var min_y = 1700;
+  var vol_max = 0.5;
+
+  if (!this.player) { return; }
+  var py = this.player.y;
+
+  if (typeof this.wave_sound_playing === "undefined") {
+    this.wave_sound_playing = false;
+  }
+
+  if (this.wave_sound_playing && (py<min_y)) {
+    g_sfx["wave"][0].stop();
+    this.wave_sound_playing=false;
+    return;
+  }
+
+  var v = (py - min_y) / (max_y - min_y);
+  if (v > 1) { v = 1; }
+
+  if (!this.wave_sound_playing) {
+    g_sfx["wave"][0].play();
+    this.wave_sound_playing=true;
+  }
+
+  if (this.wave_sound_playing) {
+    g_sfx["wave"][0].volume(v*vol_max);
+  }
+}
+
+mainWorld.prototype.update_home_music = function() {
+}
+
+mainWorld.prototype.update_rain_sfx = function() {
+  // playing around
+  //
+  if (typeof this.rain_sound_playing === "undefined") {
+    this.rain_sound_playing = false;
+    this.rain_transition_n = 100;
+    this.rain_transition = this.rain_transition_n;
+    this.rain_timer_n = 30*20;
+    this.rain_timer = this.rain_timer_n;
+    this.rain_eo = 0;
+
+    this.rain_ramp_up_n = 100;
+    this.rain_ramp_up = 0;
+
+    this.rain_ramp_down_n = 100;
+    this.rain_ramp_down = this.rain_ramp_down_n;
+
+    this.rain_max_vol = 0.5;
+  }
+
+  if (this.rain_sound_playing) {
+
+    if (this.rain_flag) {
+
+      this.rain_ramp_up++;
+      if (this.rain_ramp_up <= this.rain_ramp_up_n) {
+        g_sfx["rain"][this.rain_eo].volume(this.rain_max_vol*this.rain_ramp_up/this.rain_ramp_up_n);
+      }
+
+      this.rain_timer--;
+      if (this.rain_timer<=0) {
+        this.rain_transition--;
+
+        var v = this.rain_transition/this.rain_transition_n;
+        if (v<0) { v=0; }
+
+        if (this.rain_timer==0) {
+          g_sfx["rain"][1-this.rain_eo].play();
+        }
+
+        g_sfx["rain"][this.rain_eo].volume(this.rain_max_vol*v);
+        g_sfx["rain"][1-this.rain_eo].volume(this.rain_max_vol*(1-v));
+
+        console.log(v);
+
+        if (this.rain_transition<=0) {
+          this.rain_transition= this.rain_transition_n;
+          this.rain_timer = this.rain_timer_n;
+
+          g_sfx["rain"][this.rain_eo].stop();
+
+          this.rain_eo = 1-this.rain_eo;
+        }
+      }
+    } else {
+
+      // I think this still jumps around a bit...
+      //
+      this.rain_ramp_down--;
+      if (this.rain_ramp_down == 0) {
+        g_sfx["rain"][0].stop();
+        g_sfx["rain"][1].stop();
+        this.rain_sound_playing=false;
+      } else if (this.rain_ramp_down > 0) {
+        g_sfx["rain"][this.rain_eo].volume(this.rain_max_vol*this.rain_ramp_down/this.rain_ramp_down_n);
+        g_sfx["rain"][1-this.rain_eo].stop();
+      }
+
+    }
+  }
+
+  if (this.rain_flag) {
+    if (!this.rain_sound_playing) {
+      this.rain_eo = 0;
+      g_sfx["rain"][this.rain_eo].play();
+      g_sfx["rain"][this.rain_eo].volume(0);
+
+      this.rain_transition = this.rain_transition_n;
+      this.rain_timer = this.rain_timer_n;
+      this.rain_sound_playing = true;
+
+      this.rain_ramp_up = 0;
+      this.rain_ramp_down = this.rain_ramp_down_n;
+    }
+  }
+
+
+}
+
 mainWorld.prototype.update = function() {
 
   if (!this.ready) { return; }
 
   this.ticker++;
+
+  this.update_rain_sfx();
+  //this.update_wave_sfx();
+
+  /*
+  if (this.ticker%50) {
+
+    if (this.rain_flag) {
+
+      if (!this.rain_sound_playing) {
+        this.rain_sfx = g_sfx["rain"][0].play();
+        this.rain_sound_playing = true;
+
+        console.log(">>>");
+      }
+
+    }
+  }
+  */
 
   if ((this.ticker%1000)==0) {
     //var s = Math.floor(Math.random()*3);

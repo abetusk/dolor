@@ -277,6 +277,11 @@
 
       g_sfx["rain"] = [];
       g_sfx["rain"].push( new_sound_object("assets/sfx/157433__timgormly__medium-rain.ogg", 0.5, true) );
+      g_sfx["rain"].push( new_sound_object("assets/sfx/157433__timgormly__medium-rain.ogg", 0.5, true) );
+
+      g_sfx["wave"] = [];
+      g_sfx["wave"].push( new_sound_object("assets/sfx/254857__afeeto__waves-against-shore.ogg", 0.5, true) );
+      //g_sfx["wave"].push( new_sound_object("assets/sfx/254857__afeeto__waves-against-shore.ogg", 0.5, true) );
 
       g_music = {};
       g_music["home"] = new_sound_object("assets/music/mark.nine-the-little-things-02-devil-you-know.mp3");
