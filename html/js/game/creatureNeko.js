@@ -39,7 +39,8 @@ function creatureNeko(name, gridsize, tilesize, nframe) {
     origin: "lower_left",
     style: "center",
     //message:"It's dangereous and\nyou are alone"
-    message:"It's dangereous and\nyou are alone"
+    //message:"It's dangereous and\nyou are alone"
+    message:"Happy birthday Heather!!!\n"
   });
 
 }

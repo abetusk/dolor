@@ -26,7 +26,7 @@
     var g_canvas = "canvas";
     var g_context = null;
 
-    var g_show_fps = true;
+    var g_show_fps = false;
 
     function canvasFocus()
     {
@@ -126,7 +126,8 @@
 
       g_player = new mainPlayer();
       //g_level = new dungeon0();
-      g_level = new homeLevel();
+      //g_level = new homeLevel();
+      g_level = new dungeonJade();
       g_world = new mainWorld();
 
       // setup image cache and preload some generic items
@@ -143,7 +144,9 @@
 
       //g_imgcache.add("rotbow", img_base + "/rotbow3.png");
       //g_imgcache.add("dungeon0", img_base + "/dungeon_sheet_0.png");
-      g_imgcache.add("dungeon0", img_base + "/sheet_17.png");
+      //g_imgcache.add("dungeon0", img_base + "/sheet_17.png");
+      g_imgcache.add("dungeon", img_base + "/sheet_17.png");
+      g_imgcache.add("sheet_17", img_base + "/sheet_17.png");
       g_imgcache.add("forrest", img_base + "/forrestup_0.png");
       g_imgcache.add("forrestup_0", img_base + "/forrestup_0.png");
 
@@ -189,6 +192,10 @@
       g_imgcache.add("mask_dead_bones", img_base + "/mask_dead_bones.png");
 
       g_imgcache.add("horns", img_base + "/horns.png");
+      g_imgcache.add("dead_horns", img_base + "/dead_horns.png");
+      g_imgcache.add("mask_horns", img_base + "/mask_horns.png");
+      g_imgcache.add("mask_dead_horns", img_base + "/mask_dead_horns.png");
+
       g_imgcache.add("knight", img_base + "/lattice_knight2.png");
 
       g_imgcache.add("floatskull", img_base + "/floatskull.png");
@@ -285,7 +292,11 @@
         //url: "assets/home.json",
         //url: "assets/overworld_test.json",
         //url: "assets/overworld_v2.json",
+
         url: "assets/exia_overworld.json",
+        //url: "assets/bdanger.json",
+
+        //url: "assets/dungeon_jade.json",
         dataType:"json",
         success: function(a,b,c) {
           g_data["homeArea"] = a;
@@ -301,11 +312,18 @@
             g_world.enemy.push(bones);
           });
 
+          g_level.meta_map(1, function(dat, x, y) {
+            var horns = new creatureHorns();
+            horns.init(x,y);
+            g_world.enemy.push(horns);
+          });
+
           g_level.meta_map(15, function(dat, x, y) {
             g_player.x = x;
             g_player.y = y;
           });
 
+          g_world.init();
         },
         error: function(e) {
           console.log("err", e);

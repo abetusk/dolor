@@ -172,13 +172,49 @@ function mainPlayer(x,y,game) {
 
   this.teleport_dest_ready = false;
 
+  /*
+  this.focus_history_window = 100;
+  this.focus_history = [];
+  this.focus_history_pos = 0;
+  this.focus = [this.x, this.y];
+  for (var i=0; i<this.focus_history_window; i++) {
+    this.focus_history.push( [this.x,this.y] );
+  }
+
+  console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", this.focus);
+  */
+
 }
 
 mainPlayer.prototype.init = function(x, y, d) {
   this.x = x;
   this.y = y;
   this.d = d;
+
+  /*
+  this.focus_history = [];
+  for (var i=0; i<this.focus_history_window; i++) {
+    this.focus_history[i].push( [this.x,this.y] );
+  }
+  this.update_focus();
+  */
+
 }
+
+
+/*
+mainPlayer.prototype.update_focus = function() {
+  var x = 0;
+  var y = 0;
+  for (var i=0; i<this.focus_history.length; i++) {
+    x += this.focus_history[i][0];
+    y += this.focus_history[i][1];
+  }
+
+  this.focus[0] = x/this.focus_history.length;
+  this.focus[1] = y/this.focus_history.length;
+}
+*/
 
 mainPlayer.prototype.actualDirection = function() {
   var n = this.displayq.length;
@@ -431,9 +467,18 @@ mainPlayer.prototype.update = function() {
   g_painter.dirty_flag = true;
 
   this.playerBBox();
-
   this.updatePuffs();
 
+
+  // update focus
+  //
+  /*
+  var p = this.focus_history_pos;
+  this.focus_history[p][0] = this.x;
+  this.focus_history[p][1] = this.y;
+  this.focus_history_pos = (p+1)%this.focus_history_window;
+  this.update_focus();
+  */
 
   for (var ev in this.inputEvent) {
 

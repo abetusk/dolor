@@ -63,8 +63,8 @@ function mainWorld() {
   //c0.y = 304;
 
   var neko = new creatureNeko();
-  neko.x = 112;
-  neko.y = 304;
+  neko.x = 16*31;
+  neko.y = 16*13;
   this.enemy.push(neko);
 
   /*
@@ -151,6 +151,72 @@ function mainWorld() {
   this.init_snow();
 
   this.ready = false;
+
+
+  this.player_focus_history_window = 100;
+  this.player_focus_history = [];
+  this.player_focus_history_pos = 0;
+  this.player_focus = [0,0];
+  for (var i=0; i<this.focus_history_window; i++) {
+    this.player_focus_history.push( [0,0] );
+  }
+
+  this.player_focus_v_window = 120;
+  this.player_focus_v = [];
+  this.player_focus_v_pos = 0;
+  for (var i=0; i<this.focus_focus_; i++) {
+    this.player_focus_v.push( [0,0] );
+  }
+  this.player_focus_v_factor = 1.0/4.0;
+
+
+  this.player_prev_x = 0;
+  this.player_prev_y = 0;
+
+
+  this.camvec = [];
+  for (var i=0; i<100; i++) { this.camvec.push(0); }
+  this.camvec_pos=0;
+
+}
+
+mainWorld.prototype.player_update_focus = function() {
+  var x = 0;
+  var y = 0;
+  for (var i=0; i<this.player_focus_history.length; i++) {
+    x += this.player_focus_history[i][0];
+    y += this.player_focus_history[i][1];
+  }
+
+  this.player_focus[0] = x/this.player_focus_history.length;
+  this.player_focus[1] = y/this.player_focus_history.length;
+
+}
+
+mainWorld.prototype.init = function() {
+  var x = 0;
+  var y = 0;
+
+  if (this.player) {
+    x = this.player.x;
+    y = this.player.y;
+
+    this.player_prev_x = x;
+    this.player_prev_y = y;
+  }
+
+  //this.player_focus_v_window = 120;
+  this.player_focus_v_pos = 0;
+  this.player_focus_v = [];
+  for (var i=0; i<this.player_focus_v_window; i++) {
+    this.player_focus_v.push( [0,0] );
+  }
+
+  this.player_focus_history = [];
+  for (var i=0; i<this.player_focus_history_window; i++) {
+    this.player_focus_history.push( [x,y] );
+  }
+  this.player_update_focus();
 }
 
 mainWorld.prototype.player_attack_level_collision = function() {
@@ -476,10 +542,23 @@ var debug_del = 1;
 mainWorld.prototype.draw = function() {
   this.painter.startDrawColor( "rgba(210,210,220,1.0)" );
 
+  var painter = this.painter;
+  var screen0 = { "x": painter.width/2, "y": painter.height/2 };
+  var world0 = painter.devToWorld(screen0.x, screen0.y);
+
+  var world_p_x = painter.devToWorld(painter.width, screen0.y);
+  var world_p_y = painter.devToWorld(screen0.x, painter.height);
+
+  //var tile_dx = Math.floor((Math.abs(world_p_x.x - world0.x)/8)) + 6;
+  //var tile_dy = Math.floor((Math.abs(world_p_y.y - world0.y)/8)) + 6;
+
+  var tile_dx = Math.floor((Math.abs(world_p_x.x - world0.x)/8)) + 2;
+  var tile_dy = Math.floor((Math.abs(world_p_y.y - world0.y)/8)) + 2;
+
   if (this.level)
   {
-    this.level.draw_layer("bottom.-2");
-    this.level.draw_layer("bottom.-1");
+    //this.level.draw_layer("bottom.-2");
+    //this.level.draw_layer("bottom.-1");
 
     if (this.debris) {
       for (var key in this.debris) {
@@ -487,13 +566,20 @@ mainWorld.prototype.draw = function() {
       }
     }
 
-    // from 15fps to 60fps
-    //
     if (this.display_speedup) {
-      this.level.draw_layer_w("bottom", this.player.x, this.player.y, 16, 30);
+
+
+      //var cent = this.painter.devToWorld(
+
+
+      //this.level.draw_layer_w("bottom", this.player.x, this.player.y, 15, 25);
+      this.level.draw_layer_w("bottom.-2", world0.x, world0.y, tile_dx, tile_dy);
+      this.level.draw_layer_w("bottom.-1", world0.x, world0.y, tile_dx, tile_dy);
+      this.level.draw_layer_w("bottom", world0.x, world0.y, tile_dx, tile_dy);
     } else {
       this.level.draw_layer("bottom");
     }
+
   }
 
 
@@ -528,7 +614,8 @@ mainWorld.prototype.draw = function() {
     this.level.draw_layer_top("height", this.player.x, this.player.y);
 
   } else {
-    this.level.draw_layer("height");
+    //this.level.draw_layer("height");
+    this.level.draw_layer_w("height", world0.x, world0.y, tile_dx, tile_dy);
   }
 
   if (this.element) {
@@ -574,7 +661,8 @@ mainWorld.prototype.draw = function() {
 
   if (this.level)
   {
-    this.level.draw_layer("top");
+    //this.level.draw_layer("top");
+    this.level.draw_layer_w("top", world0.x, world0.y, tile_dx, tile_dy);
   }
 
   // Make sure to render the explosion above all else.
@@ -810,20 +898,472 @@ mainWorld.prototype.player_kickback = function() {
 
   var kickback_pos_x = player.x - Math.floor(Math.random()*dirxy[0]*2);
   var kickback_pos_y = player.y - Math.floor(Math.random()*dirxy[1]*2);
-  
+
   var tbbox = [[kickback_pos_x,player.y],[kickback_pos_x+player.size-1,player.y+player.size-1]];
-  
+
   if (!this.bbox_level_collision(tbbox)) {
     player.x = kickback_pos_x;
   }
-  
+
   tbbox = [[player.x,kickback_pos_y],[player.x+player.size-1,kickback_pos_y+player.size-1]];
-  
+
   if (!this.bbox_level_collision(tbbox)) {
     player.y = kickback_pos_y;
   }
 }
-  
+
+// Pros: has lead
+// Cons: 'wobbles' when movement has stopped (because of lead window)
+//       'snaps' when direction change
+//
+mainWorld.prototype.updateCam_lerp_average_lead_window = function() {
+  var painter = this.painter;
+  var screen0 = { "x": painter.width/2, "y": painter.height/2 };
+  var world0 = painter.devToWorld(screen0.x, screen0.y);
+
+  var dest_world = {"x": world0.x, "y": world0.y };
+  if (this.player) {
+
+    var dx = this.player.x - this.player_prev_x;
+    var dy = this.player.y - this.player_prev_y;
+    this.player_prev_x = this.player.x;
+    this.player_prev_y = this.player.y;
+
+    var dxy = Math.floor(Math.abs(dx) + Math.abs(dy));
+
+    var dv = 0;
+    var p = this.camvec_pos;
+    this.camvec[p] = dxy;
+    this.camvec_pos = (p+1)%this.camvec.length;
+    for (var i=0; i<this.camvec.length; i++) {
+      dv += this.camvec[i];
+    }
+
+    var player_dir = this.player.dir_xy();
+
+    var vec_dir = { "x" : dv*player_dir[0], "y": dv*player_dir[1]};
+    var lead_xy = { "x": this.player.x + vec_dir.x, "y":this.player.y + vec_dir.y};
+
+    var p1 = 1/16;
+    var p2 = 1/32;
+    var p0 = 1-p1-p2;
+
+    dest_world.x = (p0*world0.x + p1*this.player.x + p2*lead_xy.x);
+    dest_world.y = (p0*world0.y + p1*this.player.y + p2*lead_xy.y);
+
+    var dest_screen = painter.worldToDev(dest_world.x, dest_world.y);
+
+    screen_dx = -(dest_screen.x - screen0.x);
+    screen_dy = -(dest_screen.y - screen0.y);
+
+    // clamp
+    if (screen_dx >= ((painter.width/2)-3))      { screen_dx =   (painter.width/2)-3;   }
+    if (screen_dx <= (-((painter.width/2)-3)))   { screen_dx = -((painter.width/2)-3);  }
+    if (screen_dy >= ((painter.height/2)-3))     { screen_dy =   (painter.height/2)-3;  }
+    if (screen_dy <= (-((painter.height/2)-3)))  { screen_dy = -((painter.height/2)-3); }
+
+    screen_dx = Math.floor(screen_dx);
+    screen_dy = Math.floor(screen_dy);
+
+    if (Math.abs(screen_dx) < 1/1024) { scree_dx = 0; }
+    if (Math.abs(screen_dy) < 1/1024) { scree_dy = 0; }
+
+    painter.adjustPan(screen_dx,screen_dy);
+  }
+
+}
+
+// Pros: simple
+// Cons: no lead
+//
+mainWorld.prototype.updateCam_lerp_position_locking = function() {
+  var painter = this.painter;
+  var screen0 = { "x": painter.width/2, "y": painter.height/2 };
+  var world0 = painter.devToWorld(screen0.x, screen0.y);
+
+  var dest_world = {"x": world0.x, "y": world0.y };
+  if (this.player) {
+
+    var p1 = 1/32;
+    var p0 = 1-p1;
+    dest_world.x = (p0*world0.x + p1*this.player.x);
+    dest_world.y = (p0*world0.y + p1*this.player.y);
+
+    var dest_screen = painter.worldToDev(dest_world.x, dest_world.y);
+
+    screen_dx = -(dest_screen.x - screen0.x);
+    screen_dy = -(dest_screen.y - screen0.y);
+
+    // clamp
+    //
+    if (screen_dx >= ((painter.width/2)-3))      { screen_dx =   (painter.width/2)-3;   }
+    if (screen_dx <= (-((painter.width/2)-3)))   { screen_dx = -((painter.width/2)-3);  }
+    if (screen_dy >= ((painter.height/2)-3))     { screen_dy =   (painter.height/2)-3;  }
+    if (screen_dy <= (-((painter.height/2)-3)))  { screen_dy = -((painter.height/2)-3); }
+
+    screen_dx = Math.floor(screen_dx);
+    screen_dy = Math.floor(screen_dy);
+
+    //painter.adjustPan(screen_dx,screen_dy);
+
+    //var z = this.get_player_vel_zoom();
+    var z = this.get_player_accel_zoom();
+    painter.adjustPanZoom(screen_dx,screen_dy,z);
+  }
+}
+
+// Pros: mostly what I want:
+//   - no headache inducing follow cam
+//   - camera stays stionary while exploring places of interest
+// Cons: hard to get window boundaries right.  Want to
+//   'push' on edge to get more of the action area visible.
+//   Too often, you get in the boundaries where monsters are
+//   and get annoyed.
+//   Also when walking for a while the camera sometimes 'bobs'.
+//   Also has the same problem as not being able to look ahead.
+//
+mainWorld.prototype.updateCam_lerp_snap_on_edge = function() {
+  var painter = this.painter;
+  var screen0 = { "x": painter.width/2, "y": painter.height/2 };
+  var world0 = painter.devToWorld(screen0.x, screen0.y);
+
+  if (typeof this.dest_world=== "undefined") {
+    this.dest_world = {"x":world0.x, "y": world0.y };
+  }
+
+  var cur_dest_world = {"x": world0.x, "y": world0.y };
+  if (this.player) {
+
+    var windx = 10*16;
+    var windy = 6*16;
+
+    if (Math.abs(this.player.x - world0.x) > windx) {
+      this.dest_world.x = 16*Math.floor(this.player.x/16);
+    } else if (Math.abs(this.player.y-8 - world0.y) > windy) {
+      this.dest_world.y = 16*Math.floor(this.player.y/16);
+    }
+
+    var p1 = 1/32;
+    var p0 = 1-p1;
+    cur_dest_world.x = (p0*world0.x + p1*this.dest_world.x);
+    cur_dest_world.y = (p0*world0.y + p1*this.dest_world.y);
+
+    var dest_screen = painter.worldToDev(cur_dest_world.x, cur_dest_world.y);
+
+    screen_dx = -(dest_screen.x - screen0.x);
+    screen_dy = -(dest_screen.y - screen0.y);
+
+    // clamp
+    //
+    if (screen_dx >= ((painter.width/2)-3))      { screen_dx =   (painter.width/2)-3;   }
+    if (screen_dx <= (-((painter.width/2)-3)))   { screen_dx = -((painter.width/2)-3);  }
+    if (screen_dy >= ((painter.height/2)-3))     { screen_dy =   (painter.height/2)-3;  }
+    if (screen_dy <= (-((painter.height/2)-3)))  { screen_dy = -((painter.height/2)-3); }
+
+    screen_dx = Math.floor(screen_dx);
+    screen_dy = Math.floor(screen_dy);
+
+    //painter.adjustPan(screen_dx,screen_dy);
+
+    var z = this.get_player_vel_zoom();
+    painter.adjustPanZoom(screen_dx,screen_dy,z);
+
+  }
+}
+
+// hm, not sure
+//
+mainWorld.prototype.get_player_accel_zoom = function() {
+  //var default_zoom = 3.25;
+  //var max_zoom = 2.5;
+
+  var default_zoom = 3;
+  var max_zoom = 2;
+
+  if (typeof this.camvec_sum === "undefined") {
+    this.camvec_sum = 0;
+  }
+
+  this.camvec_sum_max = 256;
+
+  this.camvec_m = 3*this.camvec_sum_max/8;
+  this.camvec_M = 5*this.camvec_sum_max/8;
+
+  if (this.player) {
+
+    if (typeof this.player_prev_xx === "undefined") {
+      this.player_prev_xx = this.player.x;
+      this.player_prev_yy = this.player.y;
+    }
+
+    var dx = this.player.x - this.player_prev_x;
+    var dy = this.player.y - this.player_prev_y;
+    var dxx = this.player_prev_x - this.player_prev_xx;
+    var dyy = this.player_prev_y - this.player_prev_yy;
+    this.player_prev_xx = this.player_prev_x;
+    this.player_prev_yy = this.player_prev_y;
+    this.player_prev_x = this.player.x;
+    this.player_prev_y = this.player.y;
+
+    if ((Math.abs(dx)<0.125) && (Math.abs(dy)<0.125)) {
+      this.camvec_sum-=2;
+    } else if ((Math.abs(dx-dxx)<0.125) && (Math.abs(dy-dyy)<0.125)) {
+      this.camvec_sum++;
+    } else {
+      this.camvec_sum-=2;
+    }
+
+    if (this.camvec_sum<0) { this.camvec_sum = 0; }
+    if (this.camvec_sum>this.camvec_sum_max) { this.camvec_sum = this.camvec_sum_max; }
+
+    var v = this.camvec_sum;
+    var m = this.camvec_m;
+    var M = this.camvec_M;
+
+
+    if (v<m) { v=m; }
+    if (v>M) { v=M; }
+
+    var r = (v - m)/(M-m);
+    return (default_zoom*(1-r)) + (r*max_zoom);
+
+  }
+
+  return default_zoom;
+}
+
+mainWorld.prototype.get_player_vel_zoom = function() {
+  //var default_zoom = 3.25;
+  //var max_zoom = 2.5;
+
+  var default_zoom = 3;
+  var max_zoom = 2;
+
+  if (typeof this.camvec_sum === "undefined") {
+    this.camvec_sum = 0;
+  }
+  this.camvec_sum_max = 256;
+
+  this.camvec_m = 3*this.camvec_sum_max/8;
+  this.camvec_M = 5*this.camvec_sum_max/8;
+
+  if (this.player) {
+    var dx = this.player.x - this.player_prev_x;
+    var dy = this.player.y - this.player_prev_y;
+    this.player_prev_x = this.player.x;
+    this.player_prev_y = this.player.y;
+
+    var dxy = Math.floor(Math.abs(dx) + Math.abs(dy));
+    if (dxy<0.125) {
+      this.camvec_sum--;
+    } else {
+      this.camvec_sum++;
+    }
+    if (this.camvec_sum<0) { this.camvec_sum = 0; }
+    if (this.camvec_sum>this.camvec_sum_max) { this.camvec_sum = this.camvec_sum_max; }
+
+    var v = this.camvec_sum;
+    var m = this.camvec_m;
+    var M = this.camvec_M;
+
+
+    if (v<m) { v=m; }
+    if (v>M) { v=M; }
+
+    var r = (v - m)/(M-m);
+    return (default_zoom*(1-r)) + (r*max_zoom);
+
+  }
+
+  return default_zoom;
+}
+
+mainWorld.prototype.updateCam = function() {
+
+  this.updateCam_lerp_position_locking();
+  //this.updateCam_lerp_average_lead_window();
+  //this.updateCam_lerp_snap_on_edge();
+  return;
+
+  var painter = this.painter;
+  var screen0 = { "x": painter.width/2, "y": painter.height/2 };
+  var world0 = painter.devToWorld(screen0.x, screen0.y);
+
+  var dest_world = {"x": world0.x, "y": world0.y };
+  if (this.player) {
+
+    var dx = this.player.x - this.player_prev_x;
+    var dy = this.player.y - this.player_prev_y;
+    this.player_prev_x = this.player.x;
+    this.player_prev_y = this.player.y;
+
+    var dxy = Math.floor(Math.abs(dx) + Math.abs(dy));
+
+    var dv = 0;
+    var p = this.camvec_pos;
+    this.camvec[p] = dxy;
+    this.camvec_pos = (p+1)%this.camvec.length;
+    for (var i=0; i<this.camvec.length; i++) {
+      dv += this.camvec[i];
+    }
+
+    //console.log(dxy, dv);
+
+    var player_dir = this.player.dir_xy();
+
+    var vec_dir = { "x" : dv*player_dir[0], "y": dv*player_dir[1]};
+    var lead_xy = { "x": this.player.x + vec_dir.x, "y":this.player.y + vec_dir.y};
+
+    //dest_world.x = Math.floor((world0.x + this.player.x + vec_dir.x)/3);
+    //dest_world.y = Math.floor(((world0.y + this.player.y + vec_dir.y)/3);
+
+    // attempt 0:
+    //
+    //var p1 = 1/32;
+    //var p0 = 1-p1;
+    //dest_world.x = (p0*world0.x + p1*this.player.x);
+    //dest_world.y = (p0*world0.y + p1*this.player.y);
+
+    var p1 = 1/16;
+    var p2 = 1/32;
+    var p0 = 1-p1-p2;
+
+    // interesting artifact...windowing because of the floor
+    //
+    //dest_world.x = Math.floor(p0*world0.x + p1*this.player.x);
+    //dest_world.y = Math.floor(p0*world0.y + p1*this.player.y);
+
+    dest_world.x = (p0*world0.x + p1*this.player.x + p2*lead_xy.x);
+    dest_world.y = (p0*world0.y + p1*this.player.y + p2*lead_xy.y);
+
+
+    var dest_screen = painter.worldToDev(dest_world.x, dest_world.y);
+
+    //screen_dx = -Math.floor(dest_screen.x - screen0.x);
+    //screen_dy = -Math.floor(dest_screen.y - screen0.y);
+
+    screen_dx = -(dest_screen.x - screen0.x);
+    screen_dy = -(dest_screen.y - screen0.y);
+
+    //console.log(world0.x, world0.y, screen_dx, screen_dy);
+
+    // clamp
+    if (screen_dx >= ((painter.width/2)-3))      { screen_dx =   (painter.width/2)-3;   }
+    if (screen_dx <= (-((painter.width/2)-3)))   { screen_dx = -((painter.width/2)-3);  }
+    if (screen_dy >= ((painter.height/2)-3))     { screen_dy =   (painter.height/2)-3;  }
+    if (screen_dy <= (-((painter.height/2)-3)))  { screen_dy = -((painter.height/2)-3); }
+
+    screen_dx = Math.floor(screen_dx);
+    screen_dy = Math.floor(screen_dy);
+
+    //screen_dx = (screen_dx);
+    //screen_dy = (screen_dy);
+
+    if (Math.abs(screen_dx) < 1/1024) { scree_dx = 0; }
+    if (Math.abs(screen_dy) < 1/1024) { scree_dy = 0; }
+
+    //console.log(screen_dx, screen_dy);
+
+    painter.adjustPan(screen_dx,screen_dy);
+
+  }
+
+
+  //console.log(screen0, world0);
+  return;
+
+  var dev_xy = painter.worldToDev(world_x, world_y);
+  var x = dev_xy.x;
+  var y = dev_xy.y;
+
+  var dx = (painter.width/2) - x;
+  var dy = (painter.height/2) - y;
+
+
+  var dev_xy = painter.worldToDev(world_x, world_y);
+
+
+  var player_x = 0;
+  var player_y = 0;
+
+  var player_vx = 0;
+  var player_vy = 0;
+  var p=0;
+
+  if (this.player) {
+
+    player_x = this.player.x;
+    player_y = this.player.y;
+
+    var dx = this.player.x - this.player_prev_x;
+    var dy = this.player.y - this.player_prev_y;
+
+    p = this.player_focus_v_pos;
+    this.player_focus_v[p][0] = dx;
+    this.player_focus_v[p][1] = dy;
+    this.player_focus_v_pos = (p+1)%this.player_focus_v_window;
+
+    dx = 0;
+    dy = 0;
+    for (var i=0; i<this.player_focus_v_window; i++) {
+      dx += this.player_focus_v[i][0];
+      dy += this.player_focus_v[i][1];
+    }
+
+    player_vx = dx*this.player_focus_v_factor;
+    player_vy = dy*this.player_focus_v_factor;
+
+    //var dx = this.player.x - this.player_prev_x;
+    //var dy = this.player.y - this.player_prev_y;
+
+    var predict_x = this.player.x + dx;
+    var predict_y = this.player.y + dy;
+
+    //var dest_cam_x = (this.player.x + predict_x)/2;
+    //var dest_cam_y = (this.player.y + predict_y)/2;
+
+    var dest_cam_x = predict_x;
+    var dest_cam_y = predict_y;
+
+    p = this.player_focus_history_pos;
+    this.player_focus_history[p][0] = dest_cam_x;
+    this.player_focus_history[p][1] = dest_cam_y;
+    this.player_focus_history_pos = (p+1)%this.player_focus_history_window;
+    this.player_update_focus();
+
+    this.player_prev_x = this.player.x;
+    this.player_prev_y = this.player.y;
+  }
+
+
+  //var world_x = this.player_focus[0];
+  //var world_y = this.player_focus[1];
+
+  var world_x = player_x + player_vx;
+  var world_y = player_y + player_vy;
+
+  var painter = this.painter;
+
+  var dev_xy = painter.worldToDev(world_x, world_y);
+  var x = dev_xy.x;
+  var y = dev_xy.y;
+
+  var dx = (painter.width/2) - x;
+  var dy = (painter.height/2) - y;
+
+  // clamp
+  if (dx >= ((painter.width/2)-3))      { dx =   (painter.width/2)-3;   }
+  if (dx <= (-((painter.width/2)-3)))   { dx = -((painter.width/2)-3);  }
+  if (dy >= ((painter.height/2)-3))     { dy =   (painter.height/2)-3;  }
+  if (dy <= (-((painter.height/2)-3)))  { dy = -((painter.height/2)-3); }
+
+  dx = Math.floor(dx);
+  dy = Math.floor(dy);
+
+  painter.adjustPan(dx,dy);
+
+}
+
 mainWorld.prototype.update = function() {
 
   if (!this.ready) { return; }
@@ -833,6 +1373,7 @@ mainWorld.prototype.update = function() {
   if ((this.ticker%1000)==0) {
     //var s = Math.floor(Math.random()*3);
     var r = Math.random();
+
     //if (s==0) {
     if (r < 0.1) {
       this.environment_state = "idle";
@@ -856,11 +1397,28 @@ mainWorld.prototype.update = function() {
   if (this.rain_flag) { this.update_rain(); }
   if (this.snow_flag) { this.update_snow(); }
 
+  if (this.debris) {
+    for (var key in this.debris) {
+      this.debris[key].update();
+    }
+  }
+
+  if (this.player)
+  {
+    this.player.update();
+  }
+
+  this.updateCam();
+
+
   // Camera shake for explosions
   //
   // initial_delay gets decremented no matter what.  A 0
   // inidicates a 'start'.
   // ttl to 0 indicates an end.
+  //
+  // want to have it come after player updates to pick up
+  // player camera changes
   //
   var new_camshake_a = [];
   for (var i=0; i<this.camshake.length; i++) {
@@ -883,14 +1441,7 @@ mainWorld.prototype.update = function() {
   }
   this.camshake = new_camshake_a;
 
-  if (this.debris) {
-    for (var key in this.debris) {
-      this.debris[key].update();
-    }
-  }
 
-  if (this.player)
-    this.player.update();
 
   if (this.level)
     this.level.update();

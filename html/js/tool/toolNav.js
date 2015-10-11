@@ -51,7 +51,16 @@ toolNav.prototype.mouseDown = function(button, x, y)
   if (button == 3)
   {
     this.mouse_drag_flag = true;
+    return;
   }
+
+  // DEBUG
+  var world_xy = g_painter.devToWorld(x, y);
+  var dev_xy = g_painter.worldToDev(world_xy.x, world_xy.y);
+  var dx = (g_painter.width/2) - x;
+  var dy = (g_painter.height/2) - y;
+  //g_painter.adjustPan(dx,dy);
+
 }
 
 toolNav.prototype.doubleClick = function(button, x, y) { }

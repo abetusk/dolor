@@ -93,7 +93,7 @@ bleepsixRender.prototype.setGrid = function ( val )
   this.dirty_flag = true;
 }
 
-bleepsixRender.prototype.setView = function( x, y, z, cx, cy )
+bleepsixRender.prototype.setView = function(x, y, z, cx, cy)
 {
   // set center and zoom
   //this.view.cx = x;
@@ -126,6 +126,18 @@ bleepsixRender.prototype.debugPrint = function()
 {
   console.log("bleepsixRender.debugPrint: view [" + this.view.x1 + " " + this.view.y1 + ", " + this.view.x2 + " " + this.view.y2 + "] ");
   console.log("bleepsixRender.debugPrint: zoom " + this.zoom );
+}
+
+bleepsixRender.prototype.worldToDev = function(world_x, world_y)
+{
+  //dev to world
+  //var wx = this.view.x1 + world_x * ( this.view.x2 - this.view.x1) / this.width;
+  //var wy = this.view.y1 + world_y * ( this.view.y2 - this.view.y1) / this.height;
+
+  var dev_x = (world_x - this.view.x1) * this.width  / ( this.view.x2 - this.view.x1);
+  var dev_y = (world_y - this.view.y1) * this.height / ( this.view.y2 - this.view.y1);
+
+  return { "x" : dev_x, "y" : dev_y};
 }
 
 bleepsixRender.prototype.devToWorld = function(x, y)
@@ -174,6 +186,13 @@ bleepsixRender.prototype.adjustPan = function(x, y)
    var z = this.zoom;
    this.setView(this.view.cx - x/z, this.view.cy - y/z, z);
    this.dirty_flag = true;
+}
+
+bleepsixRender.prototype.adjustPanZoom = function(x, y, z)
+{
+  z = ((typeof z === "undefined") ? this.zoom : z);
+  this.setView(this.view.cx - x/z, this.view.cy - y/z, z);
+  this.dirty_flag = true;
 }
 
 bleepsixRender.prototype.drawGrid = function()
