@@ -63,7 +63,7 @@ function mainWorld() {
   //c0.y = 304;
 
   var neko = new creatureNeko();
-  neko.x = 16*31;
+  neko.x = 16*29;
   neko.y = 16*13;
   this.enemy.push(neko);
 
