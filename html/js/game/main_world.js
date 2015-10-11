@@ -1441,8 +1441,6 @@ mainWorld.prototype.update_rain_sfx = function() {
         g_sfx["rain"][this.rain_eo].volume(this.rain_max_vol*v);
         g_sfx["rain"][1-this.rain_eo].volume(this.rain_max_vol*(1-v));
 
-        console.log(v);
-
         if (this.rain_transition<=0) {
           this.rain_transition= this.rain_transition_n;
           this.rain_timer = this.rain_timer_n;
