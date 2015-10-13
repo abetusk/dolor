@@ -307,7 +307,8 @@ homeLevel.prototype.draw_layer_top = function(display_name, cmp_x, cmp_y) {
 
 }
 
-homeLevel.prototype.draw_layer_w = function(display_name, anchor_x, anchor_y, window_r, window_c) {
+homeLevel.prototype.draw_layer_w = function(display_name, anchor_x, anchor_y, window_r, window_c, alpha) {
+  alpha = ((typeof alpha === "undefined") ? 1.0 : alpha);
   if (!this.ready) { return; }
 
   if (!(display_name in this.layer_name_index_lookup)) { return; }
@@ -342,12 +343,7 @@ homeLevel.prototype.draw_layer_w = function(display_name, anchor_x, anchor_y, wi
       var x = this.x + c*this.world_h;
       var y = this.y + r*this.world_w;
 
-      //DEBUG
-      //console.log(data_ind, layer.data[data_ind]);
-      //console.log(this.tile_info[layer.data[data_ind]]);
-
       var tile_info = this.tile_info[layer.data[data_ind]];
-
 
       var dat = layer.data[data_ind]-tile_info.firstgid;
       var tilewidth = 16;
@@ -365,7 +361,8 @@ homeLevel.prototype.draw_layer_w = function(display_name, anchor_x, anchor_y, wi
       // http://stackoverflow.com/questions/17725840/canvas-drawimage-visible-edges-of-tiles-in-firefox-opera-ie-not-chrome
       //
       //g_imgcache.draw_s(this.tilemap_name, imx, imy, 16, 16, x, y, this.world_w, this.world_h);
-      g_imgcache.draw_s(tile_info.tileset_name, imx, imy, 16, 16, x, y, this.world_w, this.world_h);
+      //g_imgcache.draw_s(tile_info.tileset_name, imx, imy, 16, 16, x, y, this.world_w, this.world_h);
+      g_imgcache.draw_s(tile_info.tileset_name, imx, imy, 16, 16, x, y, this.world_w, this.world_h, 0, alpha);
 
       //DEBUG
       if (this.debug) {
@@ -377,64 +374,13 @@ homeLevel.prototype.draw_layer_w = function(display_name, anchor_x, anchor_y, wi
         g_painter.drawRectangle(x0,y0, x1-x0, y1-y0, 1, "rgba(255,0,0,0.6)");
       }
 
-
-
     }
   }
-
-  return;
-
-
-  var count = 0;
-  for (var jj=0; jj<layer.data.length; jj++) {
-    var r = Math.floor(jj / w);
-    var c = Math.floor(jj % h);
-
-    if (layer.data[jj] == 0) { continue; }
-    count++;
-
-    var x = this.x + c*this.world_h;
-    var y = this.y + r*this.world_w;
-
-    var imx = 0;
-    var imy = 0;
-
-    var tile_info = this.tile_info[layer.data[jj]];
-
-    var dat = layer.data[jj]-tile_info.firstgid;
-    var tilewidth = 16;
-
-    var tilemap_h = 192;
-    var tilemap_w = 192;
-
-    imx = Math.floor((dat*16) % tilemap_w);
-    imy = Math.floor((dat*16) / tilemap_w)*tilewidth;
-
-    var ww = Math.floor(this.world_w);
-    var hh = Math.floor(this.world_h);
-
-    // wow, firefox is so fucked:
-    // http://stackoverflow.com/questions/17725840/canvas-drawimage-visible-edges-of-tiles-in-firefox-opera-ie-not-chrome
-    //
-    //g_imgcache.draw_s(this.tilemap_name, imx, imy, 16, 16, x, y, this.world_w, this.world_h);
-    g_imgcache.draw_s(tile_info.tileset_name, imx, imy, 16, 16, x, y, this.world_w, this.world_h);
-
-    //DEBUG
-    if (this.debug) {
-      var tbbox = [[x,y],[x+this.world_w,y+this.world_h]];
-      var x0 = tbbox[0][0];
-      var y0 = tbbox[0][1];
-      var x1 = tbbox[1][0];
-      var y1 = tbbox[1][1];
-      g_painter.drawRectangle(x0,y0, x1-x0, y1-y0, 1, "rgba(255,0,0,0.6)");
-    }
-
-  }
-
 
 }
 
-homeLevel.prototype.draw_layer = function(display_name) {
+homeLevel.prototype.draw_layer = function(display_name, alpha) {
+  alpha = ((typeof alpha === "undefined") ? 1.0 : alpha);
   if (!this.ready) { return; }
 
   if (!(display_name in this.layer_name_index_lookup)) { return; }
@@ -477,7 +423,8 @@ homeLevel.prototype.draw_layer = function(display_name) {
     // http://stackoverflow.com/questions/17725840/canvas-drawimage-visible-edges-of-tiles-in-firefox-opera-ie-not-chrome
     //
     //g_imgcache.draw_s(this.tilemap_name, imx, imy, 16, 16, x, y, this.world_w, this.world_h);
-    g_imgcache.draw_s(tile_info.tileset_name, imx, imy, 16, 16, x, y, this.world_w, this.world_h);
+    //g_imgcache.draw_s(tile_info.tileset_name, imx, imy, 16, 16, x, y, this.world_w, this.world_h);
+    g_imgcache.draw_s(tile_info.tileset_name, imx, imy, 16, 16, x, y, this.world_w, this.world_h, 0, alpha);
 
     //DEBUG
     if (this.debug) {

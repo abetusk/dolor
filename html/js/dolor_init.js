@@ -126,8 +126,8 @@
 
       g_player = new mainPlayer();
       //g_level = new dungeon0();
-      //g_level = new homeLevel();
-      g_level = new dungeonJade();
+      g_level = new homeLevel();
+      g_level_dungeon_jade = new dungeonJade();
       g_world = new mainWorld();
 
       // setup image cache and preload some generic items
@@ -289,6 +289,48 @@
       g_music["disturbance"] = new_sound_object("assets/music/131005__reacthor__the-emperor-s-starfleet.ogg");
 
       //welcome_music.play();
+
+      $.ajax({
+        url: "assets/dungeon_jade.json",
+        dataType:"json",
+        success: function(a,b,c) {
+          g_data["dungeonJade"] = a;
+
+          g_level_dungeon_jade.tilemap = a;
+          g_level_dungeon_jade.ready = true;
+          g_level_dungeon_jade.init();
+
+          console.log("jade loaded");
+
+          /*
+          g_level_dungeon_jade.meta_map(0, function(dat, x, y) {
+            var bones = new creatureBones();
+            bones.init(x,y);
+            g_world.enemy.push(bones);
+          });
+          */
+
+          /*
+          g_level_dungeon_jade.meta_map(1, function(dat, x, y) {
+            var horns = new creatureHorns();
+            horns.init(x,y);
+            g_world.enemy.push(horns);
+          });
+          */
+
+          /*
+          g_level_dungeon_jade.meta_map(15, function(dat, x, y) {
+            g_player.x = x;
+            g_player.y = y;
+          });
+          */
+
+          //g_world.init();
+        },
+        error: function(e) {
+          console.log("err", e);
+        }
+      });
 
 
       $.ajax({

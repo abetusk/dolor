@@ -1,4 +1,3 @@
-
 function dungeonJade(x,y) {
   x = ((typeof x === "undefined") ? 0 : x);
   y = ((typeof y === "undefined") ? 0 : y);
@@ -30,7 +29,6 @@ function dungeonJade(x,y) {
 
   this.tile_info = {};
 }
-
 
 dungeonJade.prototype.init = function() {
   this.init_flag=true;
@@ -140,9 +138,7 @@ dungeonJade.prototype.bbox = function(r,c) {
 
 dungeonJade.prototype.update = function() {
   if (!this.ready) { return; }
-  if (!this.init_flag) {
-    this.init();
-  }
+  if (!this.init_flag) { this.init(); }
 
   //console.log(">>>");
 }
@@ -238,6 +234,8 @@ dungeonJade.prototype.draw_layer_bottom = function(display_name, cmp_x, cmp_y) {
 
   }
 
+  //console.log(">>>", count);
+
 }
 
 dungeonJade.prototype.draw_layer_top = function(display_name, cmp_x, cmp_y) {
@@ -301,7 +299,8 @@ dungeonJade.prototype.draw_layer_top = function(display_name, cmp_x, cmp_y) {
 
 }
 
-dungeonJade.prototype.draw_layer_w = function(display_name, anchor_x, anchor_y, window_r, window_c) {
+dungeonJade.prototype.draw_layer_w = function(display_name, anchor_x, anchor_y, window_r, window_c, alpha) {
+  alpha = ((typeof alpha === "undefined") ? 1.0 : alpha);
   if (!this.ready) { return; }
 
   if (!(display_name in this.layer_name_index_lookup)) { return; }
@@ -319,6 +318,8 @@ dungeonJade.prototype.draw_layer_w = function(display_name, anchor_x, anchor_y, 
   //var anchor_c = anchor_x;
   var data_ind = 0;
 
+  var count=0;
+
   for (var r = (anchor_r-window_r); r<(anchor_r+window_r); r++) {
     if (r<0) { continue; }
     if (r>=w) { continue; }
@@ -332,6 +333,8 @@ dungeonJade.prototype.draw_layer_w = function(display_name, anchor_x, anchor_y, 
       if (data_ind < 0) { continue; }
       if (data_ind >= (w*h)) { continue; }
       if (layer.data[data_ind] == 0) { continue; }
+
+      count++;
 
       var x = this.x + c*this.world_h;
       var y = this.y + r*this.world_w;
@@ -354,7 +357,7 @@ dungeonJade.prototype.draw_layer_w = function(display_name, anchor_x, anchor_y, 
       // http://stackoverflow.com/questions/17725840/canvas-drawimage-visible-edges-of-tiles-in-firefox-opera-ie-not-chrome
       //
       //g_imgcache.draw_s(this.tilemap_name, imx, imy, 16, 16, x, y, this.world_w, this.world_h);
-      g_imgcache.draw_s(tile_info.tileset_name, imx, imy, 16, 16, x, y, this.world_w, this.world_h);
+      g_imgcache.draw_s(tile_info.tileset_name, imx, imy, 16, 16, x, y, this.world_w, this.world_h, 0, alpha);
 
       //DEBUG
       if (this.debug) {
@@ -366,10 +369,10 @@ dungeonJade.prototype.draw_layer_w = function(display_name, anchor_x, anchor_y, 
         g_painter.drawRectangle(x0,y0, x1-x0, y1-y0, 1, "rgba(255,0,0,0.6)");
       }
 
-
-
     }
   }
+
+  //console.log(count);
 }
 
 dungeonJade.prototype.draw_layer = function(display_name) {
@@ -429,9 +432,7 @@ dungeonJade.prototype.draw_layer = function(display_name) {
 
   }
 
-
 }
-
 
 dungeonJade.prototype.draw = function(display_height, data) {
   if (!this.ready) { return; }
@@ -499,5 +500,3 @@ dungeonJade.prototype.draw = function(display_height, data) {
   }
 
 }
-
-
