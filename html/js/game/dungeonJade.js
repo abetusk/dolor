@@ -16,6 +16,8 @@ function dungeonJade(x,y) {
 
   this.debug=false;
 
+  this.name = "jade";
+
   this.tileid_lookup = {};
   this.tileset = {};
   this.tileset_list = [];
@@ -74,7 +76,7 @@ dungeonJade.prototype.init = function() {
     if ("data" in layer) {
       for (var jj=0; jj<layer.data.length; jj++) {
         var r = Math.floor(jj / w);
-        var c = Math.floor(jj % h);
+        var c = Math.floor(jj % w);
         if (layer.data[jj] == 0) { continue; }
         this.layer_lookup[ii][Math.floor(r) + ":" + Math.floor(c)] = layer.data[jj];
       }
@@ -103,7 +105,7 @@ dungeonJade.prototype.init = function() {
 
       if (layer.name == "meta") {
         var r = Math.floor(jj / w);
-        var c = Math.floor(jj % h);
+        var c = Math.floor(jj % w);
 
         var eff_val = dat - this.tileset_list[ind].firstgid;
 

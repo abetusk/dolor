@@ -284,13 +284,14 @@ creatureHorns.prototype.draw = function() {
     imgx = this.crit_w*this.keyFrameDead;
     imgy = this.crit_h*this.frameRowDead;
 
-    g_imgcache.draw_s(this.dead_name,
-        imgx, imgy,
-        this.crit_w, this.crit_h,
-        this.x + this.dead_fudge_x, this.y + this.dead_fudge_y,
-        this.world_w, this.world_h);
-
-    if (this.state_modifier != "ok") {
+    if (this.state_modifier == "ok") {
+      g_imgcache.draw_s(this.dead_name,
+          imgx, imgy,
+          this.crit_w, this.crit_h,
+          this.x + this.dead_fudge_x, this.y + this.dead_fudge_y,
+          this.world_w, this.world_h);
+    } else {
+    //if (this.state_modifier != "ok") {
       g_imgcache.draw_s(this.mask_dead_name,
           imgx, imgy,
           this.crit_w, this.crit_h,
@@ -300,8 +301,10 @@ creatureHorns.prototype.draw = function() {
     }
   } else if (this.state != "dead") {
 
+    if (this.state_modifier == "ok") {
     g_imgcache.draw_s(this.name, imgx, imgy, this.crit_w, this.crit_h, this.x, this.y, this.world_w, this.world_h);
-    if (this.state_modifier != "ok")  {
+    } else {
+    //if (this.state_modifier != "ok")  {
       g_imgcache.draw_s(this.mask_name,
           imgx, imgy, this.crit_w, this.crit_h,
           this.x, this.y, this.world_w, this.world_h,

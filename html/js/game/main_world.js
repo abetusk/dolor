@@ -92,6 +92,15 @@ function mainWorld() {
   this.level_transition_src_completed = false;
   this.level_transition_dst_completed = false;
 
+
+  this.bg_r = 210;
+  this.bg_g = 210;
+  this.bg_b = 220;
+  this.bg_color = "rgba(" + this.bg_r + "," + this.bg_g + "," + this.bg_b + ",1.0)";
+  //this.bg_color = "rgba(13,7,17,1.0)";
+
+  this.overworld_flag = true;
+
 }
 
 mainWorld.prototype.player_update_focus = function() {
@@ -417,9 +426,9 @@ var debug_del = 1;
 mainWorld.prototype.draw_level_transition = function() {
   var a = this.level_transition_alpha;
 
-  var r = Math.floor(210*this.level_transition_alpha);
-  var g = Math.floor(210*this.level_transition_alpha);
-  var b = Math.floor(220*this.level_transition_alpha);
+  var r = Math.floor(this.bg_r*this.level_transition_alpha);
+  var g = Math.floor(this.bg_g*this.level_transition_alpha);
+  var b = Math.floor(this.bg_b*this.level_transition_alpha);
   this.painter.startDrawColor( "rgba(" + r + "," + g + "," + b + ",1.0)" );
 
   var painter = this.painter;
@@ -533,10 +542,11 @@ mainWorld.prototype.draw_level_transition = function() {
     }
   }
 
+  /*
 
   // rain
   //
-  if (this.rain_flag) {
+  if (this.overworld_flag && this.rain_flag) {
     for (var i=0; i<this.rain_N; i++) {
       g_imgcache.draw_s("rain", 0, 0, 5, 10, this.rain[i].x, this.rain[i].y, 5, 10, 0, a);
     }
@@ -550,7 +560,7 @@ mainWorld.prototype.draw_level_transition = function() {
 
   // snow
   //
-  if (this.snow_flag) {
+  if (this.overworld_flag && this.snow_flag) {
     for (var i=0; i<this.snow_N; i++) {
 
       //console.log(">>>", i, this.snow[i]);
@@ -559,17 +569,23 @@ mainWorld.prototype.draw_level_transition = function() {
       g_imgcache.draw_s("puff", imx, imy, 4, 4, this.snow[i].x, this.snow[i].y, 4, 4, 0, 0.75*a);
     }
   }
+  */
 
   this.painter.endDraw();
 }
 
+var debug_var = true;
+
 mainWorld.prototype.draw = function() {
+  if (!this.level) { return; }
+  if (!this.level.ready) { return; }
 
   if (this.level_transition) {
     this.draw_level_transition();
     return;
   }
-  this.painter.startDrawColor( "rgba(210,210,220,1.0)" );
+  //this.painter.startDrawColor( "rgba(210,210,220,1.0)" );
+  this.painter.startDrawColor( this.bg_color ); 
 
   var painter = this.painter;
   var screen0 = { "x": painter.width/2, "y": painter.height/2 };
@@ -583,6 +599,7 @@ mainWorld.prototype.draw = function() {
 
   if (this.level)
   {
+
     if (this.display_speedup) {
       this.level.draw_layer_w("bottom.-2", world0.x, world0.y, tile_dx, tile_dy);
       this.level.draw_layer_w("bottom.-1", world0.x, world0.y, tile_dx, tile_dy);
@@ -716,7 +733,7 @@ mainWorld.prototype.draw = function() {
 
   // rain
   //
-  if (this.rain_flag) {
+  if (this.overworld_flag && this.rain_flag) {
     for (var i=0; i<this.rain_N; i++) {
       g_imgcache.draw_s("rain", 0, 0, 5, 10, this.rain[i].x, this.rain[i].y, 5, 10);
     }
@@ -730,7 +747,7 @@ mainWorld.prototype.draw = function() {
 
   // snow
   //
-  if (this.snow_flag) {
+  if (this.overworld_flag && this.snow_flag) {
     for (var i=0; i<this.snow_N; i++) {
 
       //console.log(">>>", i, this.snow[i]);
@@ -1439,7 +1456,7 @@ mainWorld.prototype.update_rain_sfx = function() {
 
   if (this.rain_sound_playing) {
 
-    if (this.rain_flag) {
+    if (this.overworld_flag && this.rain_flag) {
 
       this.rain_ramp_up++;
       if (this.rain_ramp_up <= this.rain_ramp_up_n) {
@@ -1486,7 +1503,7 @@ mainWorld.prototype.update_rain_sfx = function() {
     }
   }
 
-  if (this.rain_flag) {
+  if (this.overworld_flag && this.rain_flag) {
     if (!this.rain_sound_playing) {
       this.rain_eo = 0;
       g_sfx["rain"][this.rain_eo].play();
@@ -1530,19 +1547,101 @@ mainWorld.prototype.level_transition_init = function(portal_id) {
   this.level_transition_alpha = 1.0;
   */
 
+  this.overworld_flag = false;
+
   if (portal_id == 0) {
     var px = this.level.portal[0].x;
     var py = this.level.portal[0].y;
 
     this.level = g_level_cache["dungeon_jade"];
+    this.bg_r = 13;
+    this.bg_g = 7;
+    this.bg_b = 17;
+    this.bg_color = "rgba(13,7,17,1.0)";
 
     var ox = this.level.portal[0].x;
     var oy = this.level.portal[0].y;
     this.level.x = px - ox;
     this.level.y = py - oy;
 
+  } else if (portal_id == 1) {
+
+    var px = this.level.portal[1].x;
+    var py = this.level.portal[1].y;
+
+    this.level = g_level_cache["dungeon_bone"];
+    this.bg_r = 13;
+    this.bg_g = 7;
+    this.bg_b = 17;
+    this.bg_color = "rgba(13,7,17,1.0)";
+
+    // TODO!! FIX!
+    var ox = this.level.portal[0].x;
+    var oy = this.level.portal[0].y;
+    this.level.x = px - ox;
+    this.level.y = py - oy;
+
+  } else if (portal_id == 2) {
+
+    var px = this.level.portal[2].x;
+    var py = this.level.portal[2].y;
+
+    this.level = g_level_cache["dungeon_aqua"];
+    this.bg_r = 13;
+    this.bg_g = 7;
+    this.bg_b = 17;
+    this.bg_color = "rgba(13,7,17,1.0)";
+
+    // TODO!! FIX!
+    var ox = this.level.portal[0].x;
+    var oy = this.level.portal[0].y;
+    this.level.x = px - ox;
+    this.level.y = py - oy;
+
+  } else if (portal_id == 3) {
+
+    var px = this.level.portal[3].x;
+    var py = this.level.portal[3].y;
+
+    this.level = g_level_cache["dungeon_blood"];
+    this.bg_r = 13;
+    this.bg_g = 7;
+    this.bg_b = 17;
+    this.bg_color = "rgba(13,7,17,1.0)";
+
+    // TODO!! FIX!
+    var ox = this.level.portal[0].x;
+    var oy = this.level.portal[0].y;
+    this.level.x = px - ox;
+    this.level.y = py - oy;
+
+  } else if (portal_id == 4) {
+
+    var px = this.level.portal[4].x;
+    var py = this.level.portal[4].y;
+
+    this.level = g_level_cache["level_library"];
+    this.bg_r = 13;
+    this.bg_g = 7;
+    this.bg_b = 17;
+    this.bg_color = "rgba(13,7,17,1.0)";
+
+    console.log(this.level);
+
+    // TODO!! FIX!
+    var ox = this.level.portal[0].x;
+    var oy = this.level.portal[0].y;
+    this.level.x = px - ox;
+    this.level.y = py - oy;
+
+
   } else if (portal_id == 5) {
     this.level = g_level_cache["overworld"];
+    this.bg_r = 210;
+    this.bg_g = 210;
+    this.bg_b = 220;
+    this.bg_color = "rgba(210,210,220,1.0)";
+    this.overworld_flag = true;
   }
 
   //this.player.x = this.level.x + ox;
@@ -1606,16 +1705,48 @@ mainWorld.prototype.player_portal_collision = function(bbox) {
 
         var portal_id = -1;
 
+        // 5 is overworld
+        // 0-3 are dungeons
+        // 4 is end
+        // 6 is dolor init
+        // 7,8,9,10 are hidden
+
         var coll_tileid = 0;
-        if (eff_val == 40) { coll_tileid = 1; portal_id = 0; }
-        if (eff_val == 41) { coll_tileid = 3; portal_id = 5; }
+        if (eff_val == 32) { coll_tileid = 1; portal_id = 7; }
+        else if (eff_val == 33) { coll_tileid = 1; portal_id = 8; }
+        else if (eff_val == 34) { coll_tileid = 1; portal_id = 5; }
+        else if (eff_val == 35) { coll_tileid = 1; portal_id = 5; }
+        else if (eff_val == 36) { coll_tileid = 1; portal_id = 9; }
+        else if (eff_val == 37) { coll_tileid = 1; portal_id = 10; }
+        else if (eff_val == 38) { coll_tileid = 1; portal_id = 5; }
+        else if (eff_val == 39) { coll_tileid = 1; portal_id = 5; }
+
+        else if (eff_val == 40) { coll_tileid = 1; portal_id = 0; }
+        else if (eff_val == 41) { coll_tileid = 1; portal_id = 0; }
+        else if (eff_val == 42) { coll_tileid = 3; portal_id = 5; }
+        else if (eff_val == 43) { coll_tileid = 3; portal_id = 5; }
         else if (eff_val == 44) { coll_tileid = 1; portal_id = 1; }
-        else if (eff_val == 50) { coll_tileid = 1; portal_id = 2; }
-        else if (eff_val == 51) { coll_tileid = 1; portal_id = 2; }
-        else if (eff_val == 54) { coll_tileid = 1; portal_id = 3; }
-        else if (eff_val == 55) { coll_tileid = 1; portal_id = 3; }
-        else if (eff_val == 58) { coll_tileid = 1; portal_id = 4; }
-        else if (eff_val == 59) { coll_tileid = 1; portal_id = 4; }
+        else if (eff_val == 45) { coll_tileid = 1; portal_id = 1; }
+        else if (eff_val == 46) { coll_tileid = 3; portal_id = 5; }
+        else if (eff_val == 47) { coll_tileid = 3; portal_id = 5; }
+        else if (eff_val == 48) { coll_tileid = 1; portal_id = 2; }
+        else if (eff_val == 49) { coll_tileid = 1; portal_id = 2; }
+        else if (eff_val == 50) { coll_tileid = 3; portal_id = 5; }
+        else if (eff_val == 51) { coll_tileid = 3; portal_id = 5; }
+        else if (eff_val == 52) { coll_tileid = 1; portal_id = 3; }
+        else if (eff_val == 53) { coll_tileid = 1; portal_id = 3; }
+        else if (eff_val == 54) { coll_tileid = 3; portal_id = 5; }
+        else if (eff_val == 55) { coll_tileid = 3; portal_id = 5; }
+        else if (eff_val == 56) { coll_tileid = 1; portal_id = 4; }
+        else if (eff_val == 57) { coll_tileid = 1; portal_id = 4; }
+        else if (eff_val == 58) { coll_tileid = 3; portal_id = 5; }
+        else if (eff_val == 59) { coll_tileid = 3; portal_id = 5; }
+        else if (eff_val == 60) { coll_tileid = 1; portal_id = 6; }
+        else if (eff_val == 61) { coll_tileid = 1; portal_id = 6; }
+        else if (eff_val == 62) { coll_tileid = 3; portal_id = 5; }
+        else if (eff_val == 63) { coll_tileid = 3; portal_id = 5; }
+
+        //if (coll_tileid!=0) { console.log(">> " + coll_tileid + " " + portal_id ); }
 
         tile_bbox = this.tile_bbox(coll_tileid, tile_x, tile_y);
 
@@ -1641,6 +1772,7 @@ mainWorld.prototype.update = function() {
 
   var player_bbox = [[player.x, player.y], [player.x+player.size-1,player.y+player.size-1]];
   var portal_id = this.player_portal_collision(player_bbox);
+
   if (!this.initial_level_transition) {
     if (portal_id >= 0) {
       this.level_transition = true;

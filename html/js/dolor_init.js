@@ -127,10 +127,17 @@
       g_painter.setGrid(0);
 
       g_player = new mainPlayer();
-      //g_level = new dungeon0();
-      g_level = new homeLevel();
-      g_level_dungeon_jade = new dungeonJade();
       g_world = new mainWorld();
+
+      g_level = new homeLevel();
+
+      g_level_dolor = new levelDolor();
+      g_level_library = new levelLibrary();
+
+      g_level_dungeon_jade = new dungeonJade();
+      g_level_dungeon_blood = new dungeonBlood();
+      g_level_dungeon_bone = new dungeonBone();
+      g_level_dungeon_aqua = new dungeonAqua();
 
       // setup image cache and preload some generic items
       //
@@ -306,54 +313,100 @@
           g_level_dungeon_jade.init();
 
           g_level_cache["dungeon_jade"] = g_level_dungeon_jade;
-
-          console.log("jade loaded");
-
-          /*
-          g_level_dungeon_jade.meta_map(0, function(dat, x, y) {
-            var bones = new creatureBones();
-            bones.init(x,y);
-            g_world.enemy.push(bones);
-          });
-          */
-
-          /*
-          g_level_dungeon_jade.meta_map(1, function(dat, x, y) {
-            var horns = new creatureHorns();
-            horns.init(x,y);
-            g_world.enemy.push(horns);
-          });
-          */
-
-          /*
-          g_level_dungeon_jade.meta_map(15, function(dat, x, y) {
-            g_player.x = x;
-            g_player.y = y;
-          });
-          */
-
-          //g_world.init();
         },
         error: function(e) {
           console.log("err", e);
         }
       });
 
+      $.ajax({
+        url: "assets/dungeon_aqua.json",
+        dataType:"json",
+        success: function(a,b,c) {
+          g_data["dungeonAqua"] = a;
+
+          g_level_dungeon_aqua.tilemap = a;
+          g_level_dungeon_aqua.ready = true;
+          g_level_dungeon_aqua.init();
+
+          g_level_cache["dungeon_aqua"] = g_level_dungeon_aqua;
+        },
+        error: function(e) {
+          console.log("err", e);
+        }
+      });
 
       $.ajax({
-        //url: "assets/dolor_room_test.json",
-        //url: "assets/tele_room.json",
-        //url: "assets/home.json",
-        //url: "assets/overworld_test.json",
-        //url: "assets/overworld_v2.json",
+        url: "assets/dungeon_bone.json",
+        dataType:"json",
+        success: function(a,b,c) {
+          g_data["dungeonBone"] = a;
 
+          g_level_dungeon_bone.tilemap = a;
+          g_level_dungeon_bone.ready = true;
+          g_level_dungeon_bone.init();
+
+          g_level_cache["dungeon_bone"] = g_level_dungeon_bone;
+        },
+        error: function(e) {
+          console.log("err", e);
+        }
+      });
+
+      $.ajax({
+        url: "assets/dungeon_blood.json",
+        dataType:"json",
+        success: function(a,b,c) {
+          g_data["dungeonBlood"] = a;
+
+          g_level_dungeon_blood.tilemap = a;
+          g_level_dungeon_blood.ready = true;
+          g_level_dungeon_blood.init();
+
+          g_level_cache["dungeon_blood"] = g_level_dungeon_blood;
+        },
+        error: function(e) {
+          console.log("err", e);
+        }
+      });
+
+      $.ajax({
+        url: "assets/dolor.json",
+        dataType:"json",
+        success: function(a,b,c) {
+          g_data["dolor"] = a;
+
+          g_level_dolor.tilemap = a;
+          g_level_dolor.ready = true;
+          g_level_dolor.init();
+
+          g_level_cache["dolor"] = g_level_dolor;
+        },
+        error: function(e) { console.log("err", e); }
+      });
+
+      $.ajax({
+        url: "assets/level_library.json",
+        dataType:"json",
+        success: function(a,b,c) {
+          g_data["library"] = a;
+
+          g_level_library.tilemap = a;
+          g_level_library.ready = true;
+          g_level_library.init();
+
+          g_level_cache["level_library"] = g_level_library;
+        },
+        error: function(e) { console.log("err", e); }
+      });
+
+
+      $.ajax({
         url: "assets/exia_overworld.json",
-        //url: "assets/bdanger.json",
-
-        //url: "assets/dungeon_jade.json",
         dataType:"json",
         success: function(a,b,c) {
           g_data["homeArea"] = a;
+
           g_level.tilemap = a;
           g_level.ready = true;
           g_level.init();
@@ -361,6 +414,7 @@
           g_level_cache["overworld"] = g_level;
 
           g_world.ready = true;
+          g_world.level = g_level;
 
           g_level.meta_map(0, function(dat, x, y) {
             var bones = new creatureBones();

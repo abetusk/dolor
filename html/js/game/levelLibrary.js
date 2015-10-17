@@ -1,7 +1,4 @@
-
-
-
-function homeLevel(x,y) {
+function levelLibrary(x,y) {
   x = ((typeof x === "undefined") ? 0 : x);
   y = ((typeof y === "undefined") ? 0 : y);
 
@@ -9,20 +6,17 @@ function homeLevel(x,y) {
   this.ready = false;
   this.init_flag = false;
 
-  this.name = "overworld";
-
-  this.tilemap_name = "forrest";
+  this.tilemap_name = "dolor";
 
   this.world_w = g_GRIDSIZE;
   this.world_h = g_GRIDSIZE;
-
-  //this.x = -6*32;
-  //this.y = -6*32;
 
   this.x = x;
   this.y = y;
 
   this.debug=false;
+
+  this.name = "library";
 
   this.tileid_lookup = {};
   this.tileset = {};
@@ -30,10 +24,9 @@ function homeLevel(x,y) {
 
   this.layer_names = [
     "collision.top", "collision.bottom",
-    "object",
     "top",
     "height",
-    "bottom", "bottom.-1", "bottom.-2" ];
+    "bottom" ];
   this.layer_lookup = {};
 
   this.tile_info = {};
@@ -41,8 +34,7 @@ function homeLevel(x,y) {
   this.portal = {};
 }
 
-
-homeLevel.prototype.init = function() {
+levelLibrary.prototype.init = function() {
   this.init_flag=true;
 
   if ("tilesets" in this.tilemap) {
@@ -117,18 +109,23 @@ homeLevel.prototype.init = function() {
 
         var eff_val = dat - this.tileset_list[ind].firstgid;
 
-        if (eff_val == 40) {
-          this.portal[0] = { "portal":0, "level":"dungeon_jade", "x":16*c, "y":16*r };
-        } else if (eff_val == 44) {
-          this.portal[1] = { "portal":1, "level":"dungeon_bone", "x":16*c, "y":16*r };
-        } else if (eff_val == 48) {
-          this.portal[2] = { "portal":2, "level":"dungeon_aqua", "x":16*c + 8 , "y":16*r + 8 };
-        } else if (eff_val == 52) {
-          this.portal[3] = { "portal":3, "level":"dungeon_blood", "x":16*c+8, "y":16*r+8 };
-        } else if (eff_val == 56) {
-          this.portal[4] = { "portal":4, "level":"level_library", "x":16*c+8, "y":16*r+8 };
+        if (eff_val == 56) {
+          this.portal[0] = { "portal":0, "level":"overworld", "x":16*(c), "y":16*(r) };
+          this.portal[4] = { "portal":0, "level":"overworld", "x":16*(c), "y":16*(r) };
         }
-        
+        if (eff_val == 57) {
+          this.portal[0] = { "portal":0, "level":"overworld", "x":16*(c), "y":16*(r) };
+          this.portal[4] = { "portal":0, "level":"overworld", "x":16*(c), "y":16*(r) };
+        }
+        else if (eff_val == 58) {
+          this.portal[0] = { "portal":0, "level":"overworld", "x":16*(c), "y":16*(r) };
+          this.portal[4] = { "portal":0, "level":"overworld", "x":16*(c), "y":16*(r) };
+        }
+        else if (eff_val == 59) {
+          this.portal[0] = { "portal":0, "level":"overworld", "x":16*(c), "y":16*(r) };
+          this.portal[4] = { "portal":0, "level":"overworld", "x":16*(c), "y":16*(r) };
+        }
+
       }
 
     }
@@ -138,7 +135,7 @@ homeLevel.prototype.init = function() {
 }
 
 
-homeLevel.prototype.meta_map = function(ele_to_map, func_to_call) {
+levelLibrary.prototype.meta_map = function(ele_to_map, func_to_call) {
 
   if ("meta" in this.layer_name_index_lookup) {
     var meta_ind = this.layer_name_index_lookup["meta"];
@@ -160,7 +157,7 @@ homeLevel.prototype.meta_map = function(ele_to_map, func_to_call) {
 
 }
 
-homeLevel.prototype.bbox = function(r,c) {
+levelLibrary.prototype.bbox = function(r,c) {
   for (var ii=0; ii<this.tilemap.layers.length; ii++) {
     var key = Math.floor(r) +":" + Math.floor(c);
     if (this.layer_lookup[ii][key]) { console.log("bang!", ii, r, c, key); }
@@ -168,17 +165,15 @@ homeLevel.prototype.bbox = function(r,c) {
 }
 
 
-homeLevel.prototype.update = function() {
+levelLibrary.prototype.update = function() {
   if (!this.ready) { return; }
-  if (!this.init_flag) {
-    this.init();
-  }
+  if (!this.init_flag) { this.init(); }
 
   //console.log(">>>");
 }
 
-homeLevel.prototype.keyDown = function(code) {
-  //console.log(">> homeLevel keyDown", code);
+levelLibrary.prototype.keyDown = function(code) {
+  //console.log(">> levelLibrary keyDown", code);
 
   // 'i' - up
   //
@@ -197,7 +192,7 @@ homeLevel.prototype.keyDown = function(code) {
   //else if (code == 76) { this.x += 100; }
 }
 
-homeLevel.prototype.event = function(event_type, data) {
+levelLibrary.prototype.event = function(event_type, data) {
   if (!this.ready) { return; }
 
   if (event_type == "redraw") {
@@ -209,7 +204,7 @@ homeLevel.prototype.event = function(event_type, data) {
 
 }
 
-homeLevel.prototype.draw_layer_bottom = function(display_name, cmp_x, cmp_y) {
+levelLibrary.prototype.draw_layer_bottom = function(display_name, cmp_x, cmp_y) {
   if (!this.ready) { return; }
 
   if (!(display_name in this.layer_name_index_lookup)) { return; }
@@ -228,8 +223,8 @@ homeLevel.prototype.draw_layer_bottom = function(display_name, cmp_x, cmp_y) {
     if (layer.data[jj] == 0) { continue; }
     count++;
 
-    var x = this.x + c*this.world_h;
-    var y = this.y + r*this.world_w;
+    var x = this.x + c*this.world_w;
+    var y = this.y + r*this.world_h;
 
     if (y>=cmp_y) { continue; }
 
@@ -241,8 +236,8 @@ homeLevel.prototype.draw_layer_bottom = function(display_name, cmp_x, cmp_y) {
     var dat = layer.data[jj]-tile_info.firstgid;
     var tilewidth = 16;
 
-    var tilemap_h = 192;
-    var tilemap_w = 192;
+    var tilemap_h = this.tileset[tile_info.tileset_name].imageheight;
+    var tilemap_w = this.tileset[tile_info.tileset_name].imagewidth;
 
     imx = Math.floor((dat*16) % tilemap_w);
     imy = Math.floor((dat*16) / tilemap_w)*tilewidth;
@@ -268,9 +263,11 @@ homeLevel.prototype.draw_layer_bottom = function(display_name, cmp_x, cmp_y) {
 
   }
 
+  //console.log(">>>", count);
+
 }
 
-homeLevel.prototype.draw_layer_top = function(display_name, cmp_x, cmp_y) {
+levelLibrary.prototype.draw_layer_top = function(display_name, cmp_x, cmp_y) {
   if (!this.ready) { return; }
 
   if (!(display_name in this.layer_name_index_lookup)) { return; }
@@ -302,8 +299,8 @@ homeLevel.prototype.draw_layer_top = function(display_name, cmp_x, cmp_y) {
     var dat = layer.data[jj]-tile_info.firstgid;
     var tilewidth = 16;
 
-    var tilemap_h = 192;
-    var tilemap_w = 192;
+    var tilemap_h = this.tileset[tile_info.tileset_name].imageheight;
+    var tilemap_w = this.tileset[tile_info.tileset_name].imagewidth;
 
     imx = Math.floor((dat*16) % tilemap_w);
     imy = Math.floor((dat*16) / tilemap_w)*tilewidth;
@@ -331,7 +328,8 @@ homeLevel.prototype.draw_layer_top = function(display_name, cmp_x, cmp_y) {
 
 }
 
-homeLevel.prototype.draw_layer_w = function(display_name, anchor_x, anchor_y, window_r, window_c, alpha) {
+//levelLibrary.prototype.draw_layer_w = function(display_name, anchor_x, anchor_y, window_r, window_c, alpha) {
+levelLibrary.prototype.draw_layer_w = function(display_name, anchor_x, anchor_y, window_c, window_r, alpha) {
   alpha = ((typeof alpha === "undefined") ? 1.0 : alpha);
   if (!this.ready) { return; }
 
@@ -346,23 +344,25 @@ homeLevel.prototype.draw_layer_w = function(display_name, anchor_x, anchor_y, wi
   var anchor_c = Math.floor((anchor_x - this.x)/16)
   var anchor_r = Math.floor((anchor_y - this.y)/16)
 
-  //var anchor_r = anchor_y;
-  //var anchor_c = anchor_x;
   var data_ind = 0;
-
+  var count=0;
   for (var r = (anchor_r-window_r); r<(anchor_r+window_r); r++) {
     if (r<0) { continue; }
-    if (r>=w) { continue; }
+    //if (r>=w) { continue; }
+    if (r>=h) { continue; }
 
     for (var c= (anchor_c-window_c); c<(anchor_c+window_c); c++) {
       if (c<0) { continue; }
-      if (c>=h) { continue; }
+      //if (c>=h) { continue; }
+      if (c>=w) { continue; }
 
       data_ind = (r*w) + c;
 
       if (data_ind < 0) { continue; }
       if (data_ind >= (w*h)) { continue; }
       if (layer.data[data_ind] == 0) { continue; }
+
+      count++;
 
       var x = this.x + c*this.world_w;
       var y = this.y + r*this.world_h;
@@ -372,8 +372,8 @@ homeLevel.prototype.draw_layer_w = function(display_name, anchor_x, anchor_y, wi
       var dat = layer.data[data_ind]-tile_info.firstgid;
       var tilewidth = 16;
 
-      var tilemap_h = 192;
-      var tilemap_w = 192;
+      var tilemap_h = this.tileset[tile_info.tileset_name].imageheight;
+      var tilemap_w = this.tileset[tile_info.tileset_name].imagewidth;
 
       imx = Math.floor((dat*16) % tilemap_w);
       imy = Math.floor((dat*16) / tilemap_w)*tilewidth;
@@ -385,7 +385,6 @@ homeLevel.prototype.draw_layer_w = function(display_name, anchor_x, anchor_y, wi
       // http://stackoverflow.com/questions/17725840/canvas-drawimage-visible-edges-of-tiles-in-firefox-opera-ie-not-chrome
       //
       //g_imgcache.draw_s(this.tilemap_name, imx, imy, 16, 16, x, y, this.world_w, this.world_h);
-      //g_imgcache.draw_s(tile_info.tileset_name, imx, imy, 16, 16, x, y, this.world_w, this.world_h);
       g_imgcache.draw_s(tile_info.tileset_name, imx, imy, 16, 16, x, y, this.world_w, this.world_h, 0, alpha);
 
       //DEBUG
@@ -401,12 +400,11 @@ homeLevel.prototype.draw_layer_w = function(display_name, anchor_x, anchor_y, wi
     }
   }
 
+  //console.log(count);
 }
 
-homeLevel.prototype.draw_layer = function(display_name, alpha) {
-  alpha = ((typeof alpha === "undefined") ? 1.0 : alpha);
+levelLibrary.prototype.draw_layer = function(display_name) {
   if (!this.ready) { return; }
-
   if (!(display_name in this.layer_name_index_lookup)) { return; }
 
   var layer_idx = this.layer_name_index_lookup[display_name];
@@ -418,13 +416,14 @@ homeLevel.prototype.draw_layer = function(display_name, alpha) {
   var count = 0;
   for (var jj=0; jj<layer.data.length; jj++) {
     var r = Math.floor(jj / w);
-    var c = Math.floor(jj % h);
+    var c = Math.floor(jj % w);
 
     if (layer.data[jj] == 0) { continue; }
     count++;
 
-    var x = this.x + c*this.world_h;
-    var y = this.y + r*this.world_w;
+
+    var x = this.x + c*this.world_w;
+    var y = this.y + r*this.world_h;
 
     var imx = 0;
     var imy = 0;
@@ -434,8 +433,8 @@ homeLevel.prototype.draw_layer = function(display_name, alpha) {
     var dat = layer.data[jj]-tile_info.firstgid;
     var tilewidth = 16;
 
-    var tilemap_h = 192;
-    var tilemap_w = 192;
+    var tilemap_h = this.tileset[tile_info.tileset_name].imageheight;
+    var tilemap_w = this.tileset[tile_info.tileset_name].imagewidth;
 
     imx = Math.floor((dat*16) % tilemap_w);
     imy = Math.floor((dat*16) / tilemap_w)*tilewidth;
@@ -447,8 +446,7 @@ homeLevel.prototype.draw_layer = function(display_name, alpha) {
     // http://stackoverflow.com/questions/17725840/canvas-drawimage-visible-edges-of-tiles-in-firefox-opera-ie-not-chrome
     //
     //g_imgcache.draw_s(this.tilemap_name, imx, imy, 16, 16, x, y, this.world_w, this.world_h);
-    //g_imgcache.draw_s(tile_info.tileset_name, imx, imy, 16, 16, x, y, this.world_w, this.world_h);
-    g_imgcache.draw_s(tile_info.tileset_name, imx, imy, 16, 16, x, y, this.world_w, this.world_h, 0, alpha);
+    g_imgcache.draw_s(tile_info.tileset_name, imx, imy, 16, 16, x, y, this.world_w, this.world_h);
 
     //DEBUG
     if (this.debug) {
@@ -462,11 +460,9 @@ homeLevel.prototype.draw_layer = function(display_name, alpha) {
 
   }
 
-
 }
 
-
-homeLevel.prototype.draw = function(display_height, data) {
+levelLibrary.prototype.draw = function(display_height, data) {
   if (!this.ready) { return; }
 
   for (var ii=0; ii<this.tilemap.layers.length; ii++) {
@@ -499,8 +495,8 @@ homeLevel.prototype.draw = function(display_height, data) {
       var dat = layer.data[jj]-1;
       var tilewidth = 16;
 
-      var tilemap_h = 192;
-      var tilemap_w = 192;
+      var tilemap_h = this.tileset[tile_info.tileset_name].imageheight;
+      var tilemap_w = this.tileset[tile_info.tileset_name].imagewidth;
 
       imx = Math.floor((dat*16) % tilemap_w);
       imy = Math.floor((dat*16) / tilemap_w)*tilewidth;
@@ -532,5 +528,3 @@ homeLevel.prototype.draw = function(display_height, data) {
   }
 
 }
-
-

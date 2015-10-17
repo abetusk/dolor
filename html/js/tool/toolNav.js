@@ -68,8 +68,14 @@ toolNav.prototype.doubleClick = function(button, x, y) { }
 toolNav.prototype.mouseUp = function(button, x, y)
 {
   this.mouse_down = false;
-  if (button == 3)
+  if (button == 3) {
     this.mouse_drag_flag = false;
+  } else {
+    var world_xy = g_painter.devToWorld( this.mouse_cur_x, this.mouse_cur_y );
+    g_player.x = Math.floor(world_xy.x);
+    g_player.y = Math.floor(world_xy.y);
+  }
+
 }
 
 toolNav.prototype.mouseMove = function(x, y)
@@ -89,6 +95,7 @@ toolNav.prototype.mouseMove = function(x, y)
 
   var wx = this.mouse_world_xy.x;
   var wy = this.mouse_world_xy.y;
+
 
   g_painter.dirty_flag = true;
 
