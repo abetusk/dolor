@@ -38,6 +38,10 @@ function homeLevel(x,y) {
 
   this.tile_info = {};
 
+  this.max_w = 0;
+  this.max_h = 0;
+  this.bounding_box = [[0,0],[0,0]];
+
   this.portal = {};
 }
 
@@ -70,6 +74,9 @@ homeLevel.prototype.init = function() {
   }
   this.tileset_list[this.tileset_list.length-1].lastgid = -1;
 
+  this.max_w = 0;
+  this.max_h = 0;
+
   this.layer_name_index_lookup = {};
   this.layer_lookup = {};
   for (var ii=0; ii<this.tilemap.layers.length; ii++) {
@@ -77,6 +84,9 @@ homeLevel.prototype.init = function() {
     var layer = this.tilemap.layers[ii];
     var w = layer.width;
     var h = layer.height;
+
+    if (this.max_w < w) { this.max_w = w; }
+    if (this.max_h < h) { this.max_h = h; }
 
     this.layer_name_index_lookup[layer.name] = ii;
 
@@ -135,8 +145,11 @@ homeLevel.prototype.init = function() {
 
   }
 
+  this.updateBoundingBox();
 }
 
+homeLevel.prototype.cleanup= function() {
+}
 
 homeLevel.prototype.meta_map = function(ele_to_map, func_to_call) {
 
@@ -167,12 +180,19 @@ homeLevel.prototype.bbox = function(r,c) {
   }
 }
 
+homeLevel.prototype.updateBoundingBox = function() {
+  this.bounding_box[0][0] = this.x;
+  this.bounding_box[0][1] = this.y;
+
+  this.bounding_box[1][0] = this.x + this.max_w*16;
+  this.bounding_box[1][1] = this.x + this.max_h*16;
+}
 
 homeLevel.prototype.update = function() {
   if (!this.ready) { return; }
-  if (!this.init_flag) {
-    this.init();
-  }
+  if (!this.init_flag) { this.init(); }
+
+  this.updateBoundingBox();
 
   //console.log(">>>");
 }
@@ -331,7 +351,7 @@ homeLevel.prototype.draw_layer_top = function(display_name, cmp_x, cmp_y) {
 
 }
 
-homeLevel.prototype.draw_layer_w = function(display_name, anchor_x, anchor_y, window_r, window_c, alpha) {
+homeLevel.prototype.draw_layer_w = function(display_name, anchor_x, anchor_y, window_c, window_r, alpha) {
   alpha = ((typeof alpha === "undefined") ? 1.0 : alpha);
   if (!this.ready) { return; }
 

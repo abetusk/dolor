@@ -34,6 +34,9 @@ function levelLibrary(x,y) {
   this.portal = {};
 }
 
+levelLibrary.prototype.cleanup= function() {
+}
+
 levelLibrary.prototype.init = function() {
   this.init_flag=true;
 

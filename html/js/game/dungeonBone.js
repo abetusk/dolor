@@ -34,6 +34,9 @@ function dungeonBone(x,y) {
   this.portal = {};
 }
 
+dungeonBone.prototype.cleanup= function() {
+}
+
 dungeonBone.prototype.init = function() {
   this.init_flag=true;
 
@@ -327,7 +330,7 @@ dungeonBone.prototype.draw_layer_top = function(display_name, cmp_x, cmp_y) {
 
 }
 
-dungeonBone.prototype.draw_layer_w = function(display_name, anchor_x, anchor_y, window_r, window_c, alpha) {
+dungeonBone.prototype.draw_layer_w = function(display_name, anchor_x, anchor_y, window_c, window_r, alpha) {
   alpha = ((typeof alpha === "undefined") ? 1.0 : alpha);
   if (!this.ready) { return; }
 

@@ -34,6 +34,9 @@ function dungeonJade(x,y) {
   this.portal = {};
 }
 
+dungeonJade.prototype.cleanup= function() {
+}
+
 dungeonJade.prototype.init = function() {
   this.init_flag=true;
 
@@ -327,7 +330,7 @@ dungeonJade.prototype.draw_layer_top = function(display_name, cmp_x, cmp_y) {
 
 }
 
-dungeonJade.prototype.draw_layer_w = function(display_name, anchor_x, anchor_y, window_r, window_c, alpha) {
+dungeonJade.prototype.draw_layer_w = function(display_name, anchor_x, anchor_y, window_c, window_r, alpha) {
   alpha = ((typeof alpha === "undefined") ? 1.0 : alpha);
   if (!this.ready) { return; }
 

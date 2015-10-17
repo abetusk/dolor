@@ -44,6 +44,14 @@ function creatureNeko(name, gridsize, tilesize, nframe) {
 
 }
 
+creatureNeko.prototype.init = function(x,y) {
+  this.x = x;
+  this.y = y;
+
+  this.message_bubble.x = this.x;
+  this.message_bubble.y = this.y-16;
+}
+
 creatureNeko.prototype.update = function(world_state) {
 
   this.frameDelay--;

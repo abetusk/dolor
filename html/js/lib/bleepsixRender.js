@@ -93,6 +93,19 @@ bleepsixRender.prototype.setGrid = function ( val )
   this.dirty_flag = true;
 }
 
+bleepsixRender.prototype.getView = function() {
+
+  var view = {
+    "x1": this.view.x1,
+    "x2": this.view.x2,
+
+    "y1": this.view.y1,
+    "y2": this.view.y2
+  }
+
+  return view;
+}
+
 bleepsixRender.prototype.setView = function(x, y, z, cx, cy)
 {
   // set center and zoom
@@ -105,12 +118,22 @@ bleepsixRender.prototype.setView = function(x, y, z, cx, cy)
   this.zoom = z;
 
   // compute the view region
+  //var dx = this.width / (z * 2.0);
+  //var dy = this.height / (z * 2.0);
   var dx = this.width / (z * 2.0);
   var dy = this.height / (z * 2.0);
-  this.view.x1 = this.view.cx - dx;
-  this.view.y1 = this.view.cy - dy;
-  this.view.x2 = this.view.cx + dx;
-  this.view.y2 = this.view.cy + dy;
+
+  this.view.x1 = (this.view.cx - dx);
+  this.view.y1 = (this.view.cy - dy);
+  this.view.x2 = (this.view.cx + dx);
+  this.view.y2 = (this.view.cy + dy);
+
+  /*
+  this.view.x1 = Math.floor(this.view.cx - dx);
+  this.view.y1 = Math.floor(this.view.cy - dy);
+  this.view.x2 = Math.floor(this.view.cx + dx);
+  this.view.y2 = Math.floor(this.view.cy + dy);
+  */
 
   //console.log ( "zoom: " + this.zoom );
   //console.log ( "view: " + this.view.x1 + " " + this.view.y1 + " " + this.view.x2 + " " + this.view.y2 );

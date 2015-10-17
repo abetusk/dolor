@@ -1,7 +1,11 @@
 function mainWorld() {
   this.player = g_player;
-  this.level = g_level;
+
+  //this.level = g_level;
+  this.level = null;
+
   this.painter = g_painter;
+
 
   this.enemy = [];
   this.particle = [];
@@ -44,12 +48,18 @@ function mainWorld() {
   this.ticker = 0;
   this.environment_state = "idle";
 
+  this.zoom_default = 3;
+  this.zoom_max = 2;
+
+
   //---
 
+  /*
   var neko = new creatureNeko();
   neko.x = 16*29;
   neko.y = 16*13;
   this.enemy.push(neko);
+  */
 
   this.collisionNudgeN=1;
 
@@ -93,13 +103,23 @@ function mainWorld() {
   this.level_transition_dst_completed = false;
 
 
-  this.bg_r = 210;
-  this.bg_g = 210;
-  this.bg_b = 220;
-  this.bg_color = "rgba(" + this.bg_r + "," + this.bg_g + "," + this.bg_b + ",1.0)";
   //this.bg_color = "rgba(13,7,17,1.0)";
 
-  this.overworld_flag = true;
+  //this.bg_r = 210; this.bg_g = 210; this.bg_b = 220;
+  //this.bg_r = 13; this.bg_g = 7; this.bg_b = 17;
+  this.bg_r = 32; this.bg_g = 32; this.bg_b = 32;
+  this.bg_color = "rgba(" + this.bg_r + "," + this.bg_g + "," + this.bg_b + ",1.0)";
+
+  //this.overworld_flag = true;
+  this.overworld_flag = false;
+
+  this.music_playing = false;
+  this.music_ramp_delay_N = 5*60;
+  this.music_ramp_delay = 0;
+  this.music_volume_fiddle_step = 20;
+  this.music_state = "stopped";  // stopped, playing, ramp_down
+  this.music_song_name = "";
+  this.music_volume_max = 0.75;
 
 }
 
@@ -139,6 +159,77 @@ mainWorld.prototype.init = function() {
     this.player_focus_history.push( [x,y] );
   }
   this.player_update_focus();
+}
+
+mainWorld.prototype.start_music = function(song_name) {
+
+  if (!(song_name in g_music)) {
+    console.log("ERROR:", song_name, "not in g_music");
+    return;
+  }
+
+  if (this.music_playing) {
+    console.log("ERROR: music already playing");
+    return;
+  }
+
+  this.music_playing = true;
+  //this.music_ramp_delay_N = 5*60;
+  this.music_ramp_delay = 0;
+  //this.music_volume_fiddle_step = 20;
+  this.music_state = "ramp_up";  // stopped, playing, ramp_down
+  this.music_song_name = song_name;
+  this.music_volume_max = 1.0;
+
+  g_music[song_name].play();
+  g_music[song_name].volume(0);
+}
+
+mainWorld.prototype._update_music = function() {
+
+  if (!(this.music_playing)) { return; }
+
+  if (this.music_state == "ramp_up") {
+    this.music_ramp_delay++;
+    if ((this.music_ramp_delay%this.music_volume_fiddle_step)==0) {
+      g_music[this.music_song_name].volume(this.music_volume_max * this.music_ramp_delay / this.music_ramp_delay_N);
+    }
+
+    if (this.music_ramp_delay >= this.music_ramp_delay_N) {
+      this.music_state = "playing";
+      g_music[this.music_song_name].volume(this.music_volume_max);
+    }
+
+  }
+  else if (this.music_state == "playing") {
+  }
+  else if (this.music_state == "ramp_down") {
+    this.music_ramp_delay++;
+    if ((this.music_ramp_delay%this.music_volume_fiddle_step)==0) {
+      g_music[this.music_song_name].volume( this.music_volume_max*(1.0 - (this.music_ramp_delay / this.music_ramp_delay_N)) );
+    }
+
+    if (this.music_ramp_delay >= this.music_ramp_delay_N) {
+      this.music_state = "stopped";
+      g_music[this.music_song_name].stop();
+      this.music_playing = false;
+    }
+
+
+  }
+
+
+}
+
+mainWorld.prototype.stop_music = function() {
+  if (this.music_playing) {
+    if (this.music_state != "ramp_down") {
+      this.music_state = "ramp_down";
+      this.music_ramp_delay = 0;
+    } else if (this.music_state == "ramp_up") {
+      this.music_state = "ramp_down";
+    }
+  }
 }
 
 mainWorld.prototype.player_attack_level_collision = function() {
@@ -733,7 +824,7 @@ mainWorld.prototype.draw = function() {
 
   // rain
   //
-  if (this.overworld_flag && this.rain_flag) {
+  if ((this.level.name == "dolor" || this.overworld_flag) && this.rain_flag) {
     for (var i=0; i<this.rain_N; i++) {
       g_imgcache.draw_s("rain", 0, 0, 5, 10, this.rain[i].x, this.rain[i].y, 5, 10);
     }
@@ -1044,6 +1135,9 @@ mainWorld.prototype.updateCam_lerp_position_locking = function() {
 
     //var z = this.get_player_vel_zoom();
     var z = this.get_player_accel_zoom();
+
+    //console.log("adjust:", screen_dx, screen_dy, z);
+
     painter.adjustPanZoom(screen_dx,screen_dy,z);
   }
 }
@@ -1113,8 +1207,12 @@ mainWorld.prototype.get_player_accel_zoom = function() {
   //var default_zoom = 3.25;
   //var max_zoom = 2.5;
 
-  var default_zoom = 3;
-  var max_zoom = 2;
+  var default_zoom = this.zoom_default; // 3
+  var max_zoom = this.zoom_max; //2;
+
+  if (this.level.name == "dolor") {
+    this.camvec_sum = this.camvec_sum_max;
+  }
 
   if (typeof this.camvec_sum === "undefined") {
     this.camvec_sum = 0;
@@ -1217,6 +1315,33 @@ mainWorld.prototype.get_player_vel_zoom = function() {
 mainWorld.prototype.updateCam = function() {
 
   this.updateCam_lerp_position_locking();
+
+  if (this.level.name == "overworld") {
+    if (!this.level.ready) { return; }
+    var bbox = this.level.bounding_box;
+    var view = this.painter.getView();
+
+    var ds = 16;
+
+    if (view.x1 < (bbox[0][0]+ds)) {
+      var dx = view.x1 - bbox[0][0] - ds;
+      this.painter.adjustPan(dx, 0);
+    } else if (view.x2 > (bbox[1][0]-ds)) {
+      var dx = view.x2 - bbox[1][0] + ds;
+      this.painter.adjustPan(dx, 0);
+    }
+
+    if (view.y1 < (bbox[0][1]+ds)) {
+      var dy = view.y1 - bbox[0][1] - ds;
+      this.painter.adjustPan(0, dy);
+    } else if (view.y2 > (bbox[1][1]-ds)) {
+      var dy = view.y2 - bbox[1][1] + ds;
+      this.painter.adjustPan(0, dy);
+    }
+
+
+  }
+
   //this.updateCam_lerp_average_lead_window();
   //this.updateCam_lerp_snap_on_edge();
   return;
@@ -1536,6 +1661,12 @@ mainWorld.prototype.init_monsters = function() {
     self.enemy.push(horns);
   });
 
+  this.level.meta_map(28, function(dat, x, y) {
+    var neko = new creatureNeko();
+    neko.init(x,y);
+    self.enemy.push(neko);
+  });
+
 }
 
 mainWorld.prototype.level_transition_init = function(portal_id) {
@@ -1575,7 +1706,6 @@ mainWorld.prototype.level_transition_init = function(portal_id) {
     this.bg_b = 17;
     this.bg_color = "rgba(13,7,17,1.0)";
 
-    // TODO!! FIX!
     var ox = this.level.portal[0].x;
     var oy = this.level.portal[0].y;
     this.level.x = px - ox;
@@ -1592,7 +1722,6 @@ mainWorld.prototype.level_transition_init = function(portal_id) {
     this.bg_b = 17;
     this.bg_color = "rgba(13,7,17,1.0)";
 
-    // TODO!! FIX!
     var ox = this.level.portal[0].x;
     var oy = this.level.portal[0].y;
     this.level.x = px - ox;
@@ -1609,7 +1738,6 @@ mainWorld.prototype.level_transition_init = function(portal_id) {
     this.bg_b = 17;
     this.bg_color = "rgba(13,7,17,1.0)";
 
-    // TODO!! FIX!
     var ox = this.level.portal[0].x;
     var oy = this.level.portal[0].y;
     this.level.x = px - ox;
@@ -1628,7 +1756,6 @@ mainWorld.prototype.level_transition_init = function(portal_id) {
 
     console.log(this.level);
 
-    // TODO!! FIX!
     var ox = this.level.portal[0].x;
     var oy = this.level.portal[0].y;
     this.level.x = px - ox;
@@ -1644,11 +1771,7 @@ mainWorld.prototype.level_transition_init = function(portal_id) {
     this.overworld_flag = true;
   }
 
-  //this.player.x = this.level.x + ox;
-  //this.player.y = this.level.y + oy;
-
   this.init_monsters();
-
 }
 
 mainWorld.prototype.update_level_transition = function() {
@@ -1660,6 +1783,7 @@ mainWorld.prototype.update_level_transition = function() {
   } else {
 
     if (!this.level_transition_src_completed) {
+      this.level.cleanup();
       this.level_transition_init(this.level_transition_portal_id);
     }
     this.level_transition_src_completed = true;
@@ -1741,10 +1865,10 @@ mainWorld.prototype.player_portal_collision = function(bbox) {
         else if (eff_val == 57) { coll_tileid = 1; portal_id = 4; }
         else if (eff_val == 58) { coll_tileid = 3; portal_id = 5; }
         else if (eff_val == 59) { coll_tileid = 3; portal_id = 5; }
-        else if (eff_val == 60) { coll_tileid = 1; portal_id = 6; }
-        else if (eff_val == 61) { coll_tileid = 1; portal_id = 6; }
-        else if (eff_val == 62) { coll_tileid = 3; portal_id = 5; }
-        else if (eff_val == 63) { coll_tileid = 3; portal_id = 5; }
+        //else if (eff_val == 60) { coll_tileid = 1; portal_id = 6; }
+        //else if (eff_val == 61) { coll_tileid = 1; portal_id = 6; }
+        else if (eff_val == 62) { coll_tileid = 1; portal_id = 5; }
+        else if (eff_val == 63) { coll_tileid = 1; portal_id = 5; }
 
         //if (coll_tileid!=0) { console.log(">> " + coll_tileid + " " + portal_id ); }
 
@@ -1800,11 +1924,17 @@ mainWorld.prototype.update = function() {
 
   if (portal_id<0) { this.initial_level_transition = false; }
 
+  this._update_music();
+
 
   this.update_rain_sfx();
   //this.update_wave_sfx();
 
-  if ((this.ticker%1000)==0) {
+  if (this.level.name == "dolor") {
+    this.rain_flag = true;
+    this.snow_flag = false;
+  }
+  else if ((this.ticker%1000)==0) {
     //var s = Math.floor(Math.random()*3);
     var r = Math.random();
 

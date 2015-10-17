@@ -32,6 +32,12 @@ function levelDolor(x,y) {
   this.tile_info = {};
 
   this.portal = {};
+
+  this.level_music = "dolor-ambient";
+  this.level_music_delay_N = 5*60*60;
+  this.level_music_delay = this.level_music_delay_N;
+
+  this.music_timeout = null;
 }
 
 levelDolor.prototype.init = function() {
@@ -109,17 +115,16 @@ levelDolor.prototype.init = function() {
 
         var eff_val = dat - this.tileset_list[ind].firstgid;
 
-        if (eff_val == 40) {
+        if (eff_val == 60) {
           this.portal[0] = { "portal":0, "level":"overworld", "x":16*(c), "y":16*(r) };
         }
-        if (eff_val == 41) {
+        else if (eff_val == 61) {
           this.portal[0] = { "portal":0, "level":"overworld", "x":16*(c), "y":16*(r) };
         }
-        else if (eff_val == 42) {
+        else if (eff_val == 62) {
           this.portal[0] = { "portal":0, "level":"overworld", "x":16*(c), "y":16*(r) };
         }
-
-        else if (eff_val == 43) {
+        else if (eff_val == 63) {
           this.portal[0] = { "portal":0, "level":"overworld", "x":16*(c), "y":16*(r) };
         }
 
@@ -164,11 +169,30 @@ levelDolor.prototype.bbox = function(r,c) {
 }
 
 
+levelDolor.prototype.cleanup = function() {
+  g_world.stop_music(this.level_music);
+  if (this.music_timeout) {
+    clearTimeout(this.music_timeout);
+  }
+}
+
 levelDolor.prototype.update = function() {
   if (!this.ready) { return; }
   if (!this.init_flag) { this.init(); }
 
-  //console.log(">>>");
+  if (this.level_music_delay >= this.level_music_delay_N) {
+    g_world.start_music(this.level_music);
+    this.level_music_delay = Math.floor(Math.random()*this.level_music_delay_N/3);
+    var song = this.level_music;
+    var self = this;
+    this.music_timeout = setTimeout(function() { g_world.stop_music(song); self.music_timeout = null; }, 70*1000);
+  }
+
+  this.level_music_delay++;
+
+  //DEBUG
+  //if ((this.level_music_delay%1000)==0) { console.log(this.level_music_delay); }
+
 }
 
 levelDolor.prototype.keyDown = function(code) {
@@ -327,7 +351,7 @@ levelDolor.prototype.draw_layer_top = function(display_name, cmp_x, cmp_y) {
 
 }
 
-levelDolor.prototype.draw_layer_w = function(display_name, anchor_x, anchor_y, window_r, window_c, alpha) {
+levelDolor.prototype.draw_layer_w = function(display_name, anchor_x, anchor_y, window_c, window_r, alpha) {
   alpha = ((typeof alpha === "undefined") ? 1.0 : alpha);
   if (!this.ready) { return; }
 

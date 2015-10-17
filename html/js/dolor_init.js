@@ -17,7 +17,22 @@
     var g_imgcache = null;
     var g_data = {};
     var g_player = null;
-    var g_level = null;
+    //var g_level = null;
+
+    var g_level_overworld = null;
+
+    var g_level_library = null;
+    var g_level_dolor = null;
+    var g_level_alpha = null;
+    var g_level_beta = null;
+    var g_level_gamma = null;
+    var g_level_delta = null;
+
+    var g_level_dungeon_jade = null;
+    var g_level_dungeon_blood = null;
+    var g_level_dungeon_bone = null;
+    var g_level_dungeon_aqua = null;
+
     var g_world = null;
 
     var g_level_cache = {};
@@ -29,6 +44,27 @@
     var g_context = null;
 
     var g_show_fps = false;
+
+    var g_register_load = {};
+    function register_load(map_name) {
+      g_register_load[map_name] = true;
+
+      if (g_register_load["overworld"] && g_register_load["dolor"]) {
+
+        g_level_overworld.meta_map(27, function(dat, x, y) {
+          g_level_dolor.x = x - g_level_dolor.portal[0].x;
+          g_level_dolor.y = y - g_level_dolor.portal[0].y;
+        });
+
+        g_level_dolor.meta_map(27, function(dat, x, y) {
+          g_player.x = x;
+          g_player.y = y;
+          g_painter.setView(x, y, 2);
+        });
+
+      }
+
+    }
 
     function canvasFocus()
     {
@@ -129,7 +165,7 @@
       g_player = new mainPlayer();
       g_world = new mainWorld();
 
-      g_level = new homeLevel();
+      //g_level = new homeLevel();
 
       g_level_dolor = new levelDolor();
       g_level_library = new levelLibrary();
@@ -296,9 +332,12 @@
       //g_sfx["wave"].push( new_sound_object("assets/sfx/254857__afeeto__waves-against-shore.ogg", 0.5, true) );
 
       g_music = {};
-      g_music["home"] = new_sound_object("assets/music/mark.nine-the-little-things-02-devil-you-know.mp3");
-      g_music["home-ambient"] = new_sound_object("assets/music/317363__frankum__ambient-electronic-loop-001.mp3");
-      g_music["disturbance"] = new_sound_object("assets/music/131005__reacthor__the-emperor-s-starfleet.ogg");
+      //g_music["home"] = new_sound_object("assets/music/mark.nine-the-little-things-02-devil-you-know.mp3");
+      //g_music["home-ambient"] = new_sound_object("assets/music/317363__frankum__ambient-electronic-loop-001.mp3");
+      //g_music["disturbance"] = new_sound_object("assets/music/131005__reacthor__the-emperor-s-starfleet.ogg");
+      //g_music["dolor-ambient"] = new_sound_object("assets/music/Graham_Bole_-_05_-_Sunset_At_Goat_Fell.ogg");
+      g_music["dolor-ambient"] = new_sound_object("assets/music/317363__frankum__ambient-electronic-loop-001.ogg");
+      g_music["start-ambient"] = new_sound_object("assets/music/Mark.Nine_The_Little_Things_01_Lighthouse_District.ogg");
 
       //welcome_music.play();
 
@@ -381,6 +420,13 @@
           g_level_dolor.init();
 
           g_level_cache["dolor"] = g_level_dolor;
+
+          g_world.ready = true;
+          g_world.level = g_level_dolor;
+
+          g_world.init();
+
+          register_load("dolor");
         },
         error: function(e) { console.log("err", e); }
       });
@@ -389,7 +435,7 @@
         url: "assets/level_library.json",
         dataType:"json",
         success: function(a,b,c) {
-          g_data["library"] = a;
+          g_data["level_library"] = a;
 
           g_level_library.tilemap = a;
           g_level_library.ready = true;
@@ -400,40 +446,116 @@
         error: function(e) { console.log("err", e); }
       });
 
+      g_level_alpha = new levelAlpha();
+      $.ajax({
+        url: "assets/level_alpha.json",
+        dataType:"json",
+        success: function(a,b,c) {
+          g_data["level_alpha"] = a;
 
+          g_level_alpha.tilemap = a;
+          g_level_alpha.ready = true;
+          g_level_alpha.init();
+
+          g_level_cache["level_alpha"] = g_level_alpha;
+        },
+        error: function(e) { console.log("err", e); }
+      });
+
+      g_level_beta = new levelBeta();
+      $.ajax({
+        url: "assets/level_beta.json",
+        dataType:"json",
+        success: function(a,b,c) {
+          g_data["level_beta"] = a;
+
+          g_level_beta.tilemap = a;
+          g_level_beta.ready = true;
+          g_level_beta.init();
+
+          g_level_cache["level_beta"] = g_level_beta;
+        },
+        error: function(e) { console.log("err", e); }
+      });
+
+
+      g_level_gamma = new levelGamma();
+      $.ajax({
+        url: "assets/level_gamma.json",
+        dataType:"json",
+        success: function(a,b,c) {
+          g_data["level_gamma"] = a;
+
+          g_level_gamma.tilemap = a;
+          g_level_gamma.ready = true;
+          g_level_gamma.init();
+
+          g_level_cache["level_gamma"] = g_level_gamma;
+        },
+        error: function(e) { console.log("err", e); }
+      });
+
+      g_level_delta = new levelDelta();
+      $.ajax({
+        url: "assets/level_delta.json",
+        dataType:"json",
+        success: function(a,b,c) {
+          g_data["level_delta"] = a;
+
+          g_level_delta.tilemap = a;
+          g_level_delta.ready = true;
+          g_level_delta.init();
+
+          g_level_cache["level_delta"] = g_level_delta;
+        },
+        error: function(e) { console.log("err", e); }
+      });
+
+
+      g_level_overworld = new homeLevel();
       $.ajax({
         url: "assets/exia_overworld.json",
         dataType:"json",
         success: function(a,b,c) {
           g_data["homeArea"] = a;
 
-          g_level.tilemap = a;
-          g_level.ready = true;
-          g_level.init();
+          g_level_overworld.tilemap = a;
+          g_level_overworld.ready = true;
+          g_level_overworld.init();
 
-          g_level_cache["overworld"] = g_level;
+          g_level_cache["overworld"] = g_level_overworld;
 
+          g_level_overworld.meta_map(28, function(dat, x, y) {
+            //var neko = new creatureNeko();
+            //neko.init(x,y);
+          });
+
+          register_load("overworld");
+
+
+          /*
           g_world.ready = true;
-          g_world.level = g_level;
+          g_world.level = g_level_overworld;
 
-          g_level.meta_map(0, function(dat, x, y) {
+          g_level_overworld.meta_map(0, function(dat, x, y) {
             var bones = new creatureBones();
             bones.init(x,y);
             g_world.enemy.push(bones);
           });
 
-          g_level.meta_map(1, function(dat, x, y) {
+          g_level_overworld.meta_map(1, function(dat, x, y) {
             var horns = new creatureHorns();
             horns.init(x,y);
             g_world.enemy.push(horns);
           });
 
-          g_level.meta_map(27, function(dat, x, y) {
+          g_level_overworld.meta_map(27, function(dat, x, y) {
             g_player.x = x;
             g_player.y = y;
           });
 
           g_world.init();
+          */
         },
         error: function(e) {
           console.log("err", e);
@@ -466,7 +588,8 @@
       g_game_controller = new mainController();
       g_game_controller.init("canvas");
       g_game_controller.player = g_player;
-      g_game_controller.level = g_level;
+      //g_game_controller.level = g_level;
+      g_game_controller.level = g_level_overworld;
       g_game_controller.world = g_world;
 
 
