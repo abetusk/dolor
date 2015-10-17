@@ -20,6 +20,8 @@
     var g_level = null;
     var g_world = null;
 
+    var g_level_cache = {};
+
     var g_music = null;
     var g_sfx = null;
 
@@ -146,9 +148,12 @@
       //g_imgcache.add("dungeon0", img_base + "/dungeon_sheet_0.png");
       //g_imgcache.add("dungeon0", img_base + "/sheet_17.png");
       g_imgcache.add("dungeon", img_base + "/sheet_17.png");
-      g_imgcache.add("sheet_17", img_base + "/sheet_17.png");
-      g_imgcache.add("forrest", img_base + "/forrestup_0.png");
-      g_imgcache.add("forrestup_0", img_base + "/forrestup_0.png");
+      //g_imgcache.add("sheet_17", img_base + "/sheet_17.png");
+      g_imgcache.add("sheet_17", img_base + "/sheet_17.a.png");
+      //g_imgcache.add("forrest", img_base + "/forrestup_0.png");
+      g_imgcache.add("forrest", img_base + "/forrestup_1.png");
+      //g_imgcache.add("forrestup_0", img_base + "/forrestup_0.png");
+      g_imgcache.add("forrestup_0", img_base + "/forrestup_1.png");
 
       //g_imgcache.add("skel_jade", img_base + "/float_skel_white.png");
       //g_imgcache.add("skel_jade", img_base + "/float_skel_purple.png");
@@ -300,6 +305,8 @@
           g_level_dungeon_jade.ready = true;
           g_level_dungeon_jade.init();
 
+          g_level_cache["dungeon_jade"] = g_level_dungeon_jade;
+
           console.log("jade loaded");
 
           /*
@@ -351,6 +358,8 @@
           g_level.ready = true;
           g_level.init();
 
+          g_level_cache["overworld"] = g_level;
+
           g_world.ready = true;
 
           g_level.meta_map(0, function(dat, x, y) {
@@ -365,7 +374,7 @@
             g_world.enemy.push(horns);
           });
 
-          g_level.meta_map(15, function(dat, x, y) {
+          g_level.meta_map(27, function(dat, x, y) {
             g_player.x = x;
             g_player.y = y;
           });

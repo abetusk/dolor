@@ -57,7 +57,7 @@ function creatureBones() {
   this.intent = { "d": "down", "x" : this.x, "y" : this.y, "bounding_box":[[0,0],[0,0]] }
   this.skip_intent = false;
 
-  this.hp_max = 32;
+  this.hp_max = 8;
   this.hp = this.hp_max;
   this.hp_refresh_rate = 1;
   this.hp_refresh_delay_n = 1000;

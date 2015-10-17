@@ -28,6 +28,8 @@ function dungeonJade(x,y) {
   this.layer_lookup = {};
 
   this.tile_info = {};
+
+  this.portal = {};
 }
 
 dungeonJade.prototype.init = function() {
@@ -98,6 +100,30 @@ dungeonJade.prototype.init = function() {
       };
 
       this.tile_info[dat] = tileinfo;
+
+      if (layer.name == "meta") {
+        var r = Math.floor(jj / w);
+        var c = Math.floor(jj % h);
+
+        var eff_val = dat - this.tileset_list[ind].firstgid;
+
+        if (eff_val == 40) {
+          this.portal[0] = { "portal":0, "level":"overworld", "x":16*(c), "y":16*(r) };
+        }
+        if (eff_val == 41) {
+          this.portal[0] = { "portal":0, "level":"overworld", "x":16*(c), "y":16*(r) };
+        }
+        else if (eff_val == 42) {
+          this.portal[0] = { "portal":0, "level":"overworld", "x":16*(c), "y":16*(r) };
+        }
+
+        else if (eff_val == 43) {
+          this.portal[0] = { "portal":0, "level":"overworld", "x":16*(c), "y":16*(r) };
+        }
+
+      }
+
+
 
     }
 

@@ -35,6 +35,8 @@ function homeLevel(x,y) {
   this.layer_lookup = {};
 
   this.tile_info = {};
+
+  this.portal = {};
 }
 
 
@@ -106,6 +108,18 @@ homeLevel.prototype.init = function() {
       };
 
       this.tile_info[dat] = tileinfo;
+
+      if (layer.name == "meta") {
+        var r = Math.floor(jj / w);
+        var c = Math.floor(jj % h);
+
+        var eff_val = dat - this.tileset_list[ind].firstgid;
+
+        if (eff_val == 40) {
+          this.portal[0] = { "portal":0, "level":"dungeon_jade", "x":16*c, "y":16*r };
+        }
+        
+      }
 
     }
 

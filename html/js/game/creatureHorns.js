@@ -54,7 +54,7 @@ function creatureHorns() {
   this.intent = { "d": "down", "x" : this.x, "y" : this.y, "bounding_box":[[0,0],[0,0]] }
   this.skip_intent = false;
 
-  this.hp_max = 64;
+  this.hp_max = 16;
   this.hp = this.hp_max;
   this.hp_refresh_rate = 16;
   this.hp_refresh_delay_n = 1000;

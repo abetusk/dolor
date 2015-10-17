@@ -85,6 +85,12 @@ function mainWorld() {
   this.camvec_pos=0;
 
   this.level_transition = false;
+  this.level_transition_t_N = 40;
+  this.level_transition_t = this.level_transition_t_N;
+
+  this.initial_level_transition = false;
+  this.level_transition_src_completed = false;
+  this.level_transition_dst_completed = false;
 
 }
 
@@ -577,15 +583,17 @@ mainWorld.prototype.draw = function() {
 
   if (this.level)
   {
-    if (this.debris) {
-      for (var key in this.debris) {
-        this.debris[key].draw();
-      }
-    }
-
     if (this.display_speedup) {
       this.level.draw_layer_w("bottom.-2", world0.x, world0.y, tile_dx, tile_dy);
       this.level.draw_layer_w("bottom.-1", world0.x, world0.y, tile_dx, tile_dy);
+
+      if (this.debris) {
+        for (var key in this.debris) {
+          this.debris[key].draw();
+        }
+      }
+
+
       this.level.draw_layer_w("bottom", world0.x, world0.y, tile_dx, tile_dy);
     } else {
       this.level.draw_layer("bottom");
@@ -1496,49 +1504,170 @@ mainWorld.prototype.update_rain_sfx = function() {
 
 }
 
+mainWorld.prototype.init_monsters = function() {
+  var self = this;
+  self.enemy = [];
+  this.level.meta_map(0, function(dat, x, y) {
+    var bones = new creatureBones();
+    bones.init(x,y);
+    self.enemy.push(bones);
+  });
 
-mainWorld.prototype.level_transition_init = function() {
+  this.level.meta_map(1, function(dat, x, y) {
+    var horns = new creatureHorns();
+    horns.init(x,y);
+    self.enemy.push(horns);
+  });
+
+}
+
+mainWorld.prototype.level_transition_init = function(portal_id) {
+  /*
   this.level_transition_t_N = 30;
   this.level_transition_t = this.level_transition_t_N;
-  this.level_transition_completed = false;
+  this.level_transition_src_completed = false;
+  this.level_transition_dst_completed = false;
   this.level_transition_alpha = 1.0;
+  */
+
+  if (portal_id == 0) {
+    var px = this.level.portal[0].x;
+    var py = this.level.portal[0].y;
+
+    this.level = g_level_cache["dungeon_jade"];
+
+    var ox = this.level.portal[0].x;
+    var oy = this.level.portal[0].y;
+    this.level.x = px - ox;
+    this.level.y = py - oy;
+
+  } else if (portal_id == 5) {
+    this.level = g_level_cache["overworld"];
+  }
+
+  //this.player.x = this.level.x + ox;
+  //this.player.y = this.level.y + oy;
+
+  this.init_monsters();
+
 }
 
 mainWorld.prototype.update_level_transition = function() {
-  if (typeof this.level_transition_t === "undefined") {
-    this.level_transition_init();
+  this.level_transition_t--;
+  var t2 = this.level_transition_t_N/2;
+
+  if (this.level_transition_t > t2) {
+    this.level_transition_alpha = (this.level_transition_t-t2) / t2;
+  } else {
+
+    if (!this.level_transition_src_completed) {
+      this.level_transition_init(this.level_transition_portal_id);
+    }
+    this.level_transition_src_completed = true;
+
+    if (this.level_transition_t < 0) {
+      this.level_transition_dst_completed = true;
+    } else {
+      this.level_transition_alpha = 1.0 - (this.level_transition_t / t2);
+    }
+
   }
 
-  this.level_transition_t--;
-  if (this.level_transition_t < 0) {
-    this.level_transition_completed = true;
-    this.level_transition_alpha = 0.0;
-  } else {
-    this.level_transition_alpha = this.level_transition_t / this.level_transition_t_N;
+}
+
+mainWorld.prototype.player_portal_collision = function(bbox) {
+  var level = this.level;
+  if (!level) { return -1; }
+
+  var layers = level.tilemap.layers;
+  var meta_ind = level.layer_name_index_lookup["meta"];
+
+  var level_x = 0;
+  var level_y = 0;
+  if (this.level.ready) {
+    level_x = this.level.x;
+    level_y = this.level.y;
   }
+
+  var base_c = Math.floor((bbox[0][0]-level_x)/16);
+  var base_r = Math.floor((bbox[0][1]-level_y)/16);
+
+  for (var cc=-1; cc<2; cc++) {
+    for (var rr=-1; rr<2; rr++) {
+      var key = (base_r+rr) + ":" + (base_c+cc);
+
+      if (key in this.level.layer_lookup[meta_ind]) {
+        var tile_x = level_x + (base_c + cc) * 16;
+        var tile_y = level_y + (base_r + rr) * 16;
+
+        var val = this.level.layer_lookup[meta_ind][key];
+        var ti = level.tile_info[val];
+        var eff_val = val - ti.firstgid;
+
+        var portal_id = -1;
+
+        var coll_tileid = 0;
+        if (eff_val == 40) { coll_tileid = 1; portal_id = 0; }
+        if (eff_val == 41) { coll_tileid = 3; portal_id = 5; }
+        else if (eff_val == 44) { coll_tileid = 1; portal_id = 1; }
+        else if (eff_val == 50) { coll_tileid = 1; portal_id = 2; }
+        else if (eff_val == 51) { coll_tileid = 1; portal_id = 2; }
+        else if (eff_val == 54) { coll_tileid = 1; portal_id = 3; }
+        else if (eff_val == 55) { coll_tileid = 1; portal_id = 3; }
+        else if (eff_val == 58) { coll_tileid = 1; portal_id = 4; }
+        else if (eff_val == 59) { coll_tileid = 1; portal_id = 4; }
+
+        tile_bbox = this.tile_bbox(coll_tileid, tile_x, tile_y);
+
+        if (box_box_intersect(bbox, tile_bbox, .25)) {
+          this.debug_rect = tile_bbox;
+          return portal_id;
+        }
+
+      }
+    }
+  }
+
+  return -1;
+
 }
 
 mainWorld.prototype.update = function() {
-
   if (!this.ready) { return; }
+  var player = this.player;
+
 
   this.ticker++;
 
-  if (this.level_transition) {
-    this.update_level_transition();
-
-    if (this.level_transition_completed) {
-      this.level_transition_init();
-      //this.level = new dungeonJade();
-      this.level = g_level_dungeon_jade;
-      this.level.x = g_player.x - 128;
-      this.level.y = g_player.y - 128;
-      //this.level.x = 0;
-      //this.level.y = 0;
-      this.level_transition = false;
+  var player_bbox = [[player.x, player.y], [player.x+player.size-1,player.y+player.size-1]];
+  var portal_id = this.player_portal_collision(player_bbox);
+  if (!this.initial_level_transition) {
+    if (portal_id >= 0) {
+      this.level_transition = true;
+      this.level_transition_portal_id = portal_id;
     }
-    return;
+
+    if (this.level_transition) {
+      this.update_level_transition();
+
+      if (this.level_transition_src_completed) {
+        if (this.level_transition_dst_completed) {
+
+          // reset state
+          //
+          this.level_transition = false;
+          this.level_transition_src_completed = false;
+          this.level_transition_dst_completed = false;
+          this.level_transition_t = this.level_transition_t_N;
+          this.initial_level_transition = true;
+        }
+      }
+      return;
+    }
   }
+
+  if (portal_id<0) { this.initial_level_transition = false; }
+
 
   this.update_rain_sfx();
   //this.update_wave_sfx();
@@ -1694,7 +1823,6 @@ mainWorld.prototype.update = function() {
   }
 
 
-  var player = this.player;
   if (player) {
 
     if (player.intent.type != "idle") {

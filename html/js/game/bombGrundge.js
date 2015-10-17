@@ -27,6 +27,8 @@ bombGrundge.prototype.update = function() {
 bombGrundge.prototype.draw = function() {
   if (this.ttl<0) { return; }
 
+  console.log(">>>", this.x, this.y);
+
   var imx = this.size*this.keyFrame;
   var imy = 0;
   g_imgcache.draw_s(this.name, imx, imy, this.size, this.size, this.x, this.y, this.size, this.size);
