@@ -190,13 +190,18 @@
       //g_imgcache.add("rotbow", img_base + "/rotbow3.png");
       //g_imgcache.add("dungeon0", img_base + "/dungeon_sheet_0.png");
       //g_imgcache.add("dungeon0", img_base + "/sheet_17.png");
-      g_imgcache.add("dungeon", img_base + "/sheet_17.png");
+      //g_imgcache.add("dungeon", img_base + "/sheet_17.png");
+      g_imgcache.add("dungeon", img_base + "/sheet_17.b.png");
       //g_imgcache.add("sheet_17", img_base + "/sheet_17.png");
-      g_imgcache.add("sheet_17", img_base + "/sheet_17.a.png");
+      //g_imgcache.add("sheet_17", img_base + "/sheet_17.a.png");
+      g_imgcache.add("sheet_17", img_base + "/sheet_17.b.png");
       //g_imgcache.add("forrest", img_base + "/forrestup_0.png");
       g_imgcache.add("forrest", img_base + "/forrestup_1.png");
       //g_imgcache.add("forrestup_0", img_base + "/forrestup_0.png");
       g_imgcache.add("forrestup_0", img_base + "/forrestup_1.png");
+
+      g_imgcache.add("bush_anim", img_base + "/bush_anim.png");
+      g_imgcache.add("wind", img_base + "/wind.png");
 
       //g_imgcache.add("skel_jade", img_base + "/float_skel_white.png");
       //g_imgcache.add("skel_jade", img_base + "/float_skel_purple.png");

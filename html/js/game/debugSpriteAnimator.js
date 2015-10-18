@@ -25,6 +25,8 @@ function debugSpriteAnimator(name, gridsize, tilesize, n, m, default_delay) {
   this.frameRow = 0;
   this.frameRowN = ((typeof m === "undefined") ? 1 : m);
 
+  this.alpha = 1;
+
   console.log("debugSprintAnimator", this.name);
 }
 
@@ -49,5 +51,5 @@ debugSpriteAnimator.prototype.draw = function() {
   var imgx = this.sprite_w*this.keyFrame;
   var imgy = this.sprite_h*this.frameRow;
 
-  g_imgcache.draw_s(this.name, imgx, imgy, this.sprite_w, this.sprite_h, this.x, this.y, this.world_w, this.world_h);
+  g_imgcache.draw_s(this.name, imgx, imgy, this.sprite_w, this.sprite_h, this.x, this.y, this.world_w, this.world_h, 0, this.alpha);
 }

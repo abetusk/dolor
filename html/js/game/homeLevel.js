@@ -43,6 +43,23 @@ function homeLevel(x,y) {
   this.bounding_box = [[0,0],[0,0]];
 
   this.portal = {};
+  this.bush_lookup = {};
+
+  this.bush_wind_delay = 0;
+  this.bush_wind_delay_N = 60*60*1;
+  this.bush_wind_sweeping = false;
+  this.bush_wind_sweep_x = 0;
+
+  this.bush_wind_sweep_delay = 0;
+  this.bush_wind_sweep_delay_N = 3;
+
+  this.bush_wind_loop = 5;
+
+  this.wind = [];
+
+  for (var i=0; i<100; i++) {
+    this.wind.push({"x":0, "y":0, "delay":0, "delayN":[5,5,5,5,5,5], "keyFrame":0, "active":false})
+  }
 }
 
 
@@ -77,6 +94,8 @@ homeLevel.prototype.init = function() {
   this.max_w = 0;
   this.max_h = 0;
 
+  var bd = 7;
+
   this.layer_name_index_lookup = {};
   this.layer_lookup = {};
   for (var ii=0; ii<this.tilemap.layers.length; ii++) {
@@ -97,6 +116,8 @@ homeLevel.prototype.init = function() {
         var c = Math.floor(jj % w);
         if (layer.data[jj] == 0) { continue; }
         this.layer_lookup[ii][Math.floor(r) + ":" + Math.floor(c)] = layer.data[jj];
+
+
       }
     }
 
@@ -104,7 +125,16 @@ homeLevel.prototype.init = function() {
       var dat = layer.data[jj];
       if (dat==0) { continue; }
 
-      if (dat in this.tile_info) { continue; }
+      if (dat in this.tile_info) {
+        if (layer.name == "bottom") {
+          var tileid = dat - this.tile_info[dat].firstgid;
+          if (tileid == 0) {
+            var bush_info = {"idle":true, "keyFrame":0, "delay":0, "loop":this.bush_wind_loop, "loopStart": 1, "delayN":[45,bd,bd,bd,bd,bd]};
+            this.bush_lookup[jj] = bush_info;
+          }
+        }
+        continue;
+      }
 
       var ind=1;
       for (; ind<this.tileset_list.length; ind++) {
@@ -120,6 +150,14 @@ homeLevel.prototype.init = function() {
       };
 
       this.tile_info[dat] = tileinfo;
+
+      if (layer.name == "bottom") {
+        var tileid = dat - tileinfo.firstgid;
+        if (tileid == 0) {
+          var bush_info = {"idle":true, "keyFrame":0, "delay":0, "loop": this.bush_wind_loop, "loopStart": 1, "delayN":[45,bd,bd,bd,bd,bd]};
+          this.bush_lookup[jj] = bush_info;
+        }
+      }
 
       if (layer.name == "meta") {
         var r = Math.floor(jj / w);
@@ -138,7 +176,17 @@ homeLevel.prototype.init = function() {
         } else if (eff_val == 56) {
           this.portal[4] = { "portal":4, "level":"level_library", "x":16*c+8, "y":16*r+8 };
         }
-        
+
+        else if (eff_val == 32) {
+          this.portal[7] = { "portal":7, "level":"dungeon_alpha", "x":16*c, "y":16*r };
+        } else if (eff_val == 33) {
+          this.portal[8] = { "portal":8, "level":"dungeon_beta", "x":16*c, "y":16*r };
+        } else if (eff_val == 36) {
+          this.portal[9] = { "portal":9, "level":"dungeon_gamma", "x":16*c, "y":16*r };
+        } else if (eff_val == 37) {
+          this.portal[10] = { "portal":10, "level":"dungeon_delta", "x":16*c, "y":16*r };
+        }
+
       }
 
     }
@@ -194,7 +242,96 @@ homeLevel.prototype.update = function() {
 
   this.updateBoundingBox();
 
-  //console.log(">>>");
+  if (this.bush_wind_delay >= this.bush_wind_delay_N) {
+    this.bush_wind_delay = Math.floor(Math.random()*this.bush_wind_delay_N/2);
+    this.bush_wind_sweeping = true;
+    this.bush_wind_sweep_x = this.max_w;
+
+  }
+
+
+  if (this.bush_wind_sweeping) {
+    var z = ((this.max_w==0) ? 1 : this.max_w);
+    for (var ind in this.bush_lookup) {
+      if ((ind % z)==this.bush_wind_sweep_x) {
+        if (this.bush_lookup[ind].idle) {
+          this.bush_lookup[ind].idle = false;
+          this.bush_lookup[ind].delay = Math.floor(Math.random()*30);
+          this.bush_lookup[ind].keyFrame = 0;
+          this.bush_lookup[ind].loop = this.bush_wind_loop;
+        }
+      } else if (this.bush_lookup[ind].idle) {
+
+        if ( (Math.abs( (ind%z) - this.bush_wind_sweep_x ) < 3) && (Math.random()< 0.25) ) {
+          this.bush_lookup[ind].idle = false;
+          this.bush_lookup[ind].delay = Math.floor(Math.random()*30);
+          this.bush_lookup[ind].keyFrame = 0;
+          this.bush_lookup[ind].loop = this.bush_wind_loop;
+        }
+
+      }
+
+    }
+
+    var wi_rx = 128;
+
+    for (var i=0; i<10; i++) {
+      if (Math.random() < 0.3) {
+        for (var j=0; j<this.wind.length; j++) {
+          if (!this.wind[j].active) {
+            this.wind[j].active = true;
+            this.wind[j].x = 16*this.bush_wind_sweep_x + Math.floor(Math.random()*wi_rx) - (wi_rx/2);
+            this.wind[j].y = 16*Math.floor(Math.random()*this.max_h) + Math.floor(Math.random()*16);
+            this.wind[j].keyFrame = 0;
+            this.wind[j].delay = 0;
+            break;
+          }
+        }
+      }
+    }
+  }
+
+  this.bush_wind_sweep_delay++;
+  if (this.bush_wind_sweep_delay >= this.bush_wind_sweep_delay_N) {
+    this.bush_wind_sweep_delay=0;
+    this.bush_wind_sweep_x--;
+    if (this.bush_wind_sweep_x < 0) {
+      this.bush_wind_sweeping=false;
+      this.bush_wind_sweep_x = -1;
+    }
+  }
+
+  for (var ind in this.bush_lookup) {
+    var b = this.bush_lookup[ind];
+    if (!b.idle) {
+      b.delay++;
+      if (b.delay >= b.delayN[b.keyFrame]) {
+        b.keyFrame++;
+        b.delay = 0;
+        if (b.keyFrame >= b.delayN.length) {
+          b.keyFrame = b.loopStart;
+          b.loop--;
+          if (b.loop<=0) { b.idle = true; }
+        }
+      }
+    }
+  }
+
+  for (var i=0; i<this.wind.length; i++) {
+    if (this.wind[i].active) {
+      this.wind[i].delay++;
+      if (this.wind[i].delay >= this.wind[i].delayN[this.wind[i].keyFrame]) {
+        this.wind[i].delay = 0;
+        this.wind[i].keyFrame++;
+
+        if (this.wind[i].keyFrame >= this.wind[i].delayN.length) {
+          this.wind[i].active = false;
+        }
+      }
+    }
+  }
+
+  this.bush_wind_delay++;
 }
 
 homeLevel.prototype.keyDown = function(code) {
@@ -406,7 +543,16 @@ homeLevel.prototype.draw_layer_w = function(display_name, anchor_x, anchor_y, wi
       //
       //g_imgcache.draw_s(this.tilemap_name, imx, imy, 16, 16, x, y, this.world_w, this.world_h);
       //g_imgcache.draw_s(tile_info.tileset_name, imx, imy, 16, 16, x, y, this.world_w, this.world_h);
-      g_imgcache.draw_s(tile_info.tileset_name, imx, imy, 16, 16, x, y, this.world_w, this.world_h, 0, alpha);
+
+      if (!(data_ind in this.bush_lookup)) {
+        g_imgcache.draw_s(tile_info.tileset_name, imx, imy, 16, 16, x, y, this.world_w, this.world_h, 0, alpha);
+      } else if (this.bush_lookup[data_ind].idle) {
+        g_imgcache.draw_s(tile_info.tileset_name, imx, imy, 16, 16, x, y, this.world_w, this.world_h, 0, alpha);
+      } else {
+        var ix = 16*this.bush_lookup[data_ind].keyFrame;
+        var iy = 0;
+        g_imgcache.draw_s("bush_anim", ix, iy, 16, 16, x, y, this.world_w, this.world_h, 0, alpha);
+      }
 
       //DEBUG
       if (this.debug) {
@@ -420,6 +566,17 @@ homeLevel.prototype.draw_layer_w = function(display_name, anchor_x, anchor_y, wi
 
     }
   }
+
+  // TESTING
+  for (var i=0; i<this.wind.length; i++) {
+    if (!this.wind[i].active) { continue; }
+    var ix = this.wind[i].keyFrame*16;
+    var iy = 0;
+    var ta = 0.6;
+    g_imgcache.draw_s("wind", ix, iy, 16, 16, this.wind[i].x, this.wind[i].y, this.world_w, this.world_h, 0, ta);
+  }
+
+
 
 }
 

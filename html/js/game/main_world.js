@@ -61,6 +61,13 @@ function mainWorld() {
   this.enemy.push(neko);
   */
 
+  /*
+  var c19 = new debugSpriteAnimator("bush_anim", 16, 16, 1, 10);
+  this.enemy.push(c19);
+  c19.x +=16*15;
+  c19.frameDelayN = [60,120,10,30];
+  */
+
   this.collisionNudgeN=1;
 
   this.init_rain();
@@ -1695,7 +1702,8 @@ mainWorld.prototype.level_transition_init = function(portal_id) {
     this.level.x = px - ox;
     this.level.y = py - oy;
 
-  } else if (portal_id == 1) {
+  }
+  else if (portal_id == 1) {
 
     var px = this.level.portal[1].x;
     var py = this.level.portal[1].y;
@@ -1711,7 +1719,8 @@ mainWorld.prototype.level_transition_init = function(portal_id) {
     this.level.x = px - ox;
     this.level.y = py - oy;
 
-  } else if (portal_id == 2) {
+  }
+  else if (portal_id == 2) {
 
     var px = this.level.portal[2].x;
     var py = this.level.portal[2].y;
@@ -1727,7 +1736,8 @@ mainWorld.prototype.level_transition_init = function(portal_id) {
     this.level.x = px - ox;
     this.level.y = py - oy;
 
-  } else if (portal_id == 3) {
+  }
+  else if (portal_id == 3) {
 
     var px = this.level.portal[3].x;
     var py = this.level.portal[3].y;
@@ -1743,7 +1753,8 @@ mainWorld.prototype.level_transition_init = function(portal_id) {
     this.level.x = px - ox;
     this.level.y = py - oy;
 
-  } else if (portal_id == 4) {
+  }
+  else if (portal_id == 4) {
 
     var px = this.level.portal[4].x;
     var py = this.level.portal[4].y;
@@ -1754,15 +1765,13 @@ mainWorld.prototype.level_transition_init = function(portal_id) {
     this.bg_b = 17;
     this.bg_color = "rgba(13,7,17,1.0)";
 
-    console.log(this.level);
-
     var ox = this.level.portal[0].x;
     var oy = this.level.portal[0].y;
     this.level.x = px - ox;
     this.level.y = py - oy;
 
-
-  } else if (portal_id == 5) {
+  }
+  else if (portal_id == 5) {
     this.level = g_level_cache["overworld"];
     this.bg_r = 210;
     this.bg_g = 210;
@@ -1770,6 +1779,73 @@ mainWorld.prototype.level_transition_init = function(portal_id) {
     this.bg_color = "rgba(210,210,220,1.0)";
     this.overworld_flag = true;
   }
+  else if (portal_id == 7) {
+
+    var px = this.level.portal[7].x;
+    var py = this.level.portal[7].y;
+
+    this.level = g_level_cache["level_alpha"];
+    this.bg_r = 13;
+    this.bg_g = 7;
+    this.bg_b = 17;
+    this.bg_color = "rgba(13,7,17,1.0)";
+
+    var ox = this.level.portal[0].x;
+    var oy = this.level.portal[0].y;
+    this.level.x = px - ox;
+    this.level.y = py - oy;
+  }
+  else if (portal_id == 8) {
+
+    var px = this.level.portal[8].x;
+    var py = this.level.portal[8].y;
+
+    this.level = g_level_cache["level_beta"];
+    this.bg_r = 13;
+    this.bg_g = 7;
+    this.bg_b = 17;
+    this.bg_color = "rgba(13,7,17,1.0)";
+
+    var ox = this.level.portal[0].x;
+    var oy = this.level.portal[0].y;
+    this.level.x = px - ox;
+    this.level.y = py - oy;
+  }
+
+  else if (portal_id == 9) {
+
+    var px = this.level.portal[9].x;
+    var py = this.level.portal[9].y;
+
+    this.level = g_level_cache["level_gamma"];
+    this.bg_r = 13;
+    this.bg_g = 7;
+    this.bg_b = 17;
+    this.bg_color = "rgba(13,7,17,1.0)";
+
+    var ox = this.level.portal[0].x;
+    var oy = this.level.portal[0].y;
+    this.level.x = px - ox;
+    this.level.y = py - oy;
+  }
+
+  else if (portal_id == 10) {
+
+    var px = this.level.portal[10].x;
+    var py = this.level.portal[10].y;
+
+    this.level = g_level_cache["level_delta"];
+    this.bg_r = 13;
+    this.bg_g = 7;
+    this.bg_b = 17;
+    this.bg_color = "rgba(13,7,17,1.0)";
+
+    var ox = this.level.portal[0].x;
+    var oy = this.level.portal[0].y;
+    this.level.x = px - ox;
+    this.level.y = py - oy;
+  }
+
 
   this.init_monsters();
 }
@@ -1838,12 +1914,12 @@ mainWorld.prototype.player_portal_collision = function(bbox) {
         var coll_tileid = 0;
         if (eff_val == 32) { coll_tileid = 1; portal_id = 7; }
         else if (eff_val == 33) { coll_tileid = 1; portal_id = 8; }
-        else if (eff_val == 34) { coll_tileid = 1; portal_id = 5; }
-        else if (eff_val == 35) { coll_tileid = 1; portal_id = 5; }
+        else if (eff_val == 34) { coll_tileid = 3; portal_id = 5; }
+        else if (eff_val == 35) { coll_tileid = 3; portal_id = 5; }
         else if (eff_val == 36) { coll_tileid = 1; portal_id = 9; }
         else if (eff_val == 37) { coll_tileid = 1; portal_id = 10; }
-        else if (eff_val == 38) { coll_tileid = 1; portal_id = 5; }
-        else if (eff_val == 39) { coll_tileid = 1; portal_id = 5; }
+        else if (eff_val == 38) { coll_tileid = 3; portal_id = 5; }
+        else if (eff_val == 39) { coll_tileid = 3; portal_id = 5; }
 
         else if (eff_val == 40) { coll_tileid = 1; portal_id = 0; }
         else if (eff_val == 41) { coll_tileid = 1; portal_id = 0; }
