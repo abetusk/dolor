@@ -106,8 +106,6 @@ toolNav.prototype.mouseWheel = function(delta)
 }
 
 toolNav.prototype.keyDown = function(keycode, ch, ev) {
-  console.log(">>>>", ch, ev);
-
   if (ch=='T') {
     // DEBUG
     var world_xy = g_painter.devToWorld( this.mouse_cur_x, this.mouse_cur_y );

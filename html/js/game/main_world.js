@@ -1141,7 +1141,8 @@ mainWorld.prototype.updateCam_lerp_position_locking = function() {
     //painter.adjustPan(screen_dx,screen_dy);
 
     //var z = this.get_player_vel_zoom();
-    var z = this.get_player_accel_zoom();
+    //var z = this.get_player_accel_zoom();
+    var z = this.get_player_travel_zoom();
 
     //console.log("adjust:", screen_dx, screen_dy, z);
 
@@ -1206,6 +1207,85 @@ mainWorld.prototype.updateCam_lerp_snap_on_edge = function() {
     painter.adjustPanZoom(screen_dx,screen_dy,z);
 
   }
+}
+
+mainWorld.prototype.get_player_travel_zoom = function() {
+  var default_zoom = this.zoom_default; // 3
+  var max_zoom = this.zoom_max; //2;
+
+  if (this.level.name == "dolor") {
+    this.camvec_sum = this.camvec_sum_max;
+  }
+
+  if (typeof this.camvec_sum === "undefined") {
+    this.camvec_sum = 0;
+  }
+
+  this.camvec_sum_max = 256;
+  this.camvec_delay_N = 60*2;
+
+  this.camvec_m = 0;
+  this.camvec_M = this.camvec_sum_max;
+
+  if (this.player) {
+
+    if (typeof this.player_prev_xx === "undefined") {
+      this.player_prev_xx = 0;
+      this.player_prev_yy = 0;
+      this.player_prev_d = 'none';
+      this.camvec_threshold = 0;
+    }
+
+
+
+    var dx = this.player_prev_x - this.player.x;
+    var dy = this.player_prev_y - this.player.y;
+    var player_d = this.player.currentDisplayDirection();
+
+    if (this.player_prev_d == player_d) {
+      if ( ((dx * this.player_prev_xx)>0) || ((dy * this.player_prev_yy)>0) ) {
+        this.camvec_threshold++;
+        if (this.camvec_threshold > (this.camvec_delay_N)) {
+          this.camvec_threshold = this.camvec_delay_N;
+        }
+      } else { this.camvec_threshold=0; }
+    } else { this.camvec_threshold=0; }
+
+    if (this.camvec_threshold >= this.camvec_delay_N) {
+      this.camvec_sum++;
+    } else {
+      this.camvec_sum-=2
+    }
+
+
+    if (this.camvec_sum<0) { this.camvec_sum = 0; }
+    if (this.camvec_sum>this.camvec_sum_max) { this.camvec_sum = this.camvec_sum_max; }
+
+    if (dx>0) { this.player_prev_xx = 1; }
+    else if (dx<0) { this.player_prev_xx = -1; }
+    else { this.player_prev_xx = 0; }
+
+    if (dy>0) { this.player_prev_yy = 1; }
+    else if (dy<0) { this.player_prev_yy = -1; }
+    else { this.player_prev_yy = 0; }
+
+    this.player_prev_x = this.player.x;
+    this.player_prev_y = this.player.y;
+    this.player_prev_d = player_d;
+
+    var v = this.camvec_sum;
+    var m = this.camvec_m;
+    var M = this.camvec_M;
+
+    if (v<m) { v=m; }
+    if (v>M) { v=M; }
+
+    var r = (v - m)/(M-m);
+    return (default_zoom*(1-r)) + (r*max_zoom);
+
+  }
+
+  return default_zoom;
 }
 
 // hm, not sure
