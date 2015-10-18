@@ -60,6 +60,8 @@ function homeLevel(x,y) {
   for (var i=0; i<100; i++) {
     this.wind.push({"x":0, "y":0, "delay":0, "delayN":[5,5,5,5,5,5], "keyFrame":0, "active":false})
   }
+
+  this.wind_sfx = false;
 }
 
 
@@ -289,6 +291,13 @@ homeLevel.prototype.update = function() {
         }
       }
     }
+
+    if ( Math.abs(g_player.x - 16*this.bush_wind_sweep_x) < 128 ) {
+      if (!this.wind_sfx) {
+        this.wind_sfx = true;
+        g_sfx["wind"][0].play();
+      }
+    }
   }
 
   this.bush_wind_sweep_delay++;
@@ -298,6 +307,7 @@ homeLevel.prototype.update = function() {
     if (this.bush_wind_sweep_x < 0) {
       this.bush_wind_sweeping=false;
       this.bush_wind_sweep_x = -1;
+      this.wind_sfx = false;
     }
   }
 

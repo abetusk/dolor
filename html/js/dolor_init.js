@@ -332,6 +332,10 @@
       g_sfx["rain"].push( new_sound_object("assets/sfx/157433__timgormly__medium-rain.ogg", 0.5, true) );
       g_sfx["rain"].push( new_sound_object("assets/sfx/157433__timgormly__medium-rain.ogg", 0.5, true) );
 
+      g_sfx["wind"] = [];
+      //g_sfx["wind"].push(  new_sound_object("assets/sfx/106134__j1987__windynight.ogg") );
+      g_sfx["wind"].push(  new_sound_object("assets/sfx/106134__j1987__windynight_clipped_s6.ogg") );
+
       g_sfx["wave"] = [];
       g_sfx["wave"].push( new_sound_object("assets/sfx/254857__afeeto__waves-against-shore.ogg", 0.5, true) );
       //g_sfx["wave"].push( new_sound_object("assets/sfx/254857__afeeto__waves-against-shore.ogg", 0.5, true) );
