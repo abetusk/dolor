@@ -54,13 +54,6 @@ toolNav.prototype.mouseDown = function(button, x, y)
     return;
   }
 
-  // DEBUG
-  var world_xy = g_painter.devToWorld(x, y);
-  var dev_xy = g_painter.worldToDev(world_xy.x, world_xy.y);
-  var dx = (g_painter.width/2) - x;
-  var dy = (g_painter.height/2) - y;
-  //g_painter.adjustPan(dx,dy);
-
 }
 
 toolNav.prototype.doubleClick = function(button, x, y) { }
@@ -71,9 +64,9 @@ toolNav.prototype.mouseUp = function(button, x, y)
   if (button == 3) {
     this.mouse_drag_flag = false;
   } else {
-    var world_xy = g_painter.devToWorld( this.mouse_cur_x, this.mouse_cur_y );
-    g_player.x = Math.floor(world_xy.x);
-    g_player.y = Math.floor(world_xy.y);
+    //var world_xy = g_painter.devToWorld( this.mouse_cur_x, this.mouse_cur_y );
+    //g_player.x = Math.floor(world_xy.x);
+    //g_player.y = Math.floor(world_xy.y);
   }
 
 }
@@ -112,5 +105,17 @@ toolNav.prototype.mouseWheel = function(delta)
   g_painter.adjustZoom(this.mouse_cur_x, this.mouse_cur_y, delta);
 }
 
-toolNav.prototype.keyDown = function(keycode, ch, ev) { }
+toolNav.prototype.keyDown = function(keycode, ch, ev) {
+  console.log(">>>>", ch, ev);
+
+  if (ch=='T') {
+    // DEBUG
+    var world_xy = g_painter.devToWorld( this.mouse_cur_x, this.mouse_cur_y );
+    g_player.x = Math.floor(world_xy.x);
+    g_player.y = Math.floor(world_xy.y);
+  }
+
+
+}
+
 toolNav.prototype.keyUp = function(keycode, ch, ev) { }

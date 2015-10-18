@@ -150,12 +150,23 @@ mainController.prototype.init = function(canvas_id) {
 
     this.capState = $(window).capslockstate("state");
 
+    if (controller.tool) {
+      controller.tool.keyDown(e.keyCode, ch, e);
+    }
+
+
     return controller.keyDown( e.keyCode, ch, e );
   });
 
   $(canvas_id).keyup( function(e) {
     var key = e.which;
     var ch = String.fromCharCode(key);
+
+    if (controller.tool) {
+      controller.tool.keyUp(e.keyCode, ch, e);
+    }
+
+
     controller.keyUp(key, ch, e);
   });
 
