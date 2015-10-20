@@ -51,6 +51,15 @@ function mainWorld() {
   this.zoom_default = 3;
   this.zoom_max = 2;
 
+  this.lightning_flag = false;
+  this.lightning_direction = "left";
+  this.lightning_delay_N = 20;
+  this.lightning_delay = this.lightning_delay_N;
+  this.lightning_max_a = 0.5;
+  this.lightning_freq = 0.02;
+
+  this.lightning_storm = false;
+  this.lightning_storm_delay_N = 60*60*20; // 20 mins?
 
   //---
 
@@ -698,6 +707,7 @@ mainWorld.prototype.draw = function() {
   if (this.level)
   {
 
+
     if (this.display_speedup) {
       this.level.draw_layer_w("bottom.-2", world0.x, world0.y, tile_dx, tile_dy);
       this.level.draw_layer_w("bottom.-1", world0.x, world0.y, tile_dx, tile_dy);
@@ -855,6 +865,19 @@ mainWorld.prototype.draw = function() {
     }
   }
 
+  // lightning
+  //
+  if ((this.level.name == "dolor" || this.overworld_flag) && this.rain_flag) {
+    if (this.lightning_flag) {
+      var zz = painter.devToWorld(0, 0);
+      var a = this.lightning_max_a * this.lightning_delay / this.lightning_delay_N;
+      var c = "rgba(255,255,255," + a + ")";
+      var dw = 2*(world_p_x.x - world0.x);
+      var dh = 2*(world_p_y.y - world0.y);
+      this.painter.drawRectangle(zz.x, zz.y, dw, dh, 1, c, true, c);
+    }
+  }
+
 
 
   if (this.debug) {
@@ -955,6 +978,15 @@ mainWorld.prototype.update_snow = function() {
   var dt = this.snow_dt;
   var fudge = 0;
 
+  var center_x = 0;
+  var center_y = 0;
+
+  if (this.player) {
+    center_x = this.player.x - dr/2;
+    center_y = this.player.y - dr/2;
+  }
+
+
   for (var i=0; i<this.snow_N; i++) {
     this.snow[i].ttl--;
 
@@ -974,8 +1006,8 @@ mainWorld.prototype.update_snow = function() {
       var ttl = Math.floor(Math.random()*dt)+1;
 
       this.snow[i].ttl = ttl;
-      this.snow[i].x = Math.floor(Math.random()*dr)+fudge;
-      this.snow[i].y = Math.floor(Math.random()*dr)-fudge;
+      this.snow[i].x = Math.floor(Math.random()*dr)+fudge + center_x;
+      this.snow[i].y = Math.floor(Math.random()*dr)-fudge + center_y;
       this.snow[i].frame = f;
       this.snow[i].yframe = yf;
 
@@ -2116,6 +2148,22 @@ mainWorld.prototype.update = function() {
 
   if (this.rain_flag) { this.update_rain(); }
   if (this.snow_flag) { this.update_snow(); }
+
+  if (this.rain_flag) {
+
+    if (this.lightning_storm) {
+      if (Math.random()<this.lightning_freq) {
+        this.lightning_flag = true;
+        this.lightning_delay = Math.floor(Math.random()*this.lightning_delay_N) + 5;
+      } else {
+        this.lightning_delay--;
+        if (this.lightning_delay<=0) {
+          this.lightning_flag = false;
+          this.lightning_delay = 0;
+        }
+      }
+    }
+  }
 
   if (this.debris) {
     for (var key in this.debris) {
