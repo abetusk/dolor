@@ -268,6 +268,9 @@
       g_imgcache.add("rain", img_base + "/rain8.png");
       g_imgcache.add("rain_impact", img_base + "/rain_impact.png");
 
+      g_imgcache.add("big_cloud0", img_base + "/big_cloud0.png");
+      g_imgcache.add("big_cloud1", img_base + "/big_cloud0.png");
+
       g_imgcache.add("cat", img_base + "/catxperiment2.png");
 
       g_imgcache.add("bubble", img_base + "/speech_thought_bubble8.png");

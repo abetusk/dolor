@@ -66,6 +66,10 @@ function mainWorld() {
   this.firefly_max = 30;
   this.firefly_flag = true;
 
+  this.cloud = [];
+  this.cloud_max = 2;
+  this.cloud_flag = false;
+
   //---
 
   /*
@@ -87,6 +91,7 @@ function mainWorld() {
   this.init_rain();
   this.init_snow();
   this.init_firefly();
+  this.init_cloud();
 
   this.ready = false;
 
@@ -930,6 +935,16 @@ mainWorld.prototype.draw = function() {
     }
   }
 
+  // clouds
+  //
+  if ((this.level.name == "dolor" || this.overworld_flag) && this.cloud_flag)  {
+    for (var i=0; i<this.cloud.length; i++) {
+      if (this.cloud[i].ttl>0) {
+        this.cloud[i].draw();
+      }
+    }
+  }
+
 
   if (this.debug) {
     var x0 = this.debug_rect[0][0];
@@ -957,6 +972,19 @@ mainWorld.prototype.camera_shake = function() {
 
   this.orig_dx = 0;
   this.orig_dy = 0;
+
+}
+
+mainWorld.prototype.init_cloud = function() {
+  var N = this.cloud_max;
+
+  var dsx = 512;
+  var dsy = 256;
+  this.cloud = [];
+  for (var i=0; i<N; i++) {
+    this.cloud[i] = new particleCloud(0,0);
+    this.cloud[i].ttl = 0;
+  }
 
 }
 
@@ -996,6 +1024,21 @@ mainWorld.prototype.init_rain = function() {
     this.rain_impact.push(ri);
   }
 
+}
+
+mainWorld.prototype.update_cloud = function() {
+  var N = this.cloud.length;
+  var dsx = 512;
+  var dsy = 256;
+  for (var i=0; i<N; i++) {
+    this.cloud[i].update();
+    if (this.cloud[i].ttl<=0) {
+      var dx = Math.floor(Math.random()*dsx) - (dsx/2);
+      var dy = Math.floor(Math.random()*dsy) - (dsy/2);
+      this.cloud[i].reset(this.player.x + dx, this.player.y + dy);
+      this.cloud[i].update();
+    }
+  }
 }
 
 mainWorld.prototype.update_firefly = function() {
@@ -2241,6 +2284,7 @@ mainWorld.prototype.update = function() {
   if (this.rain_flag) { this.update_rain(); }
   if (this.snow_flag) { this.update_snow(); }
   if (this.firefly_flag) { this.update_firefly(); }
+  if (this.cloud_flag) { this.update_cloud(); }
 
   if (this.rain_flag) {
 
