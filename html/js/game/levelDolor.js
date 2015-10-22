@@ -180,6 +180,9 @@ levelDolor.prototype.update = function() {
   if (!this.ready) { return; }
   if (!this.init_flag) { this.init(); }
 
+  //DEBUG
+  return;
+
   if (this.level_music_delay >= this.level_music_delay_N) {
     g_world.start_music(this.level_music);
     this.level_music_delay = Math.floor(Math.random()*this.level_music_delay_N/3);

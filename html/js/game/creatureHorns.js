@@ -91,11 +91,11 @@ creatureHorns.prototype.init = function(x,y, d) {
 }
 
 creatureHorns.prototype.update_hit_bbox = function(bbox,x,y) {
-  bbox[0][0] = x + 2;
+  bbox[0][0] = x + 0;
   bbox[0][1] = y + 0;
 
-  bbox[1][0] = x + 14;
-  bbox[1][1] = y + 15;
+  bbox[1][0] = x + 16;
+  bbox[1][1] = y + 16;
 }
 
 creatureHorns.prototype.update_bbox = function(bbox,x,y) {

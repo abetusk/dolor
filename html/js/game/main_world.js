@@ -38,6 +38,7 @@ function mainWorld() {
   this.rain_max = 100;
   this.rain_dt = 80;
 
+
   this.snow = [];
   this.snow_flag = false;
   this.snow_v = 8;
@@ -61,6 +62,10 @@ function mainWorld() {
   this.lightning_storm = false;
   this.lightning_storm_delay_N = 60*60*20; // 20 mins?
 
+  this.firefly = [];
+  this.firefly_max = 30;
+  this.firefly_flag = true;
+
   //---
 
   /*
@@ -81,6 +86,7 @@ function mainWorld() {
 
   this.init_rain();
   this.init_snow();
+  this.init_firefly();
 
   this.ready = false;
 
@@ -123,6 +129,20 @@ function mainWorld() {
 
   //this.bg_r = 210; this.bg_g = 210; this.bg_b = 220;
   //this.bg_r = 13; this.bg_g = 7; this.bg_b = 17;
+  //this.bg_r = 32; this.bg_g = 32; this.bg_b = 32;
+  //this.bg_color = "rgba(" + this.bg_r + "," + this.bg_g + "," + this.bg_b + ",1.0)";
+
+
+  this.day_night_delay_N = 60*60*120;  // every 2 hours
+  this.day_night_delay = this.day_night_delay_N;
+  this.day_night_transition_delay = 60*60*5;  // 5 minute transition
+  this.day_night = "day";
+
+  this.day_night_bg_color = {};
+  this.day_night_bg_color["night"] = [32, 32, 32];
+  this.day_night_bg_color["day"] = [210, 210, 220];
+  this.day_night_bg_color["cur"] = [210, 210, 220];
+
   this.bg_r = 32; this.bg_g = 32; this.bg_b = 32;
   this.bg_color = "rgba(" + this.bg_r + "," + this.bg_g + "," + this.bg_b + ",1.0)";
 
@@ -533,9 +553,21 @@ var debug_del = 1;
 mainWorld.prototype.draw_level_transition = function() {
   var a = this.level_transition_alpha;
 
-  var r = Math.floor(this.bg_r*this.level_transition_alpha);
-  var g = Math.floor(this.bg_g*this.level_transition_alpha);
-  var b = Math.floor(this.bg_b*this.level_transition_alpha);
+
+  //var r = Math.floor(this.bg_r*this.level_transition_alpha);
+  //var g = Math.floor(this.bg_g*this.level_transition_alpha);
+  //var b = Math.floor(this.bg_b*this.level_transition_alpha);
+
+  if (this.overworld_flag) {
+    var rgb = this.day_night_bg_color.cur;
+    var r = Math.floor(rgb[0]*a);
+    var g = Math.floor(rgb[1]*a);
+    var b = Math.floor(rgb[2]*a);
+  } else {
+    var r = Math.floor(this.bg_r*this.level_transition_alpha);
+    var g = Math.floor(this.bg_g*this.level_transition_alpha);
+    var b = Math.floor(this.bg_b*this.level_transition_alpha);
+  }
   this.painter.startDrawColor( "rgba(" + r + "," + g + "," + b + ",1.0)" );
 
   var painter = this.painter;
@@ -692,7 +724,16 @@ mainWorld.prototype.draw = function() {
     return;
   }
   //this.painter.startDrawColor( "rgba(210,210,220,1.0)" );
-  this.painter.startDrawColor( this.bg_color ); 
+
+      //this.level_transition_dst_completed = true;
+  if (this.overworld_flag ) {
+    //var rgb = this.day_night_bg_color[this.day_night];
+    var rgb = this.day_night_bg_color.cur;
+    var bg_color = "rgb(" + rgb[0] + "," + rgb[1] + "," + rgb[2] + ")";
+    this.painter.startDrawColor(bg_color);
+  } else {
+    this.painter.startDrawColor( this.bg_color ); 
+  }
 
   var painter = this.painter;
   var screen0 = { "x": painter.width/2, "y": painter.height/2 };
@@ -879,6 +920,16 @@ mainWorld.prototype.draw = function() {
   }
 
 
+  // fireflies
+  //
+  if ((this.level.name == "dolor" || this.overworld_flag) && this.firefly_flag)  {
+    for (var i=0; i<this.firefly.length; i++) {
+      if (this.firefly[i].ttl>0) {
+        this.firefly[i].draw();
+      }
+    }
+  }
+
 
   if (this.debug) {
     var x0 = this.debug_rect[0][0];
@@ -909,6 +960,25 @@ mainWorld.prototype.camera_shake = function() {
 
 }
 
+mainWorld.prototype.init_firefly = function() {
+  var N = this.firefly_max;
+
+  var dsx = 512;
+  var dsy = 256;
+  this.firefly = [];
+  for (var i=0; i<N; i++) {
+    this.firefly[i] = new particleFirefly(0,0);
+    this.firefly[i].ttl = 0;
+
+    //var dx = Math.floor(Math.random()*dsx) - (dsx/2);
+    //var dy = Math.floor(Math.random()*dsy) - (dsy/2);
+    //this.firefly[i].reset(this.player.x + dx, this.player.y + dy);
+    //this.firefly[i].ttl = 3000;
+
+  }
+
+}
+
 mainWorld.prototype.init_rain = function() {
   this.rain = [];
   this.rain_impact = [];
@@ -926,6 +996,22 @@ mainWorld.prototype.init_rain = function() {
     this.rain_impact.push(ri);
   }
 
+}
+
+mainWorld.prototype.update_firefly = function() {
+  var N = this.firefly.length;
+  var dsx = 512;
+  var dsy = 256;
+  for (var i=0; i<N; i++) {
+    this.firefly[i].update();
+
+    if (this.firefly[i].ttl<=0) {
+      var dx = Math.floor(Math.random()*dsx) - (dsx/2);
+      var dy = Math.floor(Math.random()*dsy) - (dsy/2);
+      this.firefly[i].reset(this.player.x + dx, this.player.y + dy);
+      //this.firefly[i].ttl = 3000;
+    }
+  }
 }
 
 mainWorld.prototype.update_rain = function() {
@@ -1150,7 +1236,8 @@ mainWorld.prototype.updateCam_lerp_position_locking = function() {
   var dest_world = {"x": world0.x, "y": world0.y };
   if (this.player) {
 
-    var p1 = 1/32;
+    //var p1 = 1/32;
+    var p1 = 1/16;
     var p0 = 1-p1;
     dest_world.x = (p0*world0.x + p1*this.player.x);
     dest_world.y = (p0*world0.y + p1*this.player.y);
@@ -1885,10 +1972,15 @@ mainWorld.prototype.level_transition_init = function(portal_id) {
   }
   else if (portal_id == 5) {
     this.level = g_level_cache["overworld"];
-    this.bg_r = 210;
-    this.bg_g = 210;
-    this.bg_b = 220;
-    this.bg_color = "rgba(210,210,220,1.0)";
+
+    var r = this.day_night_bg_color.cur[0];
+    var g = this.day_night_bg_color.cur[1];
+    var b = this.day_night_bg_color.cur[2];
+
+    console.log(this.day_night);
+
+    //this.bg_color = "rgba(210,210,220,1.0)";
+    this.bg_color = "rgba(" + r + "," + g + "," + b + ",1.0)";
     this.overworld_flag = true;
   }
   else if (portal_id == 7) {
@@ -2148,6 +2240,7 @@ mainWorld.prototype.update = function() {
 
   if (this.rain_flag) { this.update_rain(); }
   if (this.snow_flag) { this.update_snow(); }
+  if (this.firefly_flag) { this.update_firefly(); }
 
   if (this.rain_flag) {
 
@@ -2165,6 +2258,36 @@ mainWorld.prototype.update = function() {
     }
   }
 
+  // Night day transitions...
+  //
+  this.day_night_delay--;
+  if (this.day_night_delay<=0) {
+    if (this.day_night == "night") { this.day_night = "day"; }
+    else { this.day_night = "night"; }
+
+    this.day_night_delay = this.day_night_delay_N;
+    this.day_night_bg_color.cur[0] = this.day_night_bg_color[this.day_night][0];
+    this.day_night_bg_color.cur[1] = this.day_night_bg_color[this.day_night][1];
+    this.day_night_bg_color.cur[2] = this.day_night_bg_color[this.day_night][2];
+  }
+
+  if (this.day_night_delay < this.day_night_transition_delay) {
+    var from_state = this.day_night;
+    var to_state = ((from_state == "day") ? "night" : "day");
+    var col_map = this.day_night_bg_color;
+    var p = this.day_night_delay / this.day_night_transition_delay;
+    var r = Math.floor(p*col_map[from_state][0] + (1-p)*col_map[to_state][0]);
+    var g = Math.floor(p*col_map[from_state][1] + (1-p)*col_map[to_state][1]);
+    var b = Math.floor(p*col_map[from_state][2] + (1-p)*col_map[to_state][2]);
+
+    this.day_night_bg_color.cur[0] = r;
+    this.day_night_bg_color.cur[1] = g;
+    this.day_night_bg_color.cur[2] = b;
+  }
+
+
+  // debris
+  //
   if (this.debris) {
     for (var key in this.debris) {
       this.debris[key].update();
