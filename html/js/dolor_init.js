@@ -51,6 +51,8 @@
 
       if (g_register_load["overworld"] && g_register_load["dolor"]) {
 
+        g_world.ready = true;
+
         g_level_overworld.meta_map(27, function(dat, x, y) {
           g_level_dolor.x = x - g_level_dolor.portal[0].x;
           g_level_dolor.y = y - g_level_dolor.portal[0].y;
@@ -430,7 +432,7 @@
 
           g_level_cache["dolor"] = g_level_dolor;
 
-          g_world.ready = true;
+          //g_world.ready = true;
           g_world.level = g_level_dolor;
 
           g_world.init();
