@@ -62,11 +62,79 @@ function homeLevel(x,y) {
   }
 
   this.wind_sfx = false;
+
+
+  this.firefly = [];
+  this.firefly_max = 10;
+  this.firefly_flag = true;
+
+  this.wave_flag = true;
+  this.wave_info = {
+    "max_y" : 4,
+    "cycle_delay":240,
+  };
+  this.wave_tile = {};
+
+}
+
+
+homeLevel.prototype.init_wave = function() {
+  var water_tilename = {
+    "32":true,
+    "33":true,
+    "34":true,
+    "44":true,
+    "45":true
+  };
+
+
+  var ind = this.layer_name_index_lookup["bottom"];
+  var layer = this.tilemap.layers[ind];
+
+  var w = layer.width;
+  var h = layer.height;
+
+  var T = this.wave_info.cycle_delay;
+
+  for (var jj in layer.data) {
+    var dat = layer.data[jj];
+    if (dat==0) { continue; }
+
+    if (dat in this.tile_info) {
+      if (layer.name == "bottom") {
+        var r = Math.floor(jj / w);
+        var c = Math.floor(jj % w);
+
+        var tileid = dat - this.tile_info[dat].firstgid;
+
+        if (tileid in water_tilename) {
+          var wave_info = { "dx":0, "dy":0, "t": (r*17)%T };
+          this.wave_tile[jj] = wave_info;
+        }
+      }
+    }
+
+  }
+
+}
+
+homeLevel.prototype.init_firefly = function() {
+  var N = this.firefly_max;
+
+  var dsx = 512;
+  var dsy = 256;
+  this.firefly = [];
+  for (var i=0; i<N; i++) {
+    this.firefly[i] = new particleFirefly(0,0);
+    this.firefly[i].ttl = 0;
+  }
+
 }
 
 
 homeLevel.prototype.init = function() {
   this.init_flag=true;
+
 
   if ("tilesets" in this.tilemap) {
     for (var ind in this.tilemap.tilesets) {
@@ -195,6 +263,9 @@ homeLevel.prototype.init = function() {
 
   }
 
+  this.init_firefly();
+  this.init_wave();
+
   this.updateBoundingBox();
 }
 
@@ -238,11 +309,47 @@ homeLevel.prototype.updateBoundingBox = function() {
   this.bounding_box[1][1] = this.x + this.max_h*16;
 }
 
+homeLevel.prototype.update_wave = function() {
+  var wave = this.wave_tile;
+
+  var N = this.wave_info.cycle_delay+1;
+  var Y = this.wave_info.max_y;
+
+  for (var ind in wave) {
+    wave[ind].t = (wave[ind].t+1)%this.wave_info.cycle_delay;
+    wave[ind].dy = Math.floor(Y*Math.sin(2*Math.PI*wave[ind].t/N));
+  }
+}
+
+homeLevel.prototype.update_firefly = function() {
+  var N = this.firefly.length;
+  var dsx = 512;
+  var dsy = 256;
+  for (var i=0; i<N; i++) {
+    this.firefly[i].update();
+
+    if (this.firefly[i].ttl<=0) {
+      var dx = Math.floor(Math.random()*dsx) - (dsx/2);
+      var dy = Math.floor(Math.random()*dsy) - (dsy/2);
+      this.firefly[i].reset(g_player.x + dx, g_player.y + dy);
+    }
+  }
+}
+
+
 homeLevel.prototype.update = function() {
   if (!this.ready) { return; }
   if (!this.init_flag) { this.init(); }
 
   this.updateBoundingBox();
+
+  if (this.firefly_flag) {
+    this.update_firefly()
+  }
+
+  if (this.wave_flag) {
+    this.update_wave();
+  }
 
   if (this.bush_wind_delay >= this.bush_wind_delay_N) {
     this.bush_wind_delay = Math.floor(Math.random()*this.bush_wind_delay_N/2);
@@ -517,6 +624,10 @@ homeLevel.prototype.draw_layer_w = function(display_name, anchor_x, anchor_y, wi
   //var anchor_c = anchor_x;
   var data_ind = 0;
 
+  if ((display_name == "top") && (this.firefly_flag)) {
+    this.draw_firefly();
+  }
+
   for (var r = (anchor_r-window_r); r<(anchor_r+window_r); r++) {
     if (r<0) { continue; }
     if (r>=w) { continue; }
@@ -554,6 +665,7 @@ homeLevel.prototype.draw_layer_w = function(display_name, anchor_x, anchor_y, wi
       //g_imgcache.draw_s(this.tilemap_name, imx, imy, 16, 16, x, y, this.world_w, this.world_h);
       //g_imgcache.draw_s(tile_info.tileset_name, imx, imy, 16, 16, x, y, this.world_w, this.world_h);
 
+      /*
       if (!(data_ind in this.bush_lookup)) {
         g_imgcache.draw_s(tile_info.tileset_name, imx, imy, 16, 16, x, y, this.world_w, this.world_h, 0, alpha);
       } else if (this.bush_lookup[data_ind].idle) {
@@ -562,6 +674,34 @@ homeLevel.prototype.draw_layer_w = function(display_name, anchor_x, anchor_y, wi
         var ix = 16*this.bush_lookup[data_ind].keyFrame;
         var iy = 0;
         g_imgcache.draw_s("bush_anim", ix, iy, 16, 16, x, y, this.world_w, this.world_h, 0, alpha);
+      }
+      */
+
+      if (data_ind in this.wave_tile) {
+        var dy = this.wave_tile[data_ind].dy;
+        var dy2 = Math.floor(dy/2);
+
+        //g_imgcache.draw_s(tile_info.tileset_name, imx, imy+dy, 16, 16, x, y, this.world_w, this.world_h, 0, alpha);
+
+        g_painter.drawRectangle(x, y-0.125, 16, 16+2, 0, 0, true, "rgb(128,192,192)");
+        if (dy>=0) {
+          g_imgcache.draw_s(tile_info.tileset_name, imx, imy, 16, 16-dy, x, y+dy, this.world_w, this.world_h-dy, 0, alpha);
+        } else {
+          var pdy = -dy;
+          g_imgcache.draw_s(tile_info.tileset_name, imx, imy+pdy, 16, 16-pdy, x, y, this.world_w, this.world_h-pdy, 0, alpha);
+        }
+
+      } else if (data_ind in this.bush_lookup) {
+        
+        if (this.bush_lookup[data_ind].idle) {
+          g_imgcache.draw_s(tile_info.tileset_name, imx, imy, 16, 16, x, y, this.world_w, this.world_h, 0, alpha);
+        } else {
+          var ix = 16*this.bush_lookup[data_ind].keyFrame;
+          var iy = 0;
+          g_imgcache.draw_s("bush_anim", ix, iy, 16, 16, x, y, this.world_w, this.world_h, 0, alpha);
+        }
+      } else {
+        g_imgcache.draw_s(tile_info.tileset_name, imx, imy, 16, 16, x, y, this.world_w, this.world_h, 0, alpha);
       }
 
       //DEBUG
@@ -652,6 +792,17 @@ homeLevel.prototype.draw_layer = function(display_name, alpha) {
 
 }
 
+homeLevel.prototype.draw_firefly = function(display_height, data) {
+
+  if (this.firefly_flag)  {
+    for (var i=0; i<this.firefly.length; i++) {
+      if (this.firefly[i].ttl>0) {
+        this.firefly[i].draw();
+      }
+    }
+  }
+
+}
 
 homeLevel.prototype.draw = function(display_height, data) {
   if (!this.ready) { return; }

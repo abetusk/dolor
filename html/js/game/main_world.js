@@ -64,7 +64,7 @@ function mainWorld() {
 
   this.firefly = [];
   this.firefly_max = 30;
-  this.firefly_flag = true;
+  this.firefly_flag = false;
 
   this.cloud = [];
   this.cloud_max = 2;
