@@ -41,16 +41,18 @@ function mainWorld() {
   this.rain_dt = 80;
   this.rain_ramp_down_delay_N = 10;
   this.rain_ramp_down_delay = 0;
+  this.rain_state = "ramp_up";
 
 
   this.snow = [];
   this.snow_flag = false;
   this.snow_v = 8;
-  this.snow_N = 200;
+  this.snow_N = 0;
   this.snow_dt = 200;
   this.snow_max = 200;
   this.snow_ramp_down_delay_N = 10;
   this.snow_ramp_down_delay = 0;
+  this.snow_state = "ramp_down";
 
   this.ticker = 0;
 
