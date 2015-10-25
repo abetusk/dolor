@@ -28,6 +28,8 @@ function mainWorld() {
   this.player_nudge_delay_count = 8;
   this.player_nudge_delay = 8;
 
+  this.environment_transition_time = 1000;
+
   this.rain = [];
   this.rain_flag = false;
   this.rain_ds = 10;
@@ -37,6 +39,8 @@ function mainWorld() {
   this.rain_N = 50;
   this.rain_max = 100;
   this.rain_dt = 80;
+  this.rain_ramp_down_delay_N = 10;
+  this.rain_ramp_down_delay = 0;
 
 
   this.snow = [];
@@ -44,10 +48,11 @@ function mainWorld() {
   this.snow_v = 8;
   this.snow_N = 200;
   this.snow_dt = 200;
-  this.snow_max = 400;
+  this.snow_max = 200;
+  this.snow_ramp_down_delay_N = 10;
+  this.snow_ramp_down_delay = 0;
 
   this.ticker = 0;
-  this.environment_state = "idle";
 
   this.zoom_default = 3;
   this.zoom_max = 2;
@@ -889,7 +894,9 @@ mainWorld.prototype.draw = function() {
   //
   if ((this.level.name == "dolor" || this.overworld_flag) && this.rain_flag) {
     for (var i=0; i<this.rain_N; i++) {
-      g_imgcache.draw_s("rain", 0, 0, 5, 10, this.rain[i].x, this.rain[i].y, 5, 10);
+      if (this.rain[i].ttl>0) {
+        g_imgcache.draw_s("rain", 0, 0, 5, 10, this.rain[i].x, this.rain[i].y, 5, 10);
+      }
     }
 
     for (var i=0; i<this.rain_N; i++) {
@@ -1072,24 +1079,51 @@ mainWorld.prototype.update_rain = function() {
     center_y = this.player.y - dr/2;
   }
 
+  var new_N = N;
+  if (this.rain_state == "ramp_down") {
+    this.rain_ramp_down_delay++;
+  }
+
+
   for (var i=0; i<N; i++) {
     this.rain[i].ttl--;
     this.rain[i].x += this.rain_vx;
     this.rain[i].y += this.rain_vy;
+
+    var remove_rain_ele = false;
     if (this.rain[i].ttl<=0) {
 
-      this.rain_impact[i].start(this.rain[i].x, this.rain[i].y);
+      if (this.rain[i].ttl==0) {
+        this.rain_impact[i].start(this.rain[i].x, this.rain[i].y);
+      }
 
-      this.rain[i].ttl = Math.floor(Math.random()*dt)+1;
-      this.rain[i].x = Math.floor(Math.random()*dr)+fudge + center_x;
-      this.rain[i].y = Math.floor(Math.random()*dr)-fudge + center_y;
+      if ((this.rain_state == "ramp_down") &&
+          (this.rain_ramp_down_delay>=this.rain_ramp_down_delay_N)) {
+        remove_rain_ele = true;
+      }
+
+      if (!remove_rain_ele) {
+        this.rain[i].ttl = Math.floor(Math.random()*dt)+1;
+        this.rain[i].x = Math.floor(Math.random()*dr)+fudge + center_x;
+        this.rain[i].y = Math.floor(Math.random()*dr)-fudge + center_y;
+      }
+
     }
 
     if (this.rain_impact[i].state != "idle") {
       this.rain_impact[i].update();
     }
+    else if (remove_rain_ele) {
+      this.rain[i].ttl = this.rain[N-1].ttl;
+      this.rain[i].x = this.rain[N-1].x;
+      this.rain[i].y = this.rain[N-1].y;
+      this.rain_ramp_down_delay = 0;
+      new_N = N-1;
+    }
 
   }
+
+  this.rain_N = new_N;
 
 }
 
@@ -1115,7 +1149,6 @@ mainWorld.prototype.update_snow = function() {
     center_y = this.player.y - dr/2;
   }
 
-
   for (var i=0; i<this.snow_N; i++) {
     this.snow[i].ttl--;
 
@@ -1129,16 +1162,35 @@ mainWorld.prototype.update_snow = function() {
 
     if ((this.snow[i].ttl%3)==0) { this.snow[i].y ++; }
 
-    if (this.snow[i].ttl<0) {
-      var f = Math.floor(Math.random()*2) + 2;
-      var yf = Math.floor(Math.random()*4);
-      var ttl = Math.floor(Math.random()*dt)+1;
+    if (this.snow[i].ttl<=0) {
 
-      this.snow[i].ttl = ttl;
-      this.snow[i].x = Math.floor(Math.random()*dr)+fudge + center_x;
-      this.snow[i].y = Math.floor(Math.random()*dr)-fudge + center_y;
-      this.snow[i].frame = f;
-      this.snow[i].yframe = yf;
+      if (this.snow_state == "ramp_down") {
+
+        N = this.snow_N;
+        this.snow[i].ttl = this.snow[N-1].ttl;
+        this.snow[i].x = this.snow[N-1].x;
+        this.snow[i].y = this.snow[N-1].y;
+        this.snow[i].frame = this.snow[N-1].frame;
+        this.snow[i].yframe = this.snow[N-1].yframe;
+
+        // reprocess this element
+        //
+        this.snow_N--;
+        i--;
+        continue;
+
+      }
+      else {
+        var f = Math.floor(Math.random()*2) + 2;
+        var yf = Math.floor(Math.random()*4);
+        var ttl = Math.floor(Math.random()*dt)+1;
+
+        this.snow[i].ttl = ttl;
+        this.snow[i].x = Math.floor(Math.random()*dr)+fudge + center_x;
+        this.snow[i].y = Math.floor(Math.random()*dr)-fudge + center_y;
+        this.snow[i].frame = f;
+        this.snow[i].yframe = yf;
+      }
 
     }
 
@@ -2257,25 +2309,46 @@ mainWorld.prototype.update = function() {
     this.rain_flag = true;
     this.snow_flag = false;
   }
-  else if ((this.ticker%1000)==0) {
-    //var s = Math.floor(Math.random()*3);
+  //else if ((this.ticker%1000)==0) {
+  else if ((this.ticker%this.environment_transition_time)==0) {
     var r = Math.random();
 
-    //if (s==0) {
-    if (r < 0.1) {
-      this.environment_state = "idle";
-      this.rain_flag = false;
-      this.snow_flag = false;
-    //} else if (s==1) {
-    } else if (r<.9) {
-      this.environment_state = "rain";
-      this.rain_flag = true;
-      this.snow_flag = false;
-    //} else if (s==2) {
+    if (r < 0.5) {
+      this.rain_state = "ramp_down";
+      this.snow_state = "ramp_down";
+      //this.rain_flag = false;
+      //this.snow_flag = false;
+    } else if (r<.101) {
+      this.rain_state = "ramp_up";
+      this.snow_state = "ramp_down";
+      //this.rain_flag = true;
+      //this.snow_flag = false;
     } else {
-      this.environment_state = "snow";
-      this.rain_flag = false;
+      this.rain_state = "ramp_down";
+      this.snow_state = "ramp_up";
+
       this.snow_flag = true;
+      //this.rain_flag = false;
+      //this.snow_flag = true;
+    }
+  }
+
+  if (this.rain_state == "ramp_up") {
+    if ((this.ticker % 10)==0) {
+      if (this.rain_N<this.rain_max) {
+        this.rain[this.rain_N].ttl = 0;
+        this.rain_N++;
+      }
+    }
+  }
+  // ramp down taken care of in update_rain
+
+  if (this.snow_state == "ramp_up") {
+    if ((this.ticker % 1)==0) {
+      if (this.snow_N<this.snow_max) {
+        this.snow[this.snow_N].ttl = 0;
+        this.snow_N++;
+      }
     }
   }
 

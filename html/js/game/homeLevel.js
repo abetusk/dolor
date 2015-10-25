@@ -71,7 +71,7 @@ function homeLevel(x,y) {
   this.wave_flag = true;
   this.wave_info = {
     "max_y" : 4,
-    "cycle_delay":240,
+    "cycle_delay":300,
   };
   this.wave_tile = {};
 
@@ -80,11 +80,18 @@ function homeLevel(x,y) {
 
 homeLevel.prototype.init_wave = function() {
   var water_tilename = {
+    "75":true,
+    "87":true,
+    "99":true,
+    "111":true,
+    "123":true
+    /*
     "32":true,
     "33":true,
     "34":true,
     "44":true,
     "45":true
+    */
   };
 
 
@@ -108,7 +115,7 @@ homeLevel.prototype.init_wave = function() {
         var tileid = dat - this.tile_info[dat].firstgid;
 
         if (tileid in water_tilename) {
-          var wave_info = { "dx":0, "dy":0, "t": (r*17)%T };
+          var wave_info = { "dx":0, "dy":0, "t": (r*17 + Math.floor(Math.random()*10))%T };
           this.wave_tile[jj] = wave_info;
         }
       }
@@ -681,8 +688,9 @@ homeLevel.prototype.draw_layer_w = function(display_name, anchor_x, anchor_y, wi
         var dy = this.wave_tile[data_ind].dy;
         var dy2 = Math.floor(dy/2);
 
-        //g_imgcache.draw_s(tile_info.tileset_name, imx, imy+dy, 16, 16, x, y, this.world_w, this.world_h, 0, alpha);
+        g_imgcache.draw_s(tile_info.tileset_name, imx, imy+dy, 16, 16, x, y, this.world_w, this.world_h, 0, alpha);
 
+        /*
         g_painter.drawRectangle(x, y-0.125, 16, 16+2, 0, 0, true, "rgb(128,192,192)");
         if (dy>=0) {
           g_imgcache.draw_s(tile_info.tileset_name, imx, imy, 16, 16-dy, x, y+dy, this.world_w, this.world_h-dy, 0, alpha);
@@ -690,6 +698,7 @@ homeLevel.prototype.draw_layer_w = function(display_name, anchor_x, anchor_y, wi
           var pdy = -dy;
           g_imgcache.draw_s(tile_info.tileset_name, imx, imy+pdy, 16, 16-pdy, x, y, this.world_w, this.world_h-pdy, 0, alpha);
         }
+        */
 
       } else if (data_ind in this.bush_lookup) {
         
