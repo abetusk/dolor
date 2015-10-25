@@ -39,7 +39,7 @@ function mainWorld() {
   this.rain_N = 50;
   this.rain_max = 100;
   this.rain_dt = 80;
-  this.rain_ramp_down_delay_N = 10;
+  this.rain_ramp_down_delay_N = 1;
   this.rain_ramp_down_delay = 0;
   this.rain_state = "ramp_up";
 
@@ -2315,12 +2315,12 @@ mainWorld.prototype.update = function() {
   else if ((this.ticker%this.environment_transition_time)==0) {
     var r = Math.random();
 
-    if (r < 0.5) {
+    if (r < 0.1) {
       this.rain_state = "ramp_down";
       this.snow_state = "ramp_down";
       //this.rain_flag = false;
       //this.snow_flag = false;
-    } else if (r<.101) {
+    } else if (r<.9) {
       this.rain_state = "ramp_up";
       this.snow_state = "ramp_down";
       //this.rain_flag = true;
