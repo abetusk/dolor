@@ -3,8 +3,14 @@ function mainPlayer(x,y,game) {
 
   this.debug_flag = false;
 
+  this.alive = true;
+
   this.x = 64;
   this.y = 32*6;
+
+  this.hp = 3;
+  this.hp_delay = 0;
+  this.hp_delay_N = 120;
 
   this.d = "u"; // "d", "l", "r", and combinations?
 
@@ -460,6 +466,12 @@ mainPlayer.prototype.debugEvent = function() {
     "d" : di };
 }
 
+mainPlayer.prototype.rebirth = function() {
+  this.hp = 3;
+  this.alive = true;
+  this.hp_delay = 0;
+}
+
 // walking, bow and sword are mutually exclusive
 // bomb is a modifier to walking.
 //
@@ -468,6 +480,9 @@ mainPlayer.prototype.update = function() {
 
   this.playerBBox();
   this.updatePuffs();
+
+  this.hp_delay--;
+  if (this.hp_delay<=0) { this.hp_delay=0; }
 
 
   // update focus
@@ -1106,6 +1121,23 @@ mainPlayer.prototype.swordAttack = function() {
   g_sfx["sword-swing"][x].play();
 }
 
+mainPlayer.prototype.hit = function() {
+  console.log("!!!");
+
+  if (this.hp_delay==0) {
+    this.hp--;
+    this.hp_delay = this.hp_delay_N;
+  }
+
+
+  if (this.hp<=0) {
+    this.hp = 0;
+    this.alive = false;
+  }
+
+
+}
+
 mainPlayer.prototype.playerBBox= function() {
   var bbox = this.player_bbox;
 
@@ -1379,6 +1411,12 @@ mainPlayer.prototype.draw = function() {
   var imgx = kf*16;
   var imgy = kr*16;
 
+  var cache_img = "noether";
+  if (this.hp_delay > 0) {
+    cache_img = "noether_mask";
+  }
+
+
   if (this.sword) {
     imgy = 4*16;
     imgx = kr*16;
@@ -1419,7 +1457,7 @@ mainPlayer.prototype.draw = function() {
 
     if (d=="up") {
       //g_imgcache.draw_s("rotstring", imx, imy, 20, 20, this.x+bf_x, this.y+bf_y, 20, 20);
-      g_imgcache.draw_s("noether", imgx, imgy, 16, 16, this.x, this.y, this.world_w, this.world_h);
+      g_imgcache.draw_s(cache_img, imgx, imgy, 16, 16, this.x, this.y, this.world_w, this.world_h);
       g_imgcache.draw_s("rotbow", imx, imy, 20, 20, this.x+bf_x, this.y+bf_y, 20, 20);
 
       //g_imgcache.draw_s("rotbow_w_string", imx, imy, 20, 20, this.x+bf_x, this.y+bf_y, 20, 20);
@@ -1427,7 +1465,7 @@ mainPlayer.prototype.draw = function() {
       //g_imgcache.draw_s("rotbow_w_string", imx, imy, 20, 20, this.x+bf_x, this.y+bf_y, 20, 20);
 
       g_imgcache.draw_s("rotbow", imx, imy, 20, 20, this.x+bf_x, this.y+bf_y, 20, 20);
-      g_imgcache.draw_s("noether", imgx, imgy, 16, 16, this.x, this.y, this.world_w, this.world_h);
+      g_imgcache.draw_s(cache_img, imgx, imgy, 16, 16, this.x, this.y, this.world_w, this.world_h);
       //g_imgcache.draw_s("rotstring", imx, imy, 20, 20, this.x+bf_x, this.y+bf_y, 20, 20);
     }
 
@@ -1511,15 +1549,18 @@ mainPlayer.prototype.draw = function() {
       var bf_y = -2;
 
       if (di == "up") {
-        g_imgcache.draw_s("noether", imgx, imgy, 16, 16, this.x, this.y, this.world_w, this.world_h);
+        //g_imgcache.draw_s("noether", imgx, imgy, 16, 16, this.x, this.y, this.world_w, this.world_h);
+        g_imgcache.draw_s(cache_img, imgx, imgy, 16, 16, this.x, this.y, this.world_w, this.world_h);
         g_imgcache.draw_s("rotbow", imx, imy, 20, 20, this.x+bf_x, this.y+bf_y, 20, 20);
       } else {
         g_imgcache.draw_s("rotbow", imx, imy, 20, 20, this.x+bf_x, this.y+bf_y, 20, 20);
-        g_imgcache.draw_s("noether", imgx, imgy, 16, 16, this.x, this.y, this.world_w, this.world_h);
+        //g_imgcache.draw_s("noether", imgx, imgy, 16, 16, this.x, this.y, this.world_w, this.world_h);
+        g_imgcache.draw_s(cache_img, imgx, imgy, 16, 16, this.x, this.y, this.world_w, this.world_h);
       }
 
     } else {
-      g_imgcache.draw_s("noether", imgx, imgy, 16, 16, this.x, this.y, this.world_w, this.world_h);
+      //g_imgcache.draw_s("noether", imgx, imgy, 16, 16, this.x, this.y, this.world_w, this.world_h);
+      g_imgcache.draw_s(cache_img, imgx, imgy, 16, 16, this.x, this.y, this.world_w, this.world_h);
     }
   }
 
@@ -1634,7 +1675,8 @@ mainPlayer.prototype.draw = function() {
 
     //if (curdir == "down") {
     if (bow_ontop) {
-      g_imgcache.draw_s("noether", t_imgx, t_imgy, 16, 16, this.x, this.y, this.world_w, this.world_h);
+      //g_imgcache.draw_s("noether", t_imgx, t_imgy, 16, 16, this.x, this.y, this.world_w, this.world_h);
+      g_imgcache.draw_s(cache_img, t_imgx, t_imgy, 16, 16, this.x, this.y, this.world_w, this.world_h);
       //g_imgcache.draw_s("rotbow", rb_imx, rb_imy, 20, 20, this.x-2, this.y-2, 20, 20);
       //g_imgcache.draw_s("rotbow_fulldraw", rb_imx, rb_imy, 20, 20, this.x-2, this.y-2, 20, 20);
       g_imgcache.draw_s("rotbow_fulldraw_w_string", rb_imx, rb_imy, 20, 20, this.x-2, this.y-2, 20, 20);
@@ -1642,7 +1684,8 @@ mainPlayer.prototype.draw = function() {
       //g_imgcache.draw_s("rotbow", rb_imx, rb_imy, 20, 20, this.x-2, this.y-2, 20, 20);
       //g_imgcache.draw_s("rotbow_fulldraw", rb_imx, rb_imy, 20, 20, this.x-2, this.y-2, 20, 20);
       g_imgcache.draw_s("rotbow_fulldraw_w_string", rb_imx, rb_imy, 20, 20, this.x-2, this.y-2, 20, 20);
-      g_imgcache.draw_s("noether", t_imgx, t_imgy, 16, 16, this.x, this.y, this.world_w, this.world_h);
+      //g_imgcache.draw_s("noether", t_imgx, t_imgy, 16, 16, this.x, this.y, this.world_w, this.world_h);
+      g_imgcache.draw_s(cache_img, t_imgx, t_imgy, 16, 16, this.x, this.y, this.world_w, this.world_h);
     }
 
 

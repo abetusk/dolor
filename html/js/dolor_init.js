@@ -184,6 +184,8 @@
 
       //g_imgcache.add("noether", img_base + "/noether.png");
       g_imgcache.add("noether", img_base + "/noether_foxshield.png");
+      g_imgcache.add("noether_mask", img_base + "/noether_foxshield_mask.png");
+      g_imgcache.add("heart", img_base + "/heart.png");
 
       //g_imgcache.add("item", img_base + "/items_11.png");
       g_imgcache.add("item", img_base + "/items_11.a.png");

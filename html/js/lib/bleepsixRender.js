@@ -279,6 +279,11 @@ bleepsixRender.prototype.clear = function()
   this.context.clearRect( 0, 0, this.width, this.height );
 }
 
+bleepsixRender.prototype.startDraw_a = function()
+{
+  g_painter.context.setTransform ( 1, 0, 0, 1, 0, 0 );
+}
+
 bleepsixRender.prototype.startDraw = function()
 {
   // clear view
@@ -290,6 +295,26 @@ bleepsixRender.prototype.startDraw = function()
   //this.context.save ();
 
   // setup world space (just once)
+  M = this.transform;
+  this.context.setTransform( M[0][0], M[1][0], M[0][1], M[1][1], M[0][2], M[1][2] );
+}
+
+bleepsixRender.prototype.startDrawColor_a = function( color )
+{
+
+  color = ( typeof color !== 'undefined' ? color : "rgb(0,0,0)" );
+
+  g_painter.context.setTransform ( 1, 0, 0, 1, 0, 0 );
+
+  // clear view
+  this.context.fillStyle =  color;
+  this.context.fillRect( 0, 0, this.width, this.height );
+}
+
+
+bleepsixRender.prototype.startDrawColor_b = function(color)
+{
+
   M = this.transform;
   this.context.setTransform( M[0][0], M[1][0], M[0][1], M[1][1], M[0][2], M[1][2] );
 }
