@@ -10,7 +10,9 @@
     var frame = 0;
     var lastTime = new Date();
 
-    var g_debug = false;
+    // DEVELOPMENT
+    // DEBUG
+    var g_debug = true;
 
     var g_painter = null;
 

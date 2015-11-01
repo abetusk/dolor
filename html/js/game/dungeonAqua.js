@@ -206,7 +206,8 @@ dungeonAqua.prototype.event = function(event_type, data) {
 
 }
 
-dungeonAqua.prototype.draw_layer_bottom = function(display_name, cmp_x, cmp_y) {
+dungeonAqua.prototype.draw_layer_bottom = function(display_name, cmp_x, cmp_y, a) {
+  a = ((typeof a === "undefined") ? 1.0 : a);
   if (!this.ready) { return; }
 
   if (!(display_name in this.layer_name_index_lookup)) { return; }
@@ -251,7 +252,7 @@ dungeonAqua.prototype.draw_layer_bottom = function(display_name, cmp_x, cmp_y) {
     // http://stackoverflow.com/questions/17725840/canvas-drawimage-visible-edges-of-tiles-in-firefox-opera-ie-not-chrome
     //
     //g_imgcache.draw_s(this.tilemap_name, imx, imy, 16, 16, x, y, this.world_w, this.world_h);
-    g_imgcache.draw_s(tile_info.tileset_name, imx, imy, 16, 16, x, y, this.world_w, this.world_h);
+    g_imgcache.draw_s(tile_info.tileset_name, imx, imy, 16, 16, x, y, this.world_w, this.world_h, 0, a);
 
     //DEBUG
     if (this.debug) {
@@ -269,7 +270,8 @@ dungeonAqua.prototype.draw_layer_bottom = function(display_name, cmp_x, cmp_y) {
 
 }
 
-dungeonAqua.prototype.draw_layer_top = function(display_name, cmp_x, cmp_y) {
+dungeonAqua.prototype.draw_layer_top = function(display_name, cmp_x, cmp_y, a) {
+  a = ((typeof a === "undefined") ? 1.0 : a);
   if (!this.ready) { return; }
 
   if (!(display_name in this.layer_name_index_lookup)) { return; }
@@ -314,7 +316,7 @@ dungeonAqua.prototype.draw_layer_top = function(display_name, cmp_x, cmp_y) {
     // http://stackoverflow.com/questions/17725840/canvas-drawimage-visible-edges-of-tiles-in-firefox-opera-ie-not-chrome
     //
     //g_imgcache.draw_s(this.tilemap_name, imx, imy, 16, 16, x, y, this.world_w, this.world_h);
-    g_imgcache.draw_s(tile_info.tileset_name, imx, imy, 16, 16, x, y, this.world_w, this.world_h);
+    g_imgcache.draw_s(tile_info.tileset_name, imx, imy, 16, 16, x, y, this.world_w, this.world_h, 0, a);
 
     //DEBUG
     if (this.debug) {
@@ -331,6 +333,9 @@ dungeonAqua.prototype.draw_layer_top = function(display_name, cmp_x, cmp_y) {
 }
 
 dungeonAqua.prototype.draw_layer_w = function(display_name, anchor_x, anchor_y, window_c, window_r, alpha) {
+  var test_flag = false;
+  if (typeof alpha !== "undefined") { test_flag = true; }
+
   alpha = ((typeof alpha === "undefined") ? 1.0 : alpha);
   if (!this.ready) { return; }
 
@@ -338,6 +343,16 @@ dungeonAqua.prototype.draw_layer_w = function(display_name, anchor_x, anchor_y, 
 
   var layer_idx = this.layer_name_index_lookup[display_name];
   var layer = this.tilemap.layers[layer_idx];
+
+  if (test_flag) {
+    test_flag=false;
+    if ( (display_name == "bottom") ||
+         (display_name == "bottom.-1") ||
+         (display_name == "bottom.-2"))
+    {
+      test_flag=true;
+    }
+  }
 
   var w = layer.width;
   var h = layer.height;
@@ -380,6 +395,9 @@ dungeonAqua.prototype.draw_layer_w = function(display_name, anchor_x, anchor_y, 
 
       imx = Math.floor((dat*16) % tilemap_w);
       imy = Math.floor((dat*16) / tilemap_w)*tilewidth;
+
+      //DEBUG
+      if ((test_flag) && (Math.floor(imx/16)==18)) { continue; }
 
       var ww = Math.floor(this.world_w);
       var hh = Math.floor(this.world_h);

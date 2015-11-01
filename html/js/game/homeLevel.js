@@ -543,7 +543,8 @@ homeLevel.prototype.event = function(event_type, data) {
 
 }
 
-homeLevel.prototype.draw_layer_bottom = function(display_name, cmp_x, cmp_y) {
+homeLevel.prototype.draw_layer_bottom = function(display_name, cmp_x, cmp_y, a) {
+  a = ((typeof a === "undefined") ? 1.0 : a);
   if (!this.ready) { return; }
 
   if (!(display_name in this.layer_name_index_lookup)) { return; }
@@ -588,7 +589,7 @@ homeLevel.prototype.draw_layer_bottom = function(display_name, cmp_x, cmp_y) {
     // http://stackoverflow.com/questions/17725840/canvas-drawimage-visible-edges-of-tiles-in-firefox-opera-ie-not-chrome
     //
     //g_imgcache.draw_s(this.tilemap_name, imx, imy, 16, 16, x, y, this.world_w, this.world_h);
-    g_imgcache.draw_s(tile_info.tileset_name, imx, imy, 16, 16, x, y, this.world_w, this.world_h);
+    g_imgcache.draw_s(tile_info.tileset_name, imx, imy, 16, 16, x, y, this.world_w, this.world_h, 0, a);
 
     //DEBUG
     if (this.debug) {
@@ -604,7 +605,8 @@ homeLevel.prototype.draw_layer_bottom = function(display_name, cmp_x, cmp_y) {
 
 }
 
-homeLevel.prototype.draw_layer_top = function(display_name, cmp_x, cmp_y) {
+homeLevel.prototype.draw_layer_top = function(display_name, cmp_x, cmp_y, a) {
+  a = ((typeof a === "undefined") ? 1.0 : a);
   if (!this.ready) { return; }
 
   if (!(display_name in this.layer_name_index_lookup)) { return; }
@@ -649,7 +651,7 @@ homeLevel.prototype.draw_layer_top = function(display_name, cmp_x, cmp_y) {
     // http://stackoverflow.com/questions/17725840/canvas-drawimage-visible-edges-of-tiles-in-firefox-opera-ie-not-chrome
     //
     //g_imgcache.draw_s(this.tilemap_name, imx, imy, 16, 16, x, y, this.world_w, this.world_h);
-    g_imgcache.draw_s(tile_info.tileset_name, imx, imy, 16, 16, x, y, this.world_w, this.world_h);
+    g_imgcache.draw_s(tile_info.tileset_name, imx, imy, 16, 16, x, y, this.world_w, this.world_h, 0, a);
 
     //DEBUG
     if (this.debug) {
