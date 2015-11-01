@@ -185,7 +185,9 @@
       //g_imgcache.add("noether", img_base + "/noether.png");
       g_imgcache.add("noether", img_base + "/noether_foxshield.png");
       g_imgcache.add("noether_mask", img_base + "/noether_foxshield_mask.png");
-      g_imgcache.add("heart", img_base + "/heart.png");
+      //g_imgcache.add("heart", img_base + "/heart.png");
+      //g_imgcache.add("heart", img_base + "/heart_xpr.png");
+      g_imgcache.add("heart", img_base + "/heart_xpr2.png");
 
       //g_imgcache.add("item", img_base + "/items_11.png");
       g_imgcache.add("item", img_base + "/items_11.a.png");
@@ -206,7 +208,8 @@
       //g_imgcache.add("forrestup_0", img_base + "/forrestup_1.png");
       g_imgcache.add("forrestup_0", img_base + "/forrestup_3.png");
 
-      g_imgcache.add("bush_anim", img_base + "/bush_anim.png");
+      g_imgcache.add("tree_anim", img_base + "/tree_wave_anim.png");
+      g_imgcache.add("bush_anim", img_base + "/bush_anim2.png");
       g_imgcache.add("wind", img_base + "/wind.png");
 
       //g_imgcache.add("skel_jade", img_base + "/float_skel_white.png");

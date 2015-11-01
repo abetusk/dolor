@@ -957,17 +957,21 @@ mainWorld.prototype.draw = function() {
 
   this.painter.endDraw();
 
+  var hs = 32;
+  var ws = 64;
+  var ihx = 5;
+  var hy = 0;
+  var dhx = 50;
+
   this.painter.startDraw_a( this.bg_color ); 
   var iheart=0;
   for (iheart=0; iheart<g_player.hp; iheart++) {
-    var hx = iheart*50;
-    var hy = 10;
-    g_imgcache.draw_s("heart", 0, 0, 7, 7, 20+hx,hy, 48, 48, 0, 0.95);
+    var hx = iheart*dhx;
+    g_imgcache.draw_s("heart", 0, 0, hs, hs, ihx+hx,hy, ws, ws, 0, 0.95);
   }
-  for (; iheart<3; iheart++) {
-    var hx = iheart*50;
-    var hy = 10;
-    g_imgcache.draw_s("heart", 8, 0, 7, 7, 20+hx,hy, 48, 48, 0, 0.95);
+  for (; iheart<g_player.hp_max; iheart++) {
+    var hx = iheart*dhx;
+    g_imgcache.draw_s("heart", hs, 0, hs, hs, ihx+hx,hy, ws, ws, 0, 0.95);
   }
 
 

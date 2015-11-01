@@ -8,7 +8,8 @@ function mainPlayer(x,y,game) {
   this.x = 64;
   this.y = 32*6;
 
-  this.hp = 3;
+  this.hp = 4;
+  this.hp_max = 4;
   this.hp_delay = 0;
   this.hp_delay_N = 120;
 

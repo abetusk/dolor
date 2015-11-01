@@ -206,8 +206,20 @@ homeLevel.prototype.init = function() {
         if (layer.name == "bottom") {
           var tileid = dat - this.tile_info[dat].firstgid;
           if (tileid == 0) {
-            var bush_info = {"idle":true, "keyFrame":0, "delay":0, "loop":this.bush_wind_loop, "loopStart": 1, "delayN":[45,bd,bd,bd,bd,bd]};
+            var bush_info = {"idle":true, "t":"b", "keyFrame":0, "delay":0, "loop":this.bush_wind_loop, "loopStart": 1, "delayN":[45,bd,bd,bd,bd,bd]};
             this.bush_lookup[jj] = bush_info;
+          } else if ((tileid==1)||(tileid==2)||(tileid==13)||(tileid==14)) {
+            var offset = tileid-1;
+            if (offset>2) { offset = tileid - 13 + 6; }
+            var tree_info = {"idle":true,
+                             "t":"t",
+                             "keyFrame":0,
+                             "keyFrameOffset":offset,
+                             "delay":0,
+                             "loop":this.bush_wind_loop,
+                             "loopStart":1,
+                             "delayN":[bd,bd,bd,bd,bd,bd,bd,bd,bd]};
+            this.bush_lookup[jj] = tree_info;
           }
         }
         continue;
@@ -231,8 +243,20 @@ homeLevel.prototype.init = function() {
       if (layer.name == "bottom") {
         var tileid = dat - tileinfo.firstgid;
         if (tileid == 0) {
-          var bush_info = {"idle":true, "keyFrame":0, "delay":0, "loop": this.bush_wind_loop, "loopStart": 1, "delayN":[45,bd,bd,bd,bd,bd]};
+          var bush_info = {"idle":true, "t":"b", "keyFrame":0, "delay":0, "loop": this.bush_wind_loop, "loopStart": 1, "delayN":[45,bd,bd,bd,bd,bd]};
           this.bush_lookup[jj] = bush_info;
+        } else if ((tileid==1)||(tileid==2)||(tileid==13)||(tileid==14)) {
+          var offset = tileid-1;
+          if (offset>2) { offset = tileid - 13 + 6; }
+          var tree_info = {"idle":true,
+                           "t":"t",
+                           "keyFrame":0,
+                           "keyFrameOffset":offset,
+                           "delay":0,
+                           "loop":this.bush_wind_loop,
+                           "loopStart":1,
+                           "delayN":[bd,bd,bd,bd,bd,bd,bd,bd,bd]};
+          this.bush_lookup[jj] = tree_info;
         }
       }
 
@@ -368,21 +392,50 @@ homeLevel.prototype.update = function() {
 
   if (this.bush_wind_sweeping) {
     var z = ((this.max_w==0) ? 1 : this.max_w);
+
     for (var ind in this.bush_lookup) {
       if ((ind % z)==this.bush_wind_sweep_x) {
         if (this.bush_lookup[ind].idle) {
-          this.bush_lookup[ind].idle = false;
-          this.bush_lookup[ind].delay = Math.floor(Math.random()*30);
-          this.bush_lookup[ind].keyFrame = 0;
-          this.bush_lookup[ind].loop = this.bush_wind_loop;
+
+          if (this.bush_lookup[ind].t == "b") {
+            this.bush_lookup[ind].idle = false;
+            this.bush_lookup[ind].delay = Math.floor(Math.random()*30);
+            this.bush_lookup[ind].keyFrame = 0;
+            this.bush_lookup[ind].loop = this.bush_wind_loop;
+          } else if (this.bush_lookup[ind].t=="t") {
+
+            var ofs = this.bush_lookup[ind].keyFrameOffset;
+
+            if ((ofs == 1) || (ofs == 7)) { continue; }
+
+            var indpp = parseInt(ind)+1;
+
+            this.bush_lookup[ind].idle = false;
+            this.bush_lookup[ind].delay = 0;
+            this.bush_lookup[ind].keyFrame = 0;
+            this.bush_lookup[ind].loop = this.bush_wind_loop;
+
+            if (indpp in this.bush_lookup) {
+              this.bush_lookup[indpp].idle = false;
+              this.bush_lookup[indpp].delay = 0;
+              this.bush_lookup[indpp].keyFrame = 0;
+              this.bush_lookup[indpp].loop = this.bush_wind_loop;
+            } else {
+              console.log(">>> indpp", indpp, "not in bush_lookup (but", ind, "is)")
+            }
+
+          }
+
         }
       } else if (this.bush_lookup[ind].idle) {
 
-        if ( (Math.abs( (ind%z) - this.bush_wind_sweep_x ) < 3) && (Math.random()< 0.25) ) {
-          this.bush_lookup[ind].idle = false;
-          this.bush_lookup[ind].delay = Math.floor(Math.random()*30);
-          this.bush_lookup[ind].keyFrame = 0;
-          this.bush_lookup[ind].loop = this.bush_wind_loop;
+        if (this.bush_lookup[ind].t == "b") {
+          if ( (Math.abs( (ind%z) - this.bush_wind_sweep_x ) < 3) && (Math.random()< 0.25) ) {
+            this.bush_lookup[ind].idle = false;
+            this.bush_lookup[ind].delay = Math.floor(Math.random()*30);
+            this.bush_lookup[ind].keyFrame = 0;
+            this.bush_lookup[ind].loop = this.bush_wind_loop;
+          }
         }
 
       }
@@ -705,9 +758,21 @@ homeLevel.prototype.draw_layer_w = function(display_name, anchor_x, anchor_y, wi
         if (this.bush_lookup[data_ind].idle) {
           g_imgcache.draw_s(tile_info.tileset_name, imx, imy, 16, 16, x, y, this.world_w, this.world_h, 0, alpha);
         } else {
-          var ix = 16*this.bush_lookup[data_ind].keyFrame;
-          var iy = 0;
-          g_imgcache.draw_s("bush_anim", ix, iy, 16, 16, x, y, this.world_w, this.world_h, 0, alpha);
+
+          if (this.bush_lookup[data_ind].t=="b") {  // bush
+            var ix = 16*this.bush_lookup[data_ind].keyFrame;
+            var iy = 0;
+            g_imgcache.draw_s("bush_anim", ix, iy, 16, 16, x, y, this.world_w, this.world_h, 0, alpha);
+          } else if (this.bush_lookup[data_ind].t=="t") {  //tree
+            var ofs = this.bush_lookup[data_ind].keyFrameOffset;
+            var idx=0, idy=0;
+            if      (ofs==1) { idx=16; idy= 0; }
+            else if (ofs==6) { idx= 0; idy=16; }
+            else if (ofs==7) { idx=16; idy=16; }
+            var ix = 32*(this.bush_lookup[data_ind].keyFrame%3) + idx;
+            var iy = idy;
+            g_imgcache.draw_s("tree_anim", ix, iy, 16, 16, x, y, this.world_w, this.world_h, 0, alpha);
+          }
         }
       } else {
         g_imgcache.draw_s(tile_info.tileset_name, imx, imy, 16, 16, x, y, this.world_w, this.world_h, 0, alpha);
