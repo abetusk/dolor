@@ -978,11 +978,12 @@ mainWorld.prototype.draw = function() {
 
 }
 
-mainWorld.prototype.camera_shake = function() {
+mainWorld.prototype.camera_shake = function(n) {
+  n = ((typeof n === "undefined") ? 5 : n)
 
   var ds = 10 * this.painter.zoom;
   var ds2 = Math.floor(ds/2);
-  for (var i=0; i<5; i++) {
+  for (var i=0; i<n; i++) {
     var dx = Math.floor(Math.random()*ds)-ds2;
     var dy = Math.floor(Math.random()*ds)-ds2;
     this.camshake.push({ "initial_delay": i*4+1, "ttl" : 4, "dx" : dx, "dy" : dy });
@@ -1267,15 +1268,16 @@ mainWorld.prototype.player_attack_enemy = function() {
 
 }
 
-mainWorld.prototype.player_kickback = function() {
+mainWorld.prototype.player_kickback = function(ds) {
+  ds = ((typeof ds === "undefined") ? 2 : ds);
   var player = this.player;
 
   var dirxy = player.actual_dir_xy();
   var dx = dirxy[0];
   var dy = dirxy[1];
 
-  var kickback_pos_x = player.x - Math.floor(Math.random()*dirxy[0]*2);
-  var kickback_pos_y = player.y - Math.floor(Math.random()*dirxy[1]*2);
+  var kickback_pos_x = player.x - Math.floor(Math.random()*dirxy[0]*ds);
+  var kickback_pos_y = player.y - Math.floor(Math.random()*dirxy[1]*ds);
 
   var tbbox = [[kickback_pos_x,player.y],[kickback_pos_x+player.size-1,player.y+player.size-1]];
 
@@ -2335,7 +2337,14 @@ mainWorld.prototype.update = function() {
 
 
   if (this.player_enemy_collision()) {
-    g_player.hit();
+    var h = g_player.hit();
+    if (h) {
+      if (this.player.alive) {
+        g_sfx["player-hit"][0].play();
+        this.player_kickback(5);
+        this.camera_shake(2);
+      }
+    }
   }
 
 

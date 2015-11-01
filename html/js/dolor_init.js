@@ -309,6 +309,9 @@
       g_sfx["sword-thud"].push( new_sound_object("assets/sfx/sword-thud/39294__stickman__hacked.ogg", 0.15) );
       g_sfx["sword-thud"].push( new_sound_object("assets/sfx/sword-thud/49693__ejfortin__energy-gloves.ogg", 0.15) );
 
+      g_sfx["player-hit"] = [];
+      g_sfx["player-hit"].push( new_sound_object("assets/sfx/25648__walter-odington__slow-deep-thud_2.ogg") );
+
       g_sfx["enemy-hit"] = [];
       g_sfx["enemy-hit"].push( new_sound_object("assets/sfx/49680__ejfortin__nano-blade-1.ogg") );
       g_sfx["enemy-hit"].push( new_sound_object("assets/sfx/49681__ejfortin__nano-blade-2.ogg") );

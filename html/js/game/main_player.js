@@ -13,6 +13,13 @@ function mainPlayer(x,y,game) {
   this.hp_delay = 0;
   this.hp_delay_N = 120;
 
+  this.hit_flash_state = 0;
+  this.hit_flash_delay = 0;
+  this.hit_flash_delay_N = 10;
+
+  this.stun_delay = 0;
+  this.stun_delay_N = 20;
+
   this.d = "u"; // "d", "l", "r", and combinations?
 
   this.sword = false;
@@ -468,7 +475,7 @@ mainPlayer.prototype.debugEvent = function() {
 }
 
 mainPlayer.prototype.rebirth = function() {
-  this.hp = 3;
+  this.hp = this.hp_max;
   this.alive = true;
   this.hp_delay = 0;
 }
@@ -482,9 +489,24 @@ mainPlayer.prototype.update = function() {
   this.playerBBox();
   this.updatePuffs();
 
-  this.hp_delay--;
-  if (this.hp_delay<=0) { this.hp_delay=0; }
+  this.stun_delay--;
+  if (this.stun_delay<=0) { this.stun_delay = 0; }
 
+  this.hp_delay--;
+  if (this.hp_delay<=0) {
+    this.hp_delay=0;
+    this.hit_flash_state = 0;
+    this.hit_flash_delay = 0;
+  }
+  else {
+    this.hit_flash_delay++;
+    if (this.hit_flash_delay>=this.hit_flash_delay_N) {
+      this.hit_flash_delay=0;
+      this.hit_flash_state = 1-this.hit_flash_state;
+    }
+  }
+
+  if (this.stun_delay>0) { return; }
 
   // update focus
   //
@@ -1123,11 +1145,17 @@ mainPlayer.prototype.swordAttack = function() {
 }
 
 mainPlayer.prototype.hit = function() {
-  console.log("!!!");
+  var r = false;
 
   if (this.hp_delay==0) {
     this.hp--;
     this.hp_delay = this.hp_delay_N;
+
+    this.hit_flash_state = 1;
+    this.hit_flash_delay = 0;
+
+    this.stun_delay = this.stun_delay_N;
+    r = true;
   }
 
 
@@ -1136,7 +1164,7 @@ mainPlayer.prototype.hit = function() {
     this.alive = false;
   }
 
-
+  return r;
 }
 
 mainPlayer.prototype.playerBBox= function() {
@@ -1413,9 +1441,8 @@ mainPlayer.prototype.draw = function() {
   var imgy = kr*16;
 
   var cache_img = "noether";
-  if (this.hp_delay > 0) {
-    cache_img = "noether_mask";
-  }
+  //if (this.hp_delay > 0) { cache_img = "noether_mask"; }
+  if (this.hit_flash_state == 1) { cache_img = "noether_mask"; }
 
 
   if (this.sword) {
