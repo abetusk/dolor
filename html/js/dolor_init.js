@@ -310,7 +310,10 @@
       g_sfx["sword-thud"].push( new_sound_object("assets/sfx/sword-thud/49693__ejfortin__energy-gloves.ogg", 0.15) );
 
       g_sfx["player-hit"] = [];
-      g_sfx["player-hit"].push( new_sound_object("assets/sfx/25648__walter-odington__slow-deep-thud_2.ogg") );
+      g_sfx["player-hit"].push( new_sound_object("assets/sfx/215496__spankmyfilth__28-blips-trails-spankmyfilth.ogg") );
+      g_sfx["player-hit"].push( new_sound_object("assets/sfx/215486__spankmyfilth__47-blips-trails-spankmyfilth.ogg") );
+      g_sfx["player-hit"].push( new_sound_object("assets/sfx/215497__spankmyfilth__29-blips-trails-spankmyfilth.ogg") );
+      g_sfx["player-hit"].push( new_sound_object("assets/sfx/215510__spankmyfilth__53-blips-trails-spankmyfilth.ogg") );
 
       g_sfx["enemy-hit"] = [];
       g_sfx["enemy-hit"].push( new_sound_object("assets/sfx/49680__ejfortin__nano-blade-1.ogg") );

@@ -2339,8 +2339,9 @@ mainWorld.prototype.update = function() {
   if (this.player_enemy_collision()) {
     var h = g_player.hit();
     if (h) {
+      var p = Math.floor(Math.random()*g_sfx["player-hit"].length);
+      g_sfx["player-hit"][p].play();
       if (this.player.alive) {
-        g_sfx["player-hit"][0].play();
         this.player_kickback(5);
         this.camera_shake(2);
       }
