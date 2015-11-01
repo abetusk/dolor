@@ -10,6 +10,8 @@
     var frame = 0;
     var lastTime = new Date();
 
+    var g_debug = false;
+
     var g_painter = null;
 
     var g_game_controller = null;

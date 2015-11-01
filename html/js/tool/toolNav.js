@@ -105,12 +105,18 @@ toolNav.prototype.mouseWheel = function(delta)
   g_painter.adjustZoom(this.mouse_cur_x, this.mouse_cur_y, delta);
 }
 
+
+
 toolNav.prototype.keyDown = function(keycode, ch, ev) {
+
   if (ch=='T') {
-    // DEBUG
-    var world_xy = g_painter.devToWorld( this.mouse_cur_x, this.mouse_cur_y );
-    g_player.x = Math.floor(world_xy.x);
-    g_player.y = Math.floor(world_xy.y);
+
+    if (g_debug) {
+      // DEBUG
+      var world_xy = g_painter.devToWorld( this.mouse_cur_x, this.mouse_cur_y );
+      g_player.x = Math.floor(world_xy.x);
+      g_player.y = Math.floor(world_xy.y);
+    }
   }
 
 
