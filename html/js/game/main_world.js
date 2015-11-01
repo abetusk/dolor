@@ -1995,6 +1995,18 @@ mainWorld.prototype.init_monsters = function() {
     self.enemy.push(horns);
   });
 
+  this.level.meta_map(2, function(dat, x, y) {
+    var horns = new creatureLatticeKnight();
+    horns.init(x,y);
+    self.enemy.push(horns);
+  });
+
+  this.level.meta_map(3, function(dat, x, y) {
+    var horns = new creatureFloatSkull();
+    horns.init(x,y);
+    self.enemy.push(horns);
+  });
+
   this.level.meta_map(28, function(dat, x, y) {
     var neko = new creatureNeko();
     neko.init(x,y);

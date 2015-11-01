@@ -263,6 +263,9 @@
       g_imgcache.add("mask_dead_horns", img_base + "/mask_dead_horns.png");
 
       g_imgcache.add("knight", img_base + "/lattice_knight2.png");
+      g_imgcache.add("mask_knight", img_base + "/lattice_knight2_mask.png");
+      g_imgcache.add("dead_knight", img_base + "/dead_lattice_knight2.png");
+      g_imgcache.add("mask_dead_knight", img_base + "/dead_lattice_knight2_mask.png");
 
       g_imgcache.add("floatskull", img_base + "/floatskull.png");
 
