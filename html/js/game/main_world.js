@@ -1656,18 +1656,18 @@ mainWorld.prototype.updateCam = function() {
     var ds = 16;
 
     if (view.x1 < (bbox[0][0]+ds)) {
-      var dx = view.x1 - bbox[0][0] - ds;
+      var dx = Math.floor(view.x1 - bbox[0][0] - ds);
       this.painter.adjustPan(dx, 0);
     } else if (view.x2 > (bbox[1][0]-ds)) {
-      var dx = view.x2 - bbox[1][0] + ds;
+      var dx = Math.floor(view.x2 - bbox[1][0] + ds);
       this.painter.adjustPan(dx, 0);
     }
 
     if (view.y1 < (bbox[0][1]+ds)) {
-      var dy = view.y1 - bbox[0][1] - ds;
+      var dy = Math.floor(view.y1 - bbox[0][1] - ds);
       this.painter.adjustPan(0, dy);
     } else if (view.y2 > (bbox[1][1]-ds)) {
-      var dy = view.y2 - bbox[1][1] + ds;
+      var dy = Math.floor(view.y2 - bbox[1][1] + ds);
       this.painter.adjustPan(0, dy);
     }
 
