@@ -12,7 +12,11 @@
 
     // DEVELOPMENT
     // DEBUG
-    var g_debug = true;
+    //var g_debug = true;
+
+    // turns on mouse 't' teleport
+    //
+    var g_debug = false;
 
     var g_painter = null;
 
@@ -186,9 +190,12 @@
       var img_base = "assets";
       g_imgcache = new imageCache();
 
-      //g_imgcache.add("noether", img_base + "/noether.png");
-      g_imgcache.add("noether", img_base + "/noether_foxshield.png");
-      g_imgcache.add("noether_mask", img_base + "/noether_foxshield_mask.png");
+      g_imgcache.add("noether", img_base + "/noether.png");
+      g_imgcache.add("noether_mask", img_base + "/noether_mask.png");
+
+      g_imgcache.add("noether_fox_shield", img_base + "/noether_foxshield.png");
+      g_imgcache.add("noether_fox_shield_mask", img_base + "/noether_foxshield_mask.png");
+
       //g_imgcache.add("heart", img_base + "/heart.png");
       //g_imgcache.add("heart", img_base + "/heart_xpr.png");
       g_imgcache.add("heart", img_base + "/heart_xpr2.png");
@@ -196,6 +203,8 @@
       //g_imgcache.add("item", img_base + "/items_11.png");
       g_imgcache.add("item", img_base + "/items_11.a.png");
       g_imgcache.add("item_mask", img_base + "/items_mask.png");
+
+      g_imgcache.add("item_key", img_base + "/item_key.png");
 
       //g_imgcache.add("rotbow", img_base + "/rotbow3.png");
       //g_imgcache.add("dungeon0", img_base + "/dungeon_sheet_0.png");
@@ -222,6 +231,8 @@
       //g_imgcache.add("skel_jade", img_base + "/float_skel_green.png");
       //g_imgcache.add("skel_jade", img_base + "/float_skel_red.png");
       g_imgcache.add("skel_jade", img_base + "/float_skel_jade.png");
+
+      g_imgcache.add("skel_mask", img_base + "/float_skel_jade_mask.png");
 
       //g_imgcache.add("critter_bunny", img_base + "/critter_bunny.png");
       g_imgcache.add("critter_bunny", img_base + "/critter_bunny2.png");
@@ -343,6 +354,14 @@
       g_sfx["arrow-shoot"].push( new_sound_object("assets/sfx/49665__ejfortin__dual-energy-daggers-2.s.ogg") );
       g_sfx["arrow-shoot"].push( new_sound_object("assets/sfx/49668__ejfortin__dual-energy-daggers-6.s.ogg") );
 
+      g_sfx["shield-hit"] = [];
+      g_sfx["shield-hit"].push( new_sound_object("assets/sfx/164245__soniktec__metallic-sound-pack-1.ogg") );
+      g_sfx["shield-hit"].push( new_sound_object("assets/sfx/164250__soniktec__metallic-sound-pack-16.ogg") );
+      g_sfx["shield-hit"].push( new_sound_object("assets/sfx/164257__soniktec__metallic-sound-pack-19.ogg") );
+      g_sfx["shield-hit"].push( new_sound_object("assets/sfx/164248__soniktec__metallic-sound-pack-12.ogg") );
+      g_sfx["shield-hit"].push( new_sound_object("assets/sfx/164255__soniktec__metallic-sound-pack-7.ogg") );
+      g_sfx["shield-hit"].push( new_sound_object("assets/sfx/164261__soniktec__metallic-sound-pack-22.ogg") );
+
       g_sfx["teleport"] = [];
       //g_sfx["teleport"].push( new_sound_object("assets/sfx/133279__fins__game-teleport.s.ogg", 0.25) );
       //g_sfx["teleport"].push( new_sound_object("assets/sfx/172206__fins__teleport.s.ogg", 0.25) );
@@ -364,6 +383,15 @@
       g_sfx["wave"] = [];
       g_sfx["wave"].push( new_sound_object("assets/sfx/254857__afeeto__waves-against-shore.ogg", 0.75, true) );
       //g_sfx["wave"].push( new_sound_object("assets/sfx/254857__afeeto__waves-against-shore.ogg", 0.5, true) );
+
+      g_sfx["boss-pain"] = [];
+      g_sfx["boss-pain"].push( new_sound_object("assets/sfx/36588__kathakaku__mike-gabber-intro.ogg") );
+
+      g_sfx["boss-death"] = [];
+      g_sfx["boss-death"].push( new_sound_object("assets/sfx/215507__spankmyfilth__67-blips-trails-spankmyfilth.ogg") );
+
+      g_sfx["item-appear"] = [];
+      g_sfx["item-appear"].push( new_sound_object("assets/sfx/216864__goac0re1__0003-2-audio-1.ogg") );
 
       g_music = {};
       //g_music["home"] = new_sound_object("assets/music/mark.nine-the-little-things-02-devil-you-know.mp3");

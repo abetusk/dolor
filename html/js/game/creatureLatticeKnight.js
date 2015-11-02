@@ -1,4 +1,6 @@
 function creatureLatticeKnight() {
+  this.debug = false;
+
   this.x = 0;
   this.y = 0;
   this.d = "down";
@@ -34,7 +36,6 @@ function creatureLatticeKnight() {
   this.frameRow = 0;
   this.frameRowN = 4;
 
-  this.debug = false;
 
   this.choice_delay = 300;
   this.choice_delay_n = 300;
@@ -46,7 +47,7 @@ function creatureLatticeKnight() {
   this.death_ttl = this.death_ttl_n;
 
   this.v = 1;
-  this.delay_v_n = 4;
+  this.delay_v_n = 2;
   this.delay_v = this.delay_v_n;
 
   this.size_x = 12;
@@ -54,6 +55,7 @@ function creatureLatticeKnight() {
 
   this.bounding_box = [[0,0],[0,0]];
   this.hit_bounding_box = [[0,0],[0,0]];
+  this.shield_bounding_box = [[0,0],[0,0]];
   this.intent = { "d": "down", "x" : this.x, "y" : this.y, "bounding_box":[[0,0],[0,0]] }
   this.skip_intent = false;
 
@@ -84,13 +86,46 @@ creatureLatticeKnight.prototype.init = function(x,y, d) {
   this.y = y;
   this.d = d;
 
-  this.update_hit_bbox(this.hit_bounding_box, this.x, this.y);
-  this.update_bbox(this.bounding_box,this.x,this.y);
-
   this.d = "down";
   this.frameRow = 0;
 
+  this.update_hit_bbox(this.hit_bounding_box, this.x, this.y);
+  this.update_shield_bbox(this.shield_bounding_box, this.x, this.y, this.d);
+  this.update_bbox(this.bounding_box,this.x,this.y);
+
   this.update_intent(this.d);
+}
+
+creatureLatticeKnight.prototype.update_shield_bbox = function(bbox,x,y,d) {
+
+  if (d=="up") {
+    bbox[0][0] = x+2;
+    bbox[0][1] = y-2;
+    bbox[1][0] = x+14;
+    bbox[1][1] = y+0;
+  }
+
+  else if (d=="down") {
+    bbox[0][0] = x+2;
+    bbox[0][1] = y+15;
+    bbox[1][0] = x+14;
+    bbox[1][1] = y+17;
+  }
+
+  else if (d=="left") {
+    bbox[0][0] = x-2;
+    bbox[0][1] = y+2;
+    bbox[1][0] = x+0;
+    bbox[1][1] = y+15;
+  }
+
+  else if (d=="right") {
+    bbox[0][0] = x+15;
+    bbox[0][1] = y+2;
+    bbox[1][0] = x+17;
+    bbox[1][1] = y+15;
+  }
+
 }
 
 creatureLatticeKnight.prototype.update_hit_bbox = function(bbox,x,y) {
@@ -109,7 +144,14 @@ creatureLatticeKnight.prototype.update_bbox = function(bbox,x,y) {
   bbox[1][1] = y + 15;
 }
 
-creatureLatticeKnight.prototype.hit = function(damage) {
+creatureLatticeKnight.prototype.hit = function(damage, attack_bbox) {
+
+
+  if (box_box_intersect(this.shield_bounding_box, attack_bbox)) {
+    var n = Math.floor(Math.random()*g_sfx["shield-hit"].length);
+    g_sfx["shield-hit"][n].play();
+    return false;
+  }
 
   this.hp -= damage;
   if (this.hp<0) { this.hp = 0; }
@@ -128,6 +170,7 @@ creatureLatticeKnight.prototype.hit = function(damage) {
   this.ouch_delay = this.ouch_delay_n;
   this.hp_refresh_delay = 0;
 
+  return true;
 }
 
 creatureLatticeKnight.prototype.world_collision = function(world) {
@@ -141,6 +184,31 @@ creatureLatticeKnight.prototype.world_collision = function(world) {
 
   this.update_intent(new_d);
   this.skip_intent = true;
+}
+
+creatureLatticeKnight.prototype.set_intent = function(x,y,d) {
+  x = ((typeof x === "undefined") ? this.x : x);
+  y = ((typeof y === "undefined") ? this.y : y);
+  d = ((typeof d === "undefined") ? this.d : d);
+
+  var v = 0;
+
+  this.delay_v--;
+  if (this.ouch_delay == 0) {
+    if (this.delay_v <= 0) {
+      v = this.v;
+      this.delay_v = this.delay_v_n;
+    }
+  }
+
+  this.intent.x = x;
+  this.intent.y = y;
+  this.intent.d = d;
+
+  this.update_bbox(this.intent.bounding_box,this.intent.x,this.intent.y);
+  this.update_bbox(this.bounding_box,this.x, this.y);
+  this.update_hit_bbox(this.hit_bounding_box, this.x, this.y);
+  this.update_shield_bbox(this.shield_bounding_box, this.x, this.y, this.d);
 }
 
 creatureLatticeKnight.prototype.update_intent = function(d) {
@@ -172,6 +240,7 @@ creatureLatticeKnight.prototype.update_intent = function(d) {
   this.update_bbox(this.intent.bounding_box,this.intent.x,this.intent.y);
   this.update_bbox(this.bounding_box,this.x, this.y);
   this.update_hit_bbox(this.hit_bounding_box, this.x, this.y);
+  this.update_shield_bbox(this.shield_bounding_box, this.x, this.y, this.d);
 }
 
 creatureLatticeKnight.prototype.realize_intent = function() {
@@ -184,6 +253,7 @@ creatureLatticeKnight.prototype.realize_intent = function() {
   this.update_bbox(this.intent.bounding_box,this.intent.x,this.intent.y);
   this.update_bbox(this.bounding_box,this.intent.x,this.intent.y);
   this.update_hit_bbox(this.hit_bounding_box, this.x, this.y);
+  this.update_shield_bbox(this.shield_bounding_box, this.x, this.y, this.d);
 }
 
 creatureLatticeKnight.prototype.update = function(world) {
@@ -273,6 +343,7 @@ creatureLatticeKnight.prototype.update = function(world) {
   //console.log(this.intent.x, this.intent.y, this.intent.bounding_box[0], this.intent.bounding_box[1], this.v);
 
   this.update_hit_bbox(this.hit_bounding_box, this.x, this.y);
+  this.update_shield_bbox(this.shield_bounding_box, this.x, this.y, this.d);
   this.update_bbox(this.bounding_box,this.x,this.y);
 
 }
@@ -331,5 +402,12 @@ creatureLatticeKnight.prototype.draw = function() {
     y1 = this.hit_bounding_box[1][1];
 
     g_painter.drawRectangle(x0,y0, x1-x0, y1-y0, 1, "rgba(255,0,0,0.6)");
+
+    x0 = this.shield_bounding_box[0][0];
+    y0 = this.shield_bounding_box[0][1];
+    x1 = this.shield_bounding_box[1][0];
+    y1 = this.shield_bounding_box[1][1];
+
+    g_painter.drawRectangle(x0,y0, x1-x0, y1-y0, 1, "rgba(255,255,0,1.0)");
   }
 }

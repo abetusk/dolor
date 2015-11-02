@@ -5,6 +5,17 @@ function mainPlayer(x,y,game) {
 
   this.alive = true;
 
+  // If the player has the item, appropriate flags
+  // set.
+  //
+  this.item_wand = false;
+  this.item_sword = true;
+  this.item_bow = false;
+  this.item_shield = false;
+  this.item_bomb = false;
+
+  //--
+
   this.x = 64;
   this.y = 32*6;
 
@@ -31,7 +42,6 @@ function mainPlayer(x,y,game) {
   this.bowItem = true;
   this.bowSword = true;
   this.bowBomb = true;
-
 
   this.player_bbox = [[0,0],[0,0]];
   this.sword_bbox = [[0,0],[0,0]];
@@ -521,6 +531,9 @@ mainPlayer.prototype.update = function() {
   for (var ev in this.inputEvent) {
 
     if (ev == "bowKeyDown") {
+
+      if (!this.item_bow) { continue; }
+
       //BOW DRAW
 
       if (this.state == "swordAttack") { continue; }
@@ -560,6 +573,8 @@ mainPlayer.prototype.update = function() {
       continue;
     } else if (ev == "bowKeyUp") {
 
+      if (!this.item_bow) { continue; }
+
       if (this.bow) {
         this.shootArrow();
         //var curdir = this.actualDirection();
@@ -581,6 +596,8 @@ mainPlayer.prototype.update = function() {
 
     if (ev == "swordKeyDown") {
 
+      if (!this.item_sword) { continue; }
+
       if (this.state == "teleport") { continue; }
 
       if (this.bow) {
@@ -600,7 +617,6 @@ mainPlayer.prototype.update = function() {
 
       this.swordAttack();
 
-      //var curdir = this.currentWalkDirection();
       var curdir = this.actualDirection();
       this.resetDisplayDirection(curdir);
       this.setBowToDirection();
@@ -615,12 +631,7 @@ mainPlayer.prototype.update = function() {
 
     if (ev == "bombKeyDown") {
 
-      /*
-      if (this.bomb) {
-        this.bombThrow();
-        continue;
-      }
-      */
+      if (!this.item_bomb) { continue; }
 
       if ((this.state == "swordAttack") ||
           (this.state == "bow")) { continue; }
@@ -628,9 +639,7 @@ mainPlayer.prototype.update = function() {
       if (!this.bombReady()) { continue; }
       if (!this.bombKeyUp) { continue; }
 
-      //this.prepBomb();
       this.bombThrow();
-
       continue;
     }
 
@@ -644,6 +653,10 @@ mainPlayer.prototype.update = function() {
     }
 
     if (ev == "teleportKeyUp") {
+
+      // we dont' have the want, can'd teleport
+      //
+      if (!this.item_wand) { continue; }
 
       if (this.state == "swordAttack") { continue; }
       if (this.state == "bow") { continue; }
@@ -1441,8 +1454,8 @@ mainPlayer.prototype.draw = function() {
   var imgy = kr*16;
 
   var cache_img = "noether";
-  //if (this.hp_delay > 0) { cache_img = "noether_mask"; }
-  if (this.hit_flash_state == 1) { cache_img = "noether_mask"; }
+  if (this.item_shield) { cache_img = "noether_fox_shield"; }
+  if (this.hit_flash_state == 1) { cache_img = cache_img + "_mask"; }
 
 
   if (this.sword) {
@@ -1486,13 +1499,19 @@ mainPlayer.prototype.draw = function() {
     if (d=="up") {
       //g_imgcache.draw_s("rotstring", imx, imy, 20, 20, this.x+bf_x, this.y+bf_y, 20, 20);
       g_imgcache.draw_s(cache_img, imgx, imgy, 16, 16, this.x, this.y, this.world_w, this.world_h);
-      g_imgcache.draw_s("rotbow", imx, imy, 20, 20, this.x+bf_x, this.y+bf_y, 20, 20);
+
+      if (this.item_bow) {
+        g_imgcache.draw_s("rotbow", imx, imy, 20, 20, this.x+bf_x, this.y+bf_y, 20, 20);
+      }
 
       //g_imgcache.draw_s("rotbow_w_string", imx, imy, 20, 20, this.x+bf_x, this.y+bf_y, 20, 20);
     } else {
       //g_imgcache.draw_s("rotbow_w_string", imx, imy, 20, 20, this.x+bf_x, this.y+bf_y, 20, 20);
 
-      g_imgcache.draw_s("rotbow", imx, imy, 20, 20, this.x+bf_x, this.y+bf_y, 20, 20);
+      if (this.item_bow) {
+        g_imgcache.draw_s("rotbow", imx, imy, 20, 20, this.x+bf_x, this.y+bf_y, 20, 20);
+      }
+
       g_imgcache.draw_s(cache_img, imgx, imgy, 16, 16, this.x, this.y, this.world_w, this.world_h);
       //g_imgcache.draw_s("rotstring", imx, imy, 20, 20, this.x+bf_x, this.y+bf_y, 20, 20);
     }
@@ -1568,7 +1587,8 @@ mainPlayer.prototype.draw = function() {
     //g_imgcache.draw_s("item", 80, 16, 16, 16, this.x+ix, this.y+iy, this.world_w, this.world_h, a);
 
 
-    if (this.bowItem) {
+    if (this.item_bow) {
+    //if (this.bowItem) {
 
       var imx = ((this.bowStep+1) % (this.bowStepN/4))*20;
       var imy = Math.floor((this.bowStep+1) / 8)*20;

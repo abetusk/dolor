@@ -125,6 +125,7 @@ creatureHorns.prototype.hit = function(damage) {
   this.ouch_delay = this.ouch_delay_n;
   this.hp_refresh_delay = 0;
 
+  return true;
 }
 
 creatureHorns.prototype.world_collision = function(world) {

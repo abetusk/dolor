@@ -46,7 +46,7 @@ function creatureBones() {
   this.death_ttl = this.death_ttl_n;
 
   this.v = 1;
-  this.delay_v_n = 2;
+  this.delay_v_n = 1;
   this.delay_v = this.delay_v_n;
 
   this.size_x = 12;
@@ -128,6 +128,7 @@ creatureBones.prototype.hit = function(damage) {
   this.ouch_delay = this.ouch_delay_n;
   this.hp_refresh_delay = 0;
 
+  return true;
 }
 
 creatureBones.prototype.world_collision = function(world) {

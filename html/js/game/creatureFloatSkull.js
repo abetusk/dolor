@@ -113,7 +113,7 @@ creatureFloatSkull.prototype.update_bbox = function(bbox,x,y) {
 }
 
 creatureFloatSkull.prototype.hit = function(damage) {
-  return;
+  return false;
 
   this.hp -= damage;
   if (this.hp<0) { this.hp = 0; }
@@ -146,6 +146,32 @@ creatureFloatSkull.prototype.world_collision = function(world) {
   this.update_intent(new_d);
   this.skip_intent = true;
 }
+
+creatureFloatSkull.prototype.set_intent = function(x,y,d) {
+  x = ((typeof x === "undefined") ? this.x : x);
+  y = ((typeof y === "undefined") ? this.y : y);
+  d = ((typeof d === "undefined") ? this.d : d);
+
+  var v = 0;
+
+  this.delay_v--;
+  if (this.ouch_delay == 0) {
+    if (this.delay_v <= 0) {
+      v = this.v;
+      this.delay_v = this.delay_v_n;
+    }
+  }
+
+  this.intent.x = x;
+  this.intent.y = y;
+  this.intent.d = d;
+
+  this.update_bbox(this.intent.bounding_box,this.intent.x,this.intent.y);
+  this.update_bbox(this.bounding_box,this.x, this.y);
+  this.update_hit_bbox(this.hit_bounding_box, this.x, this.y);
+}
+
+
 
 creatureFloatSkull.prototype.update_intent = function(d) {
   this.intent.d = d;

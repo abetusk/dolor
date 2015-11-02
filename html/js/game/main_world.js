@@ -963,15 +963,57 @@ mainWorld.prototype.draw = function() {
   var hy = 0;
   var dhx = 50;
 
+  var cur_xmax=0;
+
   this.painter.startDraw_a( this.bg_color ); 
   var iheart=0;
   for (iheart=0; iheart<g_player.hp; iheart++) {
     var hx = iheart*dhx;
     g_imgcache.draw_s("heart", 0, 0, hs, hs, ihx+hx,hy, ws, ws, 0, 0.95);
+    cur_xmax = ihx+hx;
   }
   for (; iheart<g_player.hp_max; iheart++) {
     var hx = iheart*dhx;
     g_imgcache.draw_s("heart", hs, 0, hs, hs, ihx+hx,hy, ws, ws, 0, 0.95);
+    cur_xmax = ihx+hx;
+  }
+
+  if (g_player) {
+    cur_xmax += 32+ws;
+    if (g_player.item_sword) {
+      g_imgcache.draw_s("item_key", 0, 16, 16, 16, cur_xmax, 8, 48, 48, 0, 0.95);
+    } else {
+      g_imgcache.draw_s("item_key", 0, 48, 16, 16, cur_xmax, 8, 48, 48, 0, 0.95);
+    }
+
+    cur_xmax+=48 + 16;
+    if (g_player.item_wand) {
+      g_imgcache.draw_s("item_key", 0, 0, 16, 16, cur_xmax, 8, 48, 48, 0, 0.95);
+    } else {
+      g_imgcache.draw_s("item_key", 0, 32, 16, 16, cur_xmax, 8, 48, 48, 0, 0.95);
+    }
+
+    cur_xmax+=48 + 16;
+    if (g_player.item_bomb) {
+      g_imgcache.draw_s("item_key", 16, 0, 16, 16, cur_xmax, 8, 48, 48, 0, 0.95);
+    } else {
+      g_imgcache.draw_s("item_key", 16, 32, 16, 16, cur_xmax, 8, 48, 48, 0, 0.95);
+    }
+
+    cur_xmax+=48 + 16;
+    if (g_player.item_bow) {
+      g_imgcache.draw_s("item_key", 32, 0, 16, 16, cur_xmax, 8, 48, 48, 0, 0.95);
+    } else {
+      g_imgcache.draw_s("item_key", 32, 32, 16, 16, cur_xmax, 8, 48, 48, 0, 0.95);
+    }
+
+    cur_xmax+=48 + 16;
+    if (g_player.item_shield) {
+      g_imgcache.draw_s("item_key", 48, 0, 16, 16, cur_xmax, 8, 48, 48, 0, 0.95);
+    } else {
+      g_imgcache.draw_s("item_key", 48, 32, 16, 16, cur_xmax, 8, 48, 48, 0, 0.95);
+    }
+
   }
 
 
@@ -1246,21 +1288,22 @@ mainWorld.prototype.player_attack_enemy = function() {
 
     if (box_box_intersect(en_bbox, sword_bbox,.125)) {
 
-      this.enemy[key].hit(this.player.sword_damage);
+      var h = this.enemy[key].hit(this.player.sword_damage, sword_bbox);
+      if (h) {
+        var cx = Math.floor((this.player.sword_bbox[1][0] - this.player.sword_bbox[0][0])/2);
+        var cy = Math.floor((this.player.sword_bbox[1][1] - this.player.sword_bbox[0][1])/2);
+        cx += this.player.sword_bbox[0][0];
+        cy += this.player.sword_bbox[0][1];
 
-      var cx = Math.floor((this.player.sword_bbox[1][0] - this.player.sword_bbox[0][0])/2);
-      var cy = Math.floor((this.player.sword_bbox[1][1] - this.player.sword_bbox[0][1])/2);
-      cx += this.player.sword_bbox[0][0];
-      cy += this.player.sword_bbox[0][1];
+        var dirxy = this.player.actual_dir_xy();
+        var dx = dirxy[0];
+        var dy = dirxy[1];
 
-      var dirxy = this.player.actual_dir_xy();
-      var dx = dirxy[0];
-      var dy = dirxy[1];
+        var p = new particleDebris(cx,cy,dx,dy,1,1,"rgba(255,255,255,0.7)");
+        this.particle.push(p);
 
-      var p = new particleDebris(cx,cy,dx,dy,1,1,"rgba(255,255,255,0.7)");
-      this.particle.push(p);
-
-      hit_enemy=true;
+        hit_enemy=true;
+      }
     }
   }
 
@@ -2040,7 +2083,6 @@ mainWorld.prototype.level_transition_init = function(portal_id) {
     var oy = this.level.portal[0].y;
     this.level.x = px - ox;
     this.level.y = py - oy;
-
   }
   else if (portal_id == 1) {
 
@@ -2222,6 +2264,23 @@ mainWorld.prototype.level_transition_init = function(portal_id) {
 
 
   this.init_monsters();
+
+  if (this.level.name=="jade") {
+
+    var level_info = {};
+    level_info["teleport_schedule"] = [];
+    this.level.layer_map("bottom.-1", 10, function(d,x,y) { level_info.teleport_schedule.push({"x":x,"y":y}); });
+    this.level.layer_map("bottom.-1", 26, function(d,x,y) { level_info.teleport_schedule.push({"x":x,"y":y}); });
+    this.level.layer_map("bottom.-1", 30, function(d,x,y) { level_info.teleport_schedule.push({"x":x,"y":y}); });
+    this.level.layer_map("bottom.-1",  8, function(d,x,y) { level_info.teleport_schedule.push({"x":x,"y":y}); });
+    this.level.layer_map("bottom.-1", 11, function(d,x,y) { level_info.teleport_schedule.push({"x":x,"y":y}); });
+    this.level.layer_map("bottom.-1", 28, function(d,x,y) { level_info.teleport_schedule.push({"x":x,"y":y}); });
+    this.level.layer_map("bottom.-1", 44, function(d,x,y) { level_info.teleport_schedule.push({"x":x,"y":y}); });
+    this.level.layer_map("bottom.-1",  7, function(d,x,y) { level_info.teleport_schedule.push({"x":x,"y":y}); });
+
+    var boss = new creatureSkelJade(this.level.x+10, this.level.y+10, level_info);
+    this.enemy.push(boss);
+  }
 }
 
 mainWorld.prototype.update_level_transition = function() {
