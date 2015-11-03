@@ -395,6 +395,9 @@
       g_sfx["item-appear"] = [];
       g_sfx["item-appear"].push( new_sound_object("assets/sfx/216864__goac0re1__0003-2-audio-1.ogg") );
 
+      g_sfx["powerup"] = [];
+      g_sfx["powerup"].push( new_sound_object("assets/sfx/277214__thedweebman__8-bit-powerup-get-something-big.ogg") );
+
       g_music = {};
       //g_music["home"] = new_sound_object("assets/music/mark.nine-the-little-things-02-devil-you-know.mp3");
       //g_music["home-ambient"] = new_sound_object("assets/music/317363__frankum__ambient-electronic-loop-001.mp3");

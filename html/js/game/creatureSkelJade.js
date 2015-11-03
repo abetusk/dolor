@@ -27,6 +27,11 @@ function creatureSkelJade(x,y, init_info) {
   this.x = Math.floor(cx/16)*16;
   this.y = Math.floor(cy/16)*16;
 
+
+  this.item_alpha_delay = 0;
+  this.item_alpha_delay_max = 100;
+  this.item_alpha = 0.0;
+
   this.item_visible = false;
   this.itemx = this.x;
   this.itemy = this.y-32;
@@ -166,6 +171,7 @@ creatureSkelJade.prototype.hit = function(damage) {
     var halo = new particleRising(this.itemx, this.itemy);
     g_world.particle.push(halo);
 
+
   }
 
   else {
@@ -285,15 +291,17 @@ creatureSkelJade.prototype.update = function(world) {
 
       if (this.item_visible) {
 
+        this.item_alpha_delay++;
+        if (this.item_alpha_delay>this.item_alpha_delay_max) {
+          this.item_alpha_delay = this.item_alpha_delay_max;
+        }
+        this.item_alpha = this.item_alpha_delay/this.item_alpha_delay_max;
+
         var player_bbox = world.player.playerBBox();
         if (box_box_intersect(this.item_bounding_box, player_bbox)) {
-          g_sfx["item-appear"][0].play();
+          g_sfx["powerup"][0].play();
 
           this.item_visible=false;
-
-          //DEBUG
-          console.log("BANG");
-
           world.player.item_wand = true;
 
         }
@@ -357,7 +365,7 @@ creatureSkelJade.prototype.draw = function() {
   }
 
   if (this.item_visible) {
-    g_imgcache.draw_s("item", 0, 16, 16, 16, this.itemx, this.itemy, 16, 16, -Math.PI/2.0);
+    g_imgcache.draw_s("item", 0, 16, 16, 16, this.itemx, this.itemy, 16, 16, -Math.PI/2.0, this.item_alpha);
   }
 
 
