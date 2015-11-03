@@ -2902,7 +2902,8 @@ mainWorld.prototype.update = function() {
         var tdy = player.intent.dy;
         var td = player.intent.d;
 
-        var ee = new particleFirefly(tx,ty,tdx,tdy);
+        //var ee = new particleFirefly(tx,ty,tdx,tdy);
+        var ee = new particleRising(tx,ty);
         this.particle.push(ee);
       } else if (player.intent.type == "shootArrow") {
         var nt = player.intent;

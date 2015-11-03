@@ -231,6 +231,7 @@
       //g_imgcache.add("skel_jade", img_base + "/float_skel_green.png");
       //g_imgcache.add("skel_jade", img_base + "/float_skel_red.png");
       g_imgcache.add("skel_jade", img_base + "/float_skel_jade.png");
+      g_imgcache.add("skel_jade_tele", img_base + "/float_skel_jade_tele.png");
 
       g_imgcache.add("skel_mask", img_base + "/float_skel_jade_mask.png");
 
@@ -284,6 +285,7 @@
       //g_imgcache.add("tele", img_base + "/tests/tele_test1.png");
       //g_imgcache.add("tele", img_base + "/tests/tele_test2.png");
       g_imgcache.add("tele", img_base + "/noether_tele.png");
+
 
       //g_imgcache.add("breath", img_base + "/breath.png");
       //g_imgcache.add("breath", img_base + "/breath2.png");

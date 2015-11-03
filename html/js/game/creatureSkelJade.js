@@ -161,6 +161,11 @@ creatureSkelJade.prototype.hit = function(damage) {
 
     this.item_visible=true;
 
+    // add a halo to item that just appeard
+    //
+    var halo = new particleRising(this.itemx, this.itemy);
+    g_world.particle.push(halo);
+
   }
 
   else {
