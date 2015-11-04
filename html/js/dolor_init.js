@@ -393,6 +393,23 @@
       g_sfx["boss-death"] = [];
       g_sfx["boss-death"].push( new_sound_object("assets/sfx/215507__spankmyfilth__67-blips-trails-spankmyfilth.ogg") );
 
+      g_sfx["fuzz"] = [];
+      //g_sfx["fuzz"].push( new_sound_object("assets/sfx/85282__blackie666__bd-8-bits-16.ogg", 0.5));
+      g_sfx["fuzz"].push( new_sound_object("assets/sfx/85284__blackie666__bd-8-bits-3.ogg", 0.5));
+      g_sfx["fuzz"].push( new_sound_object("assets/sfx/85285__blackie666__bd-8-bits-4.ogg", 0.5));
+      g_sfx["fuzz"].push( new_sound_object("assets/sfx/85286__blackie666__bd-8-bits-5.ogg", 0.5));
+      g_sfx["fuzz"].push( new_sound_object("assets/sfx/85287__blackie666__bd-8-bits-6.ogg", 0.5));
+      g_sfx["fuzz"].push( new_sound_object("assets/sfx/85289__blackie666__bd-8-bits-8.ogg", 0.5));
+      g_sfx["fuzz"].push( new_sound_object("assets/sfx/85290__blackie666__bd-8-bits-9.ogg", 0.5));
+
+
+      g_sfx["jade-attack"] = [];
+      g_sfx["jade-attack"].push( new_sound_object("assets/sfx/277214__thedweebman__8-bit-powerup-get-something-big.ogg"));
+
+      g_sfx["jade-attack0"] = [];
+      g_sfx["jade-attack0"].push( new_sound_object("assets/sfx/187406__mazk1985__laser-active-small.ogg", 0.25));
+
+
       g_sfx["item-appear"] = [];
       g_sfx["item-appear"].push( new_sound_object("assets/sfx/216864__goac0re1__0003-2-audio-1.ogg") );
 

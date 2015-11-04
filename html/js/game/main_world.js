@@ -1267,6 +1267,9 @@ mainWorld.prototype.player_enemy_collision = function() {
     var pl_bbox = this.player.playerBBox();
 
     if (box_box_intersect(en_bbox, pl_bbox,.125)) {
+      if ("occupy_hit" in this.enemy[key]) {
+        return this.enemy[key].occupy_hit(pl_bbox);
+      }
       return true;
     }
   }

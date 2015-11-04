@@ -69,6 +69,7 @@ function creatureSkelJade(x,y, init_info) {
 
   this.bounding_box = [[0,0],[0,0]]
   this.hit_bounding_box = [[0,0],[0,0]]
+  this.hit_bounding_box_actual = [[0,0],[0,0]]
 
   this.actionState = "float_right";
 
@@ -86,6 +87,14 @@ function creatureSkelJade(x,y, init_info) {
   this.mirage_frameRow = 0;
 
   this.cur_teleport_idx = 0;
+  this.fuzz_mirage = false;
+  this.fuzz_mirage_idx = 0;
+  this.fuzz_counter = 0;
+  this.fuzzRow = 0;
+  this.fuzz_frame_delay = 4;
+
+  this.fuzz_cool_off = 0;
+  this.fuzz_sound_delay = 0;
 
   this.state_info = {
     "wait" : { "next":"teleport_out" },
@@ -104,7 +113,7 @@ function creatureSkelJade(x,y, init_info) {
       "delay_N":8*3
     },
     "mirror" : {
-      "pos_idx": 0,
+      "pos_idx": 7,
       "next": "attack",
       "delay": 0,
       "delay_N": 60*3
@@ -152,13 +161,43 @@ creatureSkelJade.prototype.init = function(x,y, d) {
   this.y = y;
   this.d = d;
 
-  this.update_hit_bbox(this.hit_bounding_box, this.x, this.y);
+  this.update_dummy_bbox(this.hit_bounding_box);
+  this.update_hit_bbox(this.hit_bounding_box_actual, this.x, this.y);
   this.update_bbox(this.bounding_box,this.x,this.y);
 
   this.d = "right";
   this.frameRow = 0;
 
   this.update_intent(this.d);
+}
+
+creatureSkelJade.prototype.update_dummy_bbox = function(bbox) {
+
+  var mx = this.x;
+  var my = this.y;
+  var Mx = this.x+16;
+  var My = this.y+32;
+  for (var i=0; i<this.teleport_schedule.length; i++) {
+    var tx = this.teleport_schedule[i].x;
+    var ty = this.teleport_schedule[i].y;
+    var Tx = tx+16;
+    var Ty = ty+32;
+
+    if (mx > tx) { mx=tx; }
+    if (my > ty) { my=ty; }
+    if (mx > Tx) { mx=Tx; }
+    if (my > Ty) { my=Ty; }
+
+    if (Mx < tx) { Mx=tx; }
+    if (My < ty) { My=ty; }
+    if (Mx < Tx) { Mx=Tx; }
+    if (My < Ty) { My=Ty; }
+  }
+
+  bbox[0][0] = mx;
+  bbox[0][1] = my;
+  bbox[1][0] = Mx;
+  bbox[1][1] = My;
 }
 
 creatureSkelJade.prototype.update_hit_bbox = function(bbox,x,y) {
@@ -177,11 +216,62 @@ creatureSkelJade.prototype.update_bbox = function(bbox,x,y) {
   bbox[1][1] = y + 31;
 }
 
-creatureSkelJade.prototype.hit = function(damage) {
+creatureSkelJade.prototype.fuzz_hit = function(bbox) {
+  var tbbox = [[0,0],[0,0]];
+
+  if (this.state != "mirror") { return; }
+
+  for (var i=0; i<this.teleport_schedule.length; i++) {
+    if (i==this.cur_teleport_idx) { continue; }
+
+    tbbox[0][0] = this.teleport_schedule[i].x;
+    tbbox[0][1] = this.teleport_schedule[i].y;
+    tbbox[1][0] = this.teleport_schedule[i].x+16;
+    tbbox[1][1] = this.teleport_schedule[i].y+32;
+
+    if (box_box_intersect(tbbox, bbox)) {
+      this.fuzz_mirage = true;
+      this.fuzz_mirage_idx = i;
+    }
+
+  }
+
+  if (this.fuzz_mirage && (this.fuzz_counter==0) && (this.fuzz_cool_off==0)) {
+    this.fuzz_counter=this.fuzz_frame_delay*3;
+    this.fuzz_cool_off = this.fuzz_frame_delay*5;
+
+    if (this.fuzz_sound_delay==0) {
+      var n = Math.floor(Math.random()*g_sfx["fuzz"].length);
+      g_sfx["fuzz"][n].play();
+      this.fuzz_sound_delay = 60;
+    }
+
+  }
+
+}
+
+
+creatureSkelJade.prototype.occupy_hit = function(bbox) {
+  this.fuzz_hit(bbox);
+
+  if (this.state == "teleport_in") { return false; }
+  else if (this.state == "teleport_out") { return false; }
+
+  if (box_box_intersect(this.hit_bounding_box_actual, bbox)) {
+    return true;
+  }
+  return false;
+}
+
+creatureSkelJade.prototype.hit = function(damage, bbox) {
 
   if (this.state == "teleport_in") { return false; }
   else if (this.state == "teleport_out") { return false; }
   else if (this.state=="pain") { return false; }
+
+  this.fuzz_hit(bbox);
+
+  if (!box_box_intersect(this.hit_bounding_box_actual, bbox)) { return false; }
 
   this.hp -= damage;
   if (this.hp<=0) {
@@ -224,6 +314,8 @@ creatureSkelJade.prototype.attack = function(world) {
     }
   }
 
+  g_sfx["jade-attack"][0].play();
+  //g_sfx["teleport"][0].play();
 
   var mm = this.creature_tele_n;
   if (mm>creature_tele_ind.length) { mm = creature_tele_ind.length; }
@@ -246,7 +338,21 @@ creatureSkelJade.prototype.attack = function(world) {
 
 creatureSkelJade.prototype.update = function(world) {
   this.frameDelay--;
-  
+
+  this.fuzz_counter--;
+  if (this.fuzz_counter<=0) {
+    this.fuzz_counter=0;
+    this.fuzz_mirage = false;
+  } else {
+    this.fuzzRow = ((world.player.x < this.x) ? 1 : 0);
+  }
+
+  this.fuzz_cool_off--;
+  if (this.fuzz_cool_off<=0) { this.fuzz_cool_off=0; }
+
+  this.fuzz_sound_delay--;
+  if (this.fuzz_sound_delay<=0) { this.fuzz_sound_delay=0; }
+
   if (this.state=="wait") {
     if ( (Math.abs(world.player.x-this.x) < this.activate_r) &&
          (Math.abs(world.player.y-this.y) < this.activate_r) )
@@ -264,6 +370,7 @@ creatureSkelJade.prototype.update = function(world) {
       this.state = this.state_info.teleport_out.next;
       this.keyFrame=2;
       this.frameDelay=8;
+
     }
   }
 
@@ -294,14 +401,17 @@ creatureSkelJade.prototype.update = function(world) {
 
       this.cur_teleport_idx = this.state_info.mirror.pos_idx;
 
-      this.state_info.mirror.pos_idx++;
-      this.state_info.mirror.pos_idx%=8;
+      //this.state_info.mirror.pos_idx++;
+      //this.state_info.mirror.pos_idx%=8;
       this.actionState = "magic_right";
       this.keyFrame=0;
 
       this.mirage_active = true;
       this.mirage_delay = 0;
       this.mirage_keyFrame = 1;
+
+      g_sfx["jade-attack0"][0].play();
+
     }
   }
 
@@ -324,6 +434,7 @@ creatureSkelJade.prototype.update = function(world) {
       this.keyFrame=1;
       this.attack(world);
 
+      g_sfx["teleport"][0].play();
     }
   }
 
@@ -437,7 +548,11 @@ creatureSkelJade.prototype.update = function(world) {
   }
 
 
-  this.update_hit_bbox(this.hit_bounding_box, this.x, this.y);
+  this.update_dummy_bbox(this.hit_bounding_box);
+  this.update_hit_bbox(this.hit_bounding_box_actual, this.x, this.y);
+
+  //this.update_hit_bbox(this.hit_bounding_box, this.x, this.y);
+
   this.update_bbox(this.bounding_box, this.x, this.y);
 }
 
@@ -467,7 +582,21 @@ creatureSkelJade.prototype.draw = function() {
     for (var ii=0; ii<this.teleport_schedule.length; ii++) {
       var mx = this.teleport_schedule[ii].x;
       var my = this.teleport_schedule[ii].y;
-      g_imgcache.draw_s("skel_jade", imgx, imgy, 16, 32, mx, my, this.world_w, this.world_h);
+
+      if (this.fuzz_mirage && (this.fuzz_mirage_idx==ii)) {
+
+        var m_imgx = 0;
+        var m_f = Math.floor(this.fuzz_counter/(this.fuzz_frame_delay*3));
+        if (m_f==0) { m_imgx = 24*1; }
+        if (m_f==1) { m_imgx = 24*2; }
+        if (m_f==2) { m_imgx = 24*1; }
+
+        var m_imgy = this.fuzzRow * 40;
+        g_imgcache.draw_s("skel_jade_tele", m_imgx, m_imgy, 24, 40, mx-4, my-4, 24, 40);
+
+      } else {
+        g_imgcache.draw_s("skel_jade", imgx, imgy, 16, 32, mx, my, this.world_w, this.world_h);
+      }
     }
   }
 
