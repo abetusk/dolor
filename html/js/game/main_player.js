@@ -1260,40 +1260,49 @@ mainPlayer.prototype.keyDownTransition = function(s) {
 //
 mainPlayer.prototype.keyDown = function(code) {
 
-  // 'z', bomb
+  // 'z', bomb ('m')
   //
   if (code == 90) { this.inputEvent["bombKeyDown"] = true; }
+  else if (code == 77) {  this.inputEvent["bombKeyDown"] = true; }
 
-  // 'x', sword
+  // 'x', sword (',')
   //
-  if (code == 88) { this.inputEvent["swordKeyDown"] = true; }
+  else if (code == 88) { this.inputEvent["swordKeyDown"] = true; }
+  else if (code == 188) { this.inputEvent["swordKeyDown"] = true; }
 
-  // 'c', bow
+  // 'c', bow ('.')
   //
-  if (code == 67) { this.inputEvent["bowKeyDown"] = true; }
+  else if (code == 67) { this.inputEvent["bowKeyDown"] = true; }
+  else if (code == 190) { this.inputEvent["bowKeyDown"] = true; }
 
-  // left
+  // left ('a')
   //
-  if (code==37) { this.inputEvent["leftKeyDown"] = true; }
+  else if (code==37) { this.inputEvent["leftKeyDown"] = true; }
+  else if (code==65) { this.inputEvent["leftKeyDown"] = true; }
 
-  // up
+  // up ('w')
   //
   else if (code == 38) { this.inputEvent["upKeyDown"] = true; }
+  else if (code == 87) { this.inputEvent["upKeyDown"] = true; }
 
-  // right
+  // right ('d')
   //
   else if (code == 39) { this.inputEvent["rightKeyDown"] = true; }
+  else if (code == 68) { this.inputEvent["rightKeyDown"] = true; }
 
-  // down
+  // down ('s')
   //
   else if (code == 40) { this.inputEvent["downKeyDown"] = true; } 
+  else if (code == 83) { this.inputEvent["downKeyDown"] = true; } 
 
   // y
   //
   else if (code == 89) { this.inputEvent["debugKeyDown"] = true; } 
 
-  // v
+  // 'v', teleport ('/')
+  //
   else if (code == 86) { this.inputEvent["teleportKeyDown"] = true; }
+  else if (code == 191) { this.inputEvent["teleportKeyDown"] = true; }
 
 }
 
@@ -1306,33 +1315,42 @@ mainPlayer.prototype.keyUp = function(code) {
   // 'x', sword
   //
   if (code == 88) { this.inputEvent["swordKeyUp"] = true; }
+  else if (code == 188) { this.inputEvent["swordKeyUp"] = true; }
 
   // 'z', bomb
   //
-  if (code == 90) { this.inputEvent["bombKeyUp"] = true; }
+  else if (code == 90) { this.inputEvent["bombKeyUp"] = true; }
+  else if (code == 77) {  this.inputEvent["bombKeyUp"] = true; }
 
   // 'c', bow
   //
-  if (code == 67) { this.inputEvent["bowKeyUp"] = true; }
+  else if (code == 67) { this.inputEvent["bowKeyUp"] = true; }
+  else if (code == 190) { this.inputEvent["bowKeyUp"] = true; }
 
   // left
   //
-  if (code==37) { this.inputEvent["leftKeyUp"] = true; }
+  else if (code==37) { this.inputEvent["leftKeyUp"] = true; }
+  else if (code==65) { this.inputEvent["leftKeyUp"] = true; }
 
   // up
   //
   else if (code == 38) { this.inputEvent["upKeyUp"] = true; }
+  else if (code == 87) { this.inputEvent["upKeyUp"] = true; }
 
   // right
   //
   else if (code == 39) { this.inputEvent["rightKeyUp"] = true; }
+  else if (code == 68) { this.inputEvent["rightKeyUp"] = true; }
 
   // down
   //
   else if (code == 40) { this.inputEvent["downKeyUp"] = true; }
+  else if (code == 83) { this.inputEvent["downKeyUp"] = true; } 
 
   // v
   else if (code == 86) { this.inputEvent["teleportKeyUp"] = true; }
+  else if (code == 191) { this.inputEvent["teleportKeyUp"] = true; }
+
 }
 
 

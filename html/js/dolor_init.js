@@ -19,6 +19,7 @@
     var g_debug = false;
 
     var g_painter = null;
+    var g_message = null;
 
     var g_game_controller = null;
 

@@ -11,6 +11,7 @@ function mainWorld() {
   this.particle = [];
   this.element = [];
   this.debris = [];
+  this.custom = [];
 
   this.remnants = [];
 
@@ -769,6 +770,7 @@ mainWorld.prototype.draw = function() {
 
   }
 
+  for (var i=0; i<this.custom.length; i++) { this.custom[i].draw(this); }
 
   if (this.enemy) {
     for (var key in this.enemy) {
@@ -2406,6 +2408,9 @@ mainWorld.prototype.update = function() {
   var player_bbox = [[player.x, player.y], [player.x+player.size-1,player.y+player.size-1]];
   var portal_id = -1;
 
+  for (var i=0; i<this.custom.length; i++) {
+    this.custom[i].update(this);
+  }
 
   if (this.player_enemy_collision()) {
     var h = g_player.hit();

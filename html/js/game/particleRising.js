@@ -1,5 +1,6 @@
 function particleRising(x,y) {
   this.ttl_max = 3000;
+  this.ttl_finish = 100;
   this.ttl = this.ttl_max;
   this.pos = [];
   this.dpos = [];
@@ -80,6 +81,10 @@ particleRising.prototype.init = function(x,y) {
 
 }
 
+particleRising.prototype.finish = function() {
+  this.ttl = this.ttl_finish;
+}
+
 particleRising.prototype.update = function() {
   this.ttl--;
 
@@ -125,7 +130,7 @@ particleRising.prototype.draw = function() {
 
   if (this.light_column) {
     var a = 1.0;
-    if (this.ttl<100) { a *= this.ttl/100; }
+    if (this.ttl<this.ttl_finish) { a *= this.ttl/this.ttl_finish; }
     if (this.ttl>(this.ttl_max-100)) { a *= (this.ttl_max-this.ttl)/100; }
     g_painter.drawGradientLine(this.x, this.y-500, this.x, this.y, 16, "rgba(255,255,255,0.0)", "rgba(255,255,255," + a +")", 0.65);
   }
