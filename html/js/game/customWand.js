@@ -17,10 +17,7 @@ function customWand(x,y, init_info) {
   this.appear_sound_playing = false;
   this.pickup_sound_playing = false;
 
-  console.log(">>>> customWand");
-
   this.halo = null;
-
   this.start();
 }
 
@@ -85,8 +82,6 @@ customWand.prototype.update = function(world) {
         this.ttl=0;
       } else {
         this.state = state_info.next;
-
-        console.log(">>>> customWand state:", this.state);
       }
     }
   }

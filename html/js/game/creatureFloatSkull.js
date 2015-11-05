@@ -12,6 +12,8 @@ function creatureFloatSkull() {
   this.mask_dead_name = "mask_dead_floatskull";
   this.mask_name = "mask_floatskull";
 
+  this.teleport_name = "floatskull_tele";
+
   this.world_w = g_GRIDSIZE;
   this.world_h = g_GRIDSIZE;
 
@@ -37,6 +39,11 @@ function creatureFloatSkull() {
   this.frameRow = 0;
   this.frameRowN = 1;
 
+  this.teleport_delay = 0;
+  this.teleport_delay_N = 8*3;
+  this.teleport_x = 0;
+  this.teleport_y = 0;
+
   this.debug = false;
 
   this.choice_delay = 300;
@@ -57,14 +64,8 @@ function creatureFloatSkull() {
 
   this.bounding_box = [[0,0],[0,0]];
   this.hit_bounding_box = [[0,0],[0,0]];
-  this.intent = { "d": "down", "x" : this.x, "y" : this.y, "bounding_box":[[0,0],[0,0]] }
+  this.intent = { "d": "down", "x" : this.x, "y" : this.y, "bounding_box":[[0,0],[0,0]], "state":"alive" }
   this.skip_intent = false;
-
-  this.hp_max = 8;
-  this.hp = this.hp_max;
-  this.hp_refresh_rate = 1;
-  this.hp_refresh_delay_n = 1000;
-  this.hp_refresh_delay = 0;
 
   this.state = "alive";
   this.state_modifier = "ok";
@@ -74,8 +75,6 @@ function creatureFloatSkull() {
 
   this.update_intent(this.d);
 
-  this.ouch_delay_n = 10;
-  this.ouch_delay = this.ouch_delay_n;
 }
 
 creatureFloatSkull.prototype.init = function(x,y, d) {
@@ -114,24 +113,6 @@ creatureFloatSkull.prototype.update_bbox = function(bbox,x,y) {
 
 creatureFloatSkull.prototype.hit = function(damage) {
   return false;
-
-  this.hp -= damage;
-  if (this.hp<0) { this.hp = 0; }
-
-  if (this.hp<=0) {
-
-    this.frameRowDead = 0;
-    if (this.d == "left") { this.frameRowDead = 1; }
-
-    this.keyFrameDead = 0;
-    this.frameDelay = this.frameDelayN[this.keyFrameDead];
-    this.state = "dead";
-  }
-
-  this.state_modifier = "ouch";
-  this.ouch_delay = this.ouch_delay_n;
-  this.hp_refresh_delay = 0;
-
 }
 
 creatureFloatSkull.prototype.world_collision = function(world) {
@@ -155,11 +136,9 @@ creatureFloatSkull.prototype.set_intent = function(x,y,d) {
   var v = 0;
 
   this.delay_v--;
-  if (this.ouch_delay == 0) {
-    if (this.delay_v <= 0) {
-      v = this.v;
-      this.delay_v = this.delay_v_n;
-    }
+  if (this.delay_v <= 0) {
+    v = this.v;
+    this.delay_v = this.delay_v_n;
   }
 
   this.intent.x = x;
@@ -181,11 +160,9 @@ creatureFloatSkull.prototype.update_intent = function(d) {
   var v = 0;
 
   this.delay_v--;
-  if (this.ouch_delay == 0) {
-    if (this.delay_v <= 0) {
-      v = this.v;
-      this.delay_v = this.delay_v_n;
-    }
+  if (this.delay_v <= 0) {
+    v = this.v;
+    this.delay_v = this.delay_v_n;
   }
 
 
@@ -205,6 +182,21 @@ creatureFloatSkull.prototype.update_intent = function(d) {
 }
 
 creatureFloatSkull.prototype.realize_intent = function() {
+
+  if (this.state != "teleport") {
+    if (this.intent.state == "teleport") {
+      this.state = "teleport";
+      this.teleport_delay = 0;
+      this.teleport_x = this.intent.x;
+      this.teleport_y = this.intent.y;
+
+      this.intent.state = "alive";
+      return;
+    }
+  } else if (this.state == "teleport") {
+    return;
+  }
+
   this.x = this.intent.x;
   this.y = this.intent.y;
   this.d = this.intent.d;
@@ -216,66 +208,41 @@ creatureFloatSkull.prototype.realize_intent = function() {
   this.update_hit_bbox(this.hit_bounding_box, this.x, this.y);
 }
 
+creatureFloatSkull.prototype.teleport_intent = function(to_x, to_y) {
+
+  this.intent.state = "teleport";
+  this.intent.x = to_x;
+  this.intent.y = to_y;
+
+  this.update_bbox(this.intent.bounding_box,this.intent.x,this.intent.y);
+
+  /*
+  this.teleport_delay = 0;
+  this.teleport_x = to_x;
+  this.teleport_y = to_y;
+  console.log(">>>> teleport floatskull", this.state, this.teleport_delay, this.teleport_x, this.teleport_y);
+  */
+
+}
+
 creatureFloatSkull.prototype.update = function(world) {
   var intent_d = this.d;
 
-  if (this.ouch_delay>0) { this.ouch_delay--; }
-  else { this.state_modifier = "ok"; }
-
-  this.hp_refresh_delay = (this.hp_refresh_delay+1)%this.hp_refresh_delay_n;
-  if (this.hp_refresh_delay==0) {
-    if (this.hp==0) {
-      this.state = "summon";
-      this.keyFrameDead = 2;
-    }
-
-    this.hp += this.hp_refresh_rate;
-    if (this.hp >= this.hp_max) {
-      this.hp = this.hp_max;
-    }
-
-  }
-
-
-  if (this.state=="dead") {
-
-
-    /*
-    if (this.hp>0) {
+  if (this.state == "teleport") {
+    this.teleport_delay++;
+    if (this.teleport_delay >= this.teleport_delay_N) {
+      this.teleport_delay = 0;
       this.state = "alive";
-      this.keyFrame = 0;
-      this.frameDelay = this.frameDelayN[0];
+
+      this.x = this.teleport_x;
+      this.y = this.teleport_y;
+
+      this.intent.x = this.teleport_x;
+      this.intent.y = this.teleport_y;
+      this.intent.d = this.d;
+
+      this.keyFrame=0;
     }
-    else {
-    */
-
-      this.frameDelay--;
-      if (this.frameDelay<=0) {
-        this.keyFrameDead++;
-        if (this.keyFrameDead>=this.keyFrameDeadN) { this.keyFrameDead = this.keyFrameDeadN-1; }
-
-        //this.keyFrame = this.keyFrame % this.keyFrameN;
-        this.frameDelay = this.frameDelayN[this.keyFrameDead];
-      }
-
-    //}
-
-
-    return;
-  } else if (this.state == "summon") {
-
-    this.frameDelay--;
-    if (this.frameDelay<=0) {
-      this.keyFrameDead--;
-      if (this.keyFrameDead<0) {
-        this.state = "alive";
-        this.keyFrame = 0;
-        this.frameDelay = this.frameDelayN[0];
-      }
-      this.keyFrameDead = 0;
-      this.frameDelay = this.frameDelayN[this.keyFrame];
-    }
-
     return;
   }
 
@@ -285,8 +252,6 @@ creatureFloatSkull.prototype.update = function(world) {
     this.keyFrame = this.keyFrame % this.keyFrameN;
     this.frameDelay = this.frameDelayN[this.keyFrame];
   }
-
-
 
   this.choice_delay = (this.choice_delay+1)%(this.choice_delay_n);
   if (this.choice_delay==0) {
@@ -300,11 +265,8 @@ creatureFloatSkull.prototype.update = function(world) {
   }
   this.skip_intent = false;
 
-  //console.log(this.intent.x, this.intent.y, this.intent.bounding_box[0], this.intent.bounding_box[1], this.v);
-
   this.update_hit_bbox(this.hit_bounding_box, this.x, this.y);
   this.update_bbox(this.bounding_box,this.x,this.y);
-
 }
 
 creatureFloatSkull.prototype.draw = function() {
@@ -313,38 +275,18 @@ creatureFloatSkull.prototype.draw = function() {
   var imgy = this.crit_h*this.frameRow;
   var mask_alpha = 0.8;
 
-  if ((this.state == "dead") || (this.state == "summon")) {
-    imgx = this.crit_w*this.keyFrameDead;
-    imgy = this.crit_h*this.frameRowDead;
+  if (this.state != "teleport") {
+    g_imgcache.draw_s(this.name, imgx, imgy, this.crit_w, this.crit_h, this.x, this.y, this.world_w, this.world_h);
+  } else if (this.state == "teleport") {
+    var k = Math.floor(this.teleport_delay/8)+1;
+    var timgx = k*24;
+    var timgy = 0;
 
-    if (this.state_modifier == "ok") {
-      g_imgcache.draw_s(this.dead_name,
-          imgx, imgy,
-          this.crit_w, this.crit_h,
-          this.x + this.dead_fudge_x, this.y + this.dead_fudge_y,
-          this.world_w, this.world_h);
-    } else {
-    //if (this.state_modifier != "ok") {
-      g_imgcache.draw_s(this.mask_dead_name,
-          imgx, imgy,
-          this.crit_w, this.crit_h,
-          this.x + this.dead_fudge_x, this.y + this.dead_fudge_y,
-          this.world_w, this.world_h,
-          0, mask_alpha);
-    }
-  } else if (this.state != "dead") {
+    var to_timgx = (4-k)*24;
+    var to_timgy = 0;
 
-    if (this.state_modifier == "ok") {
-      g_imgcache.draw_s(this.name, imgx, imgy, this.crit_w, this.crit_h, this.x, this.y, this.world_w, this.world_h);
-    } else {
-    //if (this.state_modifier != "ok")  {
-      g_imgcache.draw_s(this.mask_name,
-          imgx, imgy, this.crit_w, this.crit_h,
-          this.x, this.y, this.world_w, this.world_h,
-          0, mask_alpha);
-    }
-  } else {
-    //g_imgcache.draw_s(this.dead_name, imgx, imgy, this.crit_w, this.crit_h, this.x, this.y, this.world_w, this.world_h);
+    g_imgcache.draw_s(this.teleport_name, timgx, timgy, 24,24, this.x-4, this.y-4, 24,24);
+    g_imgcache.draw_s(this.teleport_name, to_timgx, to_timgy, 24,24, this.teleport_x-4, this.teleport_y-4, 24,24);
   }
 
   if (this.debug) {

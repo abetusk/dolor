@@ -3,7 +3,7 @@ function creatureSkelJade(x,y, init_info) {
   this.y = ((typeof y === "undefined")?0:y);
   this.d = "right";
 
-  this.debug = true;
+  this.debug = false;
 
   var cx = 0;
   var cy = 0;
@@ -146,8 +146,6 @@ function creatureSkelJade(x,y, init_info) {
 
   this.item_fluff = {
   };
-
-  console.log("skel");
 
   this.hp = 8*3;
 }
@@ -330,8 +328,10 @@ creatureSkelJade.prototype.attack = function(world) {
     var rr = Math.floor(Math.random()*4);
     var idx = creature_tele_ind[ii];
 
-    world.enemy[idx].set_intent(world.player.x + rdir[rr].x, world.player.y + rdir[rr].y)
-    world.enemy[idx].skip_intent = true;  // little bit of a misnomer, skip 'update_intent'
+    if ("teleport_intent" in world.enemy[idx]) {
+      world.enemy[idx].teleport_intent(world.player.x + rdir[rr].x, world.player.y + rdir[rr].y);
+    }
+
   }
 
 }

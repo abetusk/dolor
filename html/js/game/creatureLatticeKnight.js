@@ -6,6 +6,7 @@ function creatureLatticeKnight() {
   this.d = "down";
 
   this.name = "knight";
+  this.teleport_name = "knight_tele";
   this.dead_name = "dead_knight";
 
   this.mask_dead_name = "mask_dead_knight";
@@ -46,6 +47,11 @@ function creatureLatticeKnight() {
   this.death_ttl_n = 1000;
   this.death_ttl = this.death_ttl_n;
 
+  this.teleport_delay = 0;
+  this.teleport_delay_N = 8*3;
+  this.teleport_x = 0;
+  this.teleport_y = 0;
+
   this.v = 1;
   this.delay_v_n = 2;
   this.delay_v = this.delay_v_n;
@@ -56,7 +62,7 @@ function creatureLatticeKnight() {
   this.bounding_box = [[0,0],[0,0]];
   this.hit_bounding_box = [[0,0],[0,0]];
   this.shield_bounding_box = [[0,0],[0,0]];
-  this.intent = { "d": "down", "x" : this.x, "y" : this.y, "bounding_box":[[0,0],[0,0]] }
+  this.intent = { "d": "down", "x" : this.x, "y" : this.y, "bounding_box":[[0,0],[0,0]], "state":"alive" }
   this.skip_intent = false;
 
   this.hp_max = 8;
@@ -186,7 +192,16 @@ creatureLatticeKnight.prototype.world_collision = function(world) {
   this.skip_intent = true;
 }
 
+creatureLatticeKnight.prototype.teleport_intent = function(to_x, to_y) {
+  this.intent.state = "teleport";
+  this.intent.x = to_x;
+  this.intent.y = to_y;
+
+  this.update_bbox(this.intent.bounding_box,this.intent.x,this.intent.y);
+}
+
 creatureLatticeKnight.prototype.set_intent = function(x,y,d) {
+
   x = ((typeof x === "undefined") ? this.x : x);
   y = ((typeof y === "undefined") ? this.y : y);
   d = ((typeof d === "undefined") ? this.d : d);
@@ -244,6 +259,26 @@ creatureLatticeKnight.prototype.update_intent = function(d) {
 }
 
 creatureLatticeKnight.prototype.realize_intent = function() {
+
+  // While teleporting, wait till completeled before updating.
+  if (this.state == "teleport") {
+    return;
+  }
+
+  // If we've started the teleport, update teleport variables
+  // but don't go further in this function
+  else {
+    if (this.intent.state == "teleport") {
+      this.state = "teleport";
+      this.teleport_x = this.intent.x;
+      this.teleport_y = this.intent.y;
+
+      this.intent.state = "alive";
+      return;
+    }
+  }
+
+
   this.x = this.intent.x;
   this.y = this.intent.y;
   this.d = this.intent.d;
@@ -277,30 +312,37 @@ creatureLatticeKnight.prototype.update = function(world) {
   }
 
 
-  if (this.state=="dead") {
+  if (this.state == "teleport") {
 
-
-    /*
-    if (this.hp>0) {
+    this.teleport_delay++;
+    if (this.teleport_delay >= this.teleport_delay_N) {
+      this.teleport_delay = 0;
       this.state = "alive";
-      this.keyFrame = 0;
-      this.frameDelay = this.frameDelayN[0];
+
+      this.x = this.teleport_x;
+      this.y = this.teleport_y;
+
+      this.intent.x = this.teleport_x;
+      this.intent.y = this.teleport_y;
+      this.intent.d = this.d;
+
+      this.skip_intent = false;
+
+      this.keyFrame=0;
     }
-    else {
-    */
+    else { return; }
 
-      this.frameDelay--;
-      if (this.frameDelay<=0) {
-        this.keyFrameDead++;
-        if (this.keyFrameDead>=this.keyFrameDeadN) { this.keyFrameDead = this.keyFrameDeadN-1; }
+  }
 
-        //this.keyFrame = this.keyFrame % this.keyFrameN;
-        this.frameDelay = this.frameDelayN[this.keyFrameDead];
-      }
+  else if (this.state=="dead") {
+    this.frameDelay--;
+    if (this.frameDelay<=0) {
+      this.keyFrameDead++;
+      if (this.keyFrameDead>=this.keyFrameDeadN) { this.keyFrameDead = this.keyFrameDeadN-1; }
 
-    //}
-
-
+      //this.keyFrame = this.keyFrame % this.keyFrameN;
+      this.frameDelay = this.frameDelayN[this.keyFrameDead];
+    }
     return;
   } else if (this.state == "summon") {
 
@@ -365,7 +407,6 @@ creatureLatticeKnight.prototype.draw = function() {
           this.x + this.dead_fudge_x, this.y + this.dead_fudge_y,
           this.world_w, this.world_h);
     } else {
-    //if (this.state_modifier != "ok") {
       g_imgcache.draw_s(this.mask_dead_name,
           imgx, imgy,
           this.crit_w, this.crit_h,
@@ -373,7 +414,21 @@ creatureLatticeKnight.prototype.draw = function() {
           this.world_w, this.world_h,
           0, mask_alpha);
     }
-  } else if (this.state != "dead") {
+  }
+
+  else if (this.state == "teleport") {
+    var k = Math.floor(this.teleport_delay/8)+1;
+
+    var timgx = 24*k;
+    var timgy = 24*this.frameRow;
+    g_imgcache.draw_s(this.teleport_name, timgx, timgy, 24,24, this.x-4, this.y-4, 24,24);
+
+    var timgx = 24*(4-k);
+    var timgy = 24*this.frameRow;
+    g_imgcache.draw_s(this.teleport_name, timgx, timgy, 24,24, this.teleport_x-4, this.teleport_y-4, 24,24);
+  }
+   
+  else if (this.state != "dead") {
 
     if (this.state_modifier == "ok") {
       g_imgcache.draw_s(this.name, imgx, imgy, this.crit_w, this.crit_h, this.x, this.y, this.world_w, this.world_h);

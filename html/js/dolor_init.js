@@ -276,11 +276,14 @@
       g_imgcache.add("mask_dead_horns", img_base + "/mask_dead_horns.png");
 
       g_imgcache.add("knight", img_base + "/lattice_knight2.png");
+      g_imgcache.add("knight_tele", img_base + "/lattice_knight_tele.png");
+
       g_imgcache.add("mask_knight", img_base + "/lattice_knight2_mask.png");
       g_imgcache.add("dead_knight", img_base + "/dead_lattice_knight2.png");
       g_imgcache.add("mask_dead_knight", img_base + "/dead_lattice_knight2_mask.png");
 
       g_imgcache.add("floatskull", img_base + "/floatskull.png");
+      g_imgcache.add("floatskull_tele", img_base + "/floatskull_tele.png");
 
       //g_imgcache.add("tele", img_base + "/tests/tele_test0.png");
       //g_imgcache.add("tele", img_base + "/tests/tele_test1.png");
