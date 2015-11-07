@@ -265,6 +265,8 @@
 
       g_imgcache.add("puff", img_base + "/puff.png");
 
+      g_imgcache.add("shadow", img_base + "/shadow16x16.png");
+
       g_imgcache.add("bones", img_base + "/bones3.png");
       g_imgcache.add("dead_bones", img_base + "/dead_bones.png");
       g_imgcache.add("mask_bones", img_base + "/mask_bones.png");

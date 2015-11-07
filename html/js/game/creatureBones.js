@@ -284,6 +284,9 @@ creatureBones.prototype.draw = function() {
   var imgy = this.crit_h*this.frameRow;
   var mask_alpha = 0.8;
 
+
+  //g_imgcache.draw_s("shadow", 0, 0, this.crit_w, this.crit_h, this.x, this.y, this.world_w, this.world_h);
+
   if ((this.state == "dead") || (this.state == "summon")) {
     imgx = this.crit_w*this.keyFrameDead;
     imgy = this.crit_h*this.frameRowDead;

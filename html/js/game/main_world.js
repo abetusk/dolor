@@ -2415,6 +2415,18 @@ mainWorld.prototype.update = function() {
     this.custom[i].update(this);
   }
 
+  // resize custom
+  //
+  var n = this.custom.length;
+  for (var i=0; i<n; i++) {
+    if (this.custom[i].ttl <= 0)  {
+      n--;
+      this.custom[i] = this.custom[n];
+      i--;
+    }
+  }
+  this.custom = this.custom.splice(0, n);
+
   if (this.player_enemy_collision()) {
     var h = g_player.hit();
     if (h) {
