@@ -1256,8 +1256,8 @@ mainWorld.prototype.update_snow = function() {
 
 
 mainWorld.prototype.player_enemy_collision = function() {
-  if (!this.enemy) { return; }
-  if (!this.player) { return; }
+  if (!this.enemy) { return null; }
+  if (!this.player) { return null; }
 
   for (var key in this.enemy) {
     if (!("hit_bounding_box" in this.enemy[key])) { continue; }
@@ -1270,11 +1270,13 @@ mainWorld.prototype.player_enemy_collision = function() {
       if ("occupy_hit" in this.enemy[key]) {
         return this.enemy[key].occupy_hit(pl_bbox);
       }
-      return true;
+      //return true;
+      return this.enemy[key];
     }
   }
 
-  return false;
+  //return false;
+  return null;
 
 }
 
@@ -2055,6 +2057,13 @@ mainWorld.prototype.init_monsters = function() {
     self.enemy.push(horns);
   });
 
+  this.level.meta_map(12, function(dat, x, y) {
+    var minion = new creatureBoneMinion();
+    minion.init(x,y);
+    self.enemy.push(minion);
+  });
+
+
   this.level.meta_map(28, function(dat, x, y) {
     var neko = new creatureNeko();
     neko.init(x,y);
@@ -2286,6 +2295,29 @@ mainWorld.prototype.level_transition_init = function(portal_id) {
     var boss = new creatureSkelJade(this.level.x+10, this.level.y+10, level_info);
     this.enemy.push(boss);
   }
+
+  else if (this.level.name=="bone") {
+
+    var level_info = {};
+    level_info["waypoint"] = [];
+    this.level.layer_map("meta",8*3+0, function(d,x,y) { level_info.waypoint.push({"x":x,"y":y}); });
+
+    /*
+    this.level.layer_map("bottom.-1", 10, function(d,x,y) { level_info.teleport_schedule.push({"x":x,"y":y}); });
+    this.level.layer_map("bottom.-1", 26, function(d,x,y) { level_info.teleport_schedule.push({"x":x,"y":y}); });
+    this.level.layer_map("bottom.-1", 30, function(d,x,y) { level_info.teleport_schedule.push({"x":x,"y":y}); });
+    this.level.layer_map("bottom.-1",  8, function(d,x,y) { level_info.teleport_schedule.push({"x":x,"y":y}); });
+    this.level.layer_map("bottom.-1", 11, function(d,x,y) { level_info.teleport_schedule.push({"x":x,"y":y}); });
+    this.level.layer_map("bottom.-1", 28, function(d,x,y) { level_info.teleport_schedule.push({"x":x,"y":y}); });
+    this.level.layer_map("bottom.-1", 44, function(d,x,y) { level_info.teleport_schedule.push({"x":x,"y":y}); });
+    this.level.layer_map("bottom.-1",  7, function(d,x,y) { level_info.teleport_schedule.push({"x":x,"y":y}); });
+    */
+
+    var boss = new creatureSkelBone(this.level.x+10, this.level.y+10, level_info);
+    this.enemy.push(boss);
+  } else {
+  }
+
 }
 
 mainWorld.prototype.update_level_transition = function() {
@@ -2401,6 +2433,43 @@ mainWorld.prototype.player_portal_collision = function(bbox) {
 
 }
 
+mainWorld.prototype.bomb_damage = function(bomb) {
+
+  var bomb_bbox = [[0,0],[0,0]];
+  bomb_bbox[0][0] = bomb.x - 8;
+  bomb_bbox[0][1] = bomb.y - 8;
+
+  bomb_bbox[1][0] = bomb.x + 24;
+  bomb_bbox[1][1] = bomb.y + 24;
+
+  var p_bbox = this.player.playerBBox();
+
+  if (box_box_intersect(bomb_bbox, p_bbox)) {
+    this.player.hit();
+  }
+
+  for (var key in this.enemy) {
+    if (!("hit_bounding_box" in this.enemy[key])) { continue; }
+    if (this.enemy[key].state == "dead") { continue; }
+    if (this.enemy[key].name == "floatskull") { continue; }
+    if (this.enemy[key].name == "skel_bone") { continue; }
+
+    var en_bbox = this.enemy[key].hit_bounding_box;
+
+    if (box_box_intersect(en_bbox, bomb_bbox, .125)) {
+
+      var h = this.enemy[key].hit(bomb.damage, bomb_bbox, true);
+      if (h) {
+        var n = g_sfx["enemy-hit"].length;
+        n = Math.floor(Math.random()*n);
+        g_sfx["enemy-hit"][n].play();
+      }
+
+    }
+  }
+
+}
+
 mainWorld.prototype.update = function() {
   if (!this.ready) { return; }
   var player = this.player;
@@ -2427,8 +2496,17 @@ mainWorld.prototype.update = function() {
   }
   this.custom = this.custom.splice(0, n);
 
-  if (this.player_enemy_collision()) {
-    var h = g_player.hit();
+  var en = null
+  if (en=this.player_enemy_collision()) {
+
+    var h = false;
+    if (en.name=="floatskull") {
+      h = g_player.sword_stun();
+    }
+    else {
+      h = g_player.hit();
+    }
+
     if (h) {
       var p = Math.floor(Math.random()*g_sfx["player-hit"].length);
       g_sfx["player-hit"][p].play();
@@ -2657,6 +2735,8 @@ mainWorld.prototype.update = function() {
       if (this.element[key].type == "bomb") {
         if (this.element[key].intent.type == "explode") {
           this.camera_shake();
+
+          this.bomb_damage(this.element[key]);
 
           var bg = new bombGrundge(this.element[key].x, this.element[key].y);
           this.debris.push(bg);

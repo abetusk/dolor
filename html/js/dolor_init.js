@@ -234,6 +234,10 @@
       g_imgcache.add("skel_jade", img_base + "/float_skel_jade.png");
       g_imgcache.add("skel_jade_tele", img_base + "/float_skel_jade_tele.png");
 
+      //g_imgcache.add("skel_bone", img_base + "/float_skel_white.png");
+      //g_imgcache.add("skel_bone", img_base + "/float_skel_red.png");
+      g_imgcache.add("skel_bone", img_base + "/float_skel_purple.png");
+
       g_imgcache.add("skel_mask", img_base + "/float_skel_jade_mask.png");
 
       //g_imgcache.add("critter_bunny", img_base + "/critter_bunny.png");
@@ -271,6 +275,11 @@
       g_imgcache.add("dead_bones", img_base + "/dead_bones.png");
       g_imgcache.add("mask_bones", img_base + "/mask_bones.png");
       g_imgcache.add("mask_dead_bones", img_base + "/mask_dead_bones.png");
+
+      g_imgcache.add("bone_minion", img_base + "/bone_minion.png");
+      g_imgcache.add("dead_bone_minion", img_base + "/dead_bone_minion.png");
+      g_imgcache.add("mask_bone_minion", img_base + "/bone_minion_mask.png");
+      g_imgcache.add("mask_dead_bone_minion", img_base + "/dead_bone_minion_mask.png");
 
       g_imgcache.add("horns", img_base + "/horns.png");
       g_imgcache.add("dead_horns", img_base + "/dead_horns.png");
@@ -501,6 +510,7 @@
 
       $.ajax({
         url: "assets/dolor.json",
+        //url: "assets/dolor_beg.json",
         dataType:"json",
         success: function(a,b,c) {
           g_data["dolor"] = a;

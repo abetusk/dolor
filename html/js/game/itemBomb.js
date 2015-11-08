@@ -43,6 +43,7 @@ function itemBomb(intent) {
     "d" : intent.d
   };
 
+
   this.type = "bomb";
   this.fuse_ttl = 60*3 + 30;
   this.state = "fuse"; // explode, dead
@@ -57,7 +58,12 @@ function itemBomb(intent) {
   this.ttl = this.fuse_ttl + this.explode_ttl;
   this.explosion = [];
 
+  this.being_held = false;
+
   this.intent = { "type" : "idle" };
+  this.damage = 16;
+
+  this.hide = false;
 }
 
 itemBomb.prototype.update = function() {
@@ -183,7 +189,15 @@ itemBomb.prototype.update = function() {
 
 }
 
-itemBomb.prototype.draw = function() {
+itemBomb.prototype.draw = function(_dx,_dy,override) {
+  _dx = ((typeof _dx === "undefined") ? 0 : _dx);
+  _dy = ((typeof _dy === "undefined") ? 0 : _dy);
+  override = ((typeof override === "undefined") ? false : override);
+
+  if (!override && this.hide) { return; }
+
+  var x = this.x + _dx;
+  var y = this.y + _dy;
 
   if (this.state == "fuse") {
 
@@ -197,7 +211,7 @@ itemBomb.prototype.draw = function() {
       var world_h = this.sprite_bomb.world_h;
       var imgx = this.sprite_bomb.frameInfo[kf][0];
       var imgy = this.sprite_bomb.frameInfo[kf][1];
-      g_imgcache.draw_s(name, imgx, imgy, tile_w, tile_h, this.x, this.y, world_w, world_h);
+      g_imgcache.draw_s(name, imgx, imgy, tile_w, tile_h, x, y, world_w, world_h);
     } else {
       var name = this.sprite_bomb.mask_name;
       var tile_w = this.sprite_bomb.tile_w;
@@ -206,7 +220,7 @@ itemBomb.prototype.draw = function() {
       var world_h = this.sprite_bomb.world_h;
       var imgx = this.sprite_bomb.maskInfo[0];
       var imgy = this.sprite_bomb.maskInfo[1];
-      g_imgcache.draw_s(name, imgx, imgy, tile_w, tile_h, this.x, this.y, world_w, world_h);
+      g_imgcache.draw_s(name, imgx, imgy, tile_w, tile_h, x, y, world_w, world_h);
     }
 
 
@@ -230,7 +244,7 @@ itemBomb.prototype.draw = function() {
       var dx = z.dx;
       var dy = z.dy;
 
-      g_imgcache.draw_s(name, imgx, imgy, tile_w, tile_h, this.x + dx, this.y + dy, world_w, world_h);
+      g_imgcache.draw_s(name, imgx, imgy, tile_w, tile_h, x + dx, y + dy, world_w, world_h);
 
     }
   }

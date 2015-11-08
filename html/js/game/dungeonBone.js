@@ -16,7 +16,7 @@ function dungeonBone(x,y) {
 
   this.debug=false;
 
-  this.name = "bone";
+  this.name="bone";
 
   this.tileid_lookup = {};
   this.tileset = {};
@@ -136,6 +136,25 @@ dungeonBone.prototype.init = function() {
 
 }
 
+dungeonBone.prototype.layer_map = function(layer_name, ele_to_map, func_to_call) {
+  if (layer_name in this.layer_name_index_lookup) {
+    var meta_ind = this.layer_name_index_lookup[layer_name];
+    for (var pos_key in this.layer_lookup[meta_ind]) {
+      var xy = pos_key.split(":");
+      var x = parseInt(xy[1])*16 + this.x;
+      var y = parseInt(xy[0])*16 + this.y;
+
+      var dat = this.layer_lookup[meta_ind][pos_key];
+      var ti = this.tile_info[dat];
+
+      if ((dat-ti.firstgid) == ele_to_map) {
+        func_to_call(dat-ti.firstgid, x, y);
+      }
+
+    }
+  }
+
+}
 
 dungeonBone.prototype.meta_map = function(ele_to_map, func_to_call) {
 
@@ -406,7 +425,6 @@ dungeonBone.prototype.draw_layer_w = function(display_name, anchor_x, anchor_y, 
       // wow, firefox is so fucked:
       // http://stackoverflow.com/questions/17725840/canvas-drawimage-visible-edges-of-tiles-in-firefox-opera-ie-not-chrome
       //
-      //g_imgcache.draw_s(this.tilemap_name, imx, imy, 16, 16, x, y, this.world_w, this.world_h);
       g_imgcache.draw_s(tile_info.tileset_name, imx, imy, 16, 16, x, y, this.world_w, this.world_h, 0, alpha);
 
       //DEBUG

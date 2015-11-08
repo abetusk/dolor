@@ -3,6 +3,7 @@ function creatureSkelJade(x,y, init_info) {
   this.y = ((typeof y === "undefined")?0:y);
   this.d = "right";
 
+  this.name = "skel_jade";
   this.debug = false;
 
   var cx = 0;
@@ -32,10 +33,8 @@ function creatureSkelJade(x,y, init_info) {
   this.item_alpha_delay_max = 100;
   this.item_alpha = 0.0;
 
-  //this.item_visible = false;
   this.itemx = this.x;
   this.itemy = this.y-32;
-  //this.item_bounding_box = [[this.itemx, this.itemy],[this.itemx+16,this.itemy+16]];
 
   this.creature_tele_n = 2;
 
@@ -73,11 +72,7 @@ function creatureSkelJade(x,y, init_info) {
 
   this.actionState = "float_right";
 
-  // "wait", "mirror", "attack", "dead"
   this.state = "wait";
-
-  //DEBUG
-  //this.state = "mirror";
 
   this.mirage_delay = 0;
   this.mirage_delay_N = 8*3;

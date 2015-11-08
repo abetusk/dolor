@@ -31,6 +31,10 @@ function mainPlayer(x,y,game) {
   this.stun_delay = 0;
   this.stun_delay_N = 20;
 
+  this.sword_stun_state = false;
+  this.sword_stun_delay = 0;
+  this.sword_stun_delay_N = 120;
+
   this.d = "u"; // "d", "l", "r", and combinations?
 
   this.sword = false;
@@ -502,6 +506,12 @@ mainPlayer.prototype.update = function() {
   this.stun_delay--;
   if (this.stun_delay<=0) { this.stun_delay = 0; }
 
+  this.sword_stun_delay--;
+  if (this.sword_stun_delay<=0) {
+    this.sword_stun_delay = 0;
+    this.sword_stun_state = false;
+  }
+
   this.hp_delay--;
   if (this.hp_delay<=0) {
     this.hp_delay=0;
@@ -597,6 +607,7 @@ mainPlayer.prototype.update = function() {
     if (ev == "swordKeyDown") {
 
       if (!this.item_sword) { continue; }
+      if (this.sword_stun_state) { continue; }
 
       if (this.state == "teleport") { continue; }
 
@@ -1157,11 +1168,30 @@ mainPlayer.prototype.swordAttack = function() {
   g_sfx["sword-swing"][x].play();
 }
 
-mainPlayer.prototype.hit = function() {
+mainPlayer.prototype.sword_stun = function() {
+
+  if (this.hp_delay==0) {
+    this.hp_delay = this.hp_delay_N;
+    this.sword_stun_state=true;
+    this.sword_stun_delay=180;
+
+    this.hit_flash_state = 1;
+    this.hit_flash_delay = 0;
+
+    this.stun_delay = this.stun_delay_N;
+    return true;
+  }
+
+  return false;
+}
+
+
+mainPlayer.prototype.hit = function(dhp) {
+  dhp = ((typeof dhp === "undefined") ? 1 : dhp);
   var r = false;
 
   if (this.hp_delay==0) {
-    this.hp--;
+    this.hp-=dhp;
     this.hp_delay = this.hp_delay_N;
 
     this.hit_flash_state = 1;

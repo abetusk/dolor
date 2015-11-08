@@ -150,13 +150,33 @@ creatureLatticeKnight.prototype.update_bbox = function(bbox,x,y) {
   bbox[1][1] = y + 15;
 }
 
-creatureLatticeKnight.prototype.hit = function(damage, attack_bbox) {
+creatureLatticeKnight.prototype.dir_xy = function() {
+  var di = this.d;
+  var bxy = [0, 0];
+  if (di == "up") { bxy = [0, -1]; }
+  else if (di == "left") { bxy = [-1, 0]; }
+  else if (di == "right") { bxy = [1, 0]; }
+  else if (di == "down") { bxy = [0, 1]; }
+  return bxy;
+}
+
+creatureLatticeKnight.prototype.hit = function(damage, attack_bbox, override) {
+  override = ((typeof override === "undefined") ? false : override);
 
 
-  if (box_box_intersect(this.shield_bounding_box, attack_bbox)) {
-    var n = Math.floor(Math.random()*g_sfx["shield-hit"].length);
-    g_sfx["shield-hit"][n].play();
-    return false;
+  if (!override) {
+    if (box_box_intersect(this.shield_bounding_box, attack_bbox)) {
+      var n = Math.floor(Math.random()*g_sfx["shield-hit"].length);
+      g_sfx["shield-hit"][n].play();
+
+      var dxy = this.dir_xy();
+      var cx = (this.shield_bounding_box[0][0] + this.shield_bounding_box[1][0])/2;
+      var cy = (this.shield_bounding_box[0][1] + this.shield_bounding_box[1][1])/2;
+      var p = new particleDebris(cx,cy,dxy[0],dxy[1],1,1,"rgba(255,255,255,0.7)");
+      g_world.particle.push(p);
+
+      return false;
+    }
   }
 
   this.hp -= damage;
