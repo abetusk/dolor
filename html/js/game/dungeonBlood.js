@@ -137,6 +137,27 @@ dungeonBlood.prototype.init = function() {
 }
 
 
+dungeonBlood.prototype.layer_map = function(layer_name, ele_to_map, func_to_call) {
+  if (layer_name in this.layer_name_index_lookup) {
+    var meta_ind = this.layer_name_index_lookup[layer_name];
+    for (var pos_key in this.layer_lookup[meta_ind]) {
+      var xy = pos_key.split(":");
+      var x = parseInt(xy[1])*16 + this.x;
+      var y = parseInt(xy[0])*16 + this.y;
+
+      var dat = this.layer_lookup[meta_ind][pos_key];
+      var ti = this.tile_info[dat];
+
+      if ((dat-ti.firstgid) == ele_to_map) {
+        func_to_call(dat-ti.firstgid, x, y);
+      }
+
+    }
+  }
+
+}
+
+
 dungeonBlood.prototype.meta_map = function(ele_to_map, func_to_call) {
 
   if ("meta" in this.layer_name_index_lookup) {

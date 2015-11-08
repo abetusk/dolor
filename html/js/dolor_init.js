@@ -238,6 +238,9 @@
       //g_imgcache.add("skel_bone", img_base + "/float_skel_red.png");
       g_imgcache.add("skel_bone", img_base + "/float_skel_purple.png");
 
+      g_imgcache.add("skel_blood", img_base + "/float_skel_green.png");
+      g_imgcache.add("skel_aqua", img_base + "/float_skel_blue.png");
+
       g_imgcache.add("skel_mask", img_base + "/float_skel_jade_mask.png");
 
       //g_imgcache.add("critter_bunny", img_base + "/critter_bunny.png");

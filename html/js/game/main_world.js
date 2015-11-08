@@ -2030,6 +2030,11 @@ mainWorld.prototype.update_rain_sfx = function() {
 
 }
 
+mainWorld.prototype.clear_monsters = function() {
+  var self = this;
+  self.enemy=[];
+}
+
 mainWorld.prototype.init_monsters = function() {
   var self = this;
   self.enemy = [];
@@ -2276,8 +2281,12 @@ mainWorld.prototype.level_transition_init = function(portal_id) {
     this.level = g_level_dolor;
   }
 
-
   this.init_monsters();
+
+  //DEBUG
+  if (this.level.name == "blood") {
+    //this.clear_monsters();
+  }
 
   if (this.level.name=="jade") {
 
@@ -2301,21 +2310,32 @@ mainWorld.prototype.level_transition_init = function(portal_id) {
     var level_info = {};
     level_info["waypoint"] = [];
     this.level.layer_map("meta",8*3+0, function(d,x,y) { level_info.waypoint.push({"x":x,"y":y}); });
-
-    /*
-    this.level.layer_map("bottom.-1", 10, function(d,x,y) { level_info.teleport_schedule.push({"x":x,"y":y}); });
-    this.level.layer_map("bottom.-1", 26, function(d,x,y) { level_info.teleport_schedule.push({"x":x,"y":y}); });
-    this.level.layer_map("bottom.-1", 30, function(d,x,y) { level_info.teleport_schedule.push({"x":x,"y":y}); });
-    this.level.layer_map("bottom.-1",  8, function(d,x,y) { level_info.teleport_schedule.push({"x":x,"y":y}); });
-    this.level.layer_map("bottom.-1", 11, function(d,x,y) { level_info.teleport_schedule.push({"x":x,"y":y}); });
-    this.level.layer_map("bottom.-1", 28, function(d,x,y) { level_info.teleport_schedule.push({"x":x,"y":y}); });
-    this.level.layer_map("bottom.-1", 44, function(d,x,y) { level_info.teleport_schedule.push({"x":x,"y":y}); });
-    this.level.layer_map("bottom.-1",  7, function(d,x,y) { level_info.teleport_schedule.push({"x":x,"y":y}); });
-    */
-
     var boss = new creatureSkelBone(this.level.x+10, this.level.y+10, level_info);
     this.enemy.push(boss);
-  } else {
+
+  }
+
+  else if (this.level.name=="blood") {
+
+    var level_info = {};
+    level_info["waypoint"] = [];
+    this.level.layer_map("meta",8*3+0, function(d,x,y) { level_info.waypoint.push({"x":x,"y":y}); });
+    var boss = new creatureSkelBlood(this.level.x+10, this.level.y+10, level_info);
+    this.enemy.push(boss);
+
+  }
+
+  else if (this.level.name=="aqua") {
+
+    var level_info = {};
+    level_info["waypoint"] = [];
+    this.level.layer_map("meta",8*3+0, function(d,x,y) { console.log(">>>", x,y); level_info.waypoint.push({"x":x,"y":y}); });
+    var boss = new creatureSkelAqua(this.level.x+10, this.level.y+10, level_info);
+    this.enemy.push(boss);
+
+  }
+
+  else {
   }
 
 }
