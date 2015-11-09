@@ -5,6 +5,9 @@ function mainPlayer(x,y,game) {
 
   this.alive = true;
 
+  this.type = "player";
+  this.name = "player";
+
   // If the player has the item, appropriate flags
   // set.
   //
@@ -49,6 +52,7 @@ function mainPlayer(x,y,game) {
 
   this.player_bbox = [[0,0],[0,0]];
   this.sword_bbox = [[0,0],[0,0]];
+  this.shield_bounding_box = [[0,0],[0,0]];
 
   this.keyFrameRow = 0;
   this.keyFrame = 0;
@@ -227,6 +231,8 @@ mainPlayer.prototype.init = function(x, y, d) {
   this.update_focus();
   */
 
+  var d = this.currentDisplayDirection();
+  this.update_shield_bbox(this.shield_bounding_box, this.x, this.y, d);
 }
 
 
@@ -502,6 +508,9 @@ mainPlayer.prototype.update = function() {
 
   this.playerBBox();
   this.updatePuffs();
+
+  var _d = this.currentDisplayDirection();
+  this.update_shield_bbox(this.shield_bounding_box, this.x, this.y, _d);
 
   this.stun_delay--;
   if (this.stun_delay<=0) { this.stun_delay = 0; }
@@ -1185,10 +1194,61 @@ mainPlayer.prototype.sword_stun = function() {
   return false;
 }
 
+mainPlayer.prototype.update_shield_bbox = function(bbox,x,y,d) {
 
-mainPlayer.prototype.hit = function(dhp) {
+  if (d=="up") {
+    bbox[0][0] = x+2;
+    bbox[0][1] = y-2;
+    bbox[1][0] = x+14;
+    bbox[1][1] = y+0;
+  }
+
+  else if (d=="down") {
+    bbox[0][0] = x+2;
+    bbox[0][1] = y+15;
+    bbox[1][0] = x+14;
+    bbox[1][1] = y+17;
+  }
+
+  else if (d=="left") {
+    bbox[0][0] = x-2;
+    bbox[0][1] = y+2;
+    bbox[1][0] = x+0;
+    bbox[1][1] = y+15;
+  }
+
+  else if (d=="right") {
+    bbox[0][0] = x+15;
+    bbox[0][1] = y+2;
+    bbox[1][0] = x+17;
+    bbox[1][1] = y+15;
+  }
+
+}
+
+mainPlayer.prototype.hit = function(dhp, attack_bbox, override) {
   dhp = ((typeof dhp === "undefined") ? 1 : dhp);
+  override = ((typeof override === "undefined") ? false : override);
+  if (typeof attack_bbox === "undefined") { override = true; }
+
   var r = false;
+
+  if ((!override) && (this.state != "swordAttack")) {
+    if (box_box_intersect(this.shield_bounding_box, attack_bbox)) {
+      var n = Math.floor(Math.random()*g_sfx["shield-hit"].length);
+      g_sfx["shield-hit"][n].play();
+
+      var dxy = this.dir_xy();
+      var cx = (this.shield_bounding_box[0][0] + this.shield_bounding_box[1][0])/2;
+      var cy = (this.shield_bounding_box[0][1] + this.shield_bounding_box[1][1])/2;
+      var p = new particleDebris(cx,cy,dxy[0],dxy[1],1,1,"rgba(255,255,255,0.7)");
+      g_world.particle.push(p);
+
+      return false;
+    }
+  }
+
+
 
   if (this.hp_delay==0) {
     this.hp-=dhp;
@@ -1796,6 +1856,12 @@ mainPlayer.prototype.draw = function() {
     var x1 = this.player_bbox[1][0];
     var y1 = this.player_bbox[1][1];
     g_painter.drawRectangle(x0,y0, x1-x0, y1-y0, 1, "rgba(255,0,0,0.6)");
+
+    var x0 = this.shield_bounding_box[0][0];
+    var y0 = this.shield_bounding_box[0][1];
+    var x1 = this.shield_bounding_box[1][0];
+    var y1 = this.shield_bounding_box[1][1];
+    g_painter.drawRectangle(x0,y0, x1-x0, y1-y0, 1, "rgba(255,255,0,0.6)");
 
   }
 

@@ -7,7 +7,11 @@ function creatureNeko(name, gridsize, tilesize, nframe) {
   this.x = 0;
   this.y = 0;
 
+  this.bounding_box = [[0,0],[0,0]];
+  this.hit_bounding_box = [[0,0],[0,0]];
+
   this.name = name;
+  this.type = "npc";
 
   this.world_w = gridsize;
   this.world_h = gridsize;
@@ -54,6 +58,20 @@ creatureNeko.prototype.init = function(x,y) {
 
   this.message_bubble.x = this.x;
   this.message_bubble.y = this.y-16;
+
+  this.bounding_box[0][0] = this.x;
+  this.bounding_box[0][1] = this.y;
+  this.bounding_box[1][0] = this.x+16;
+  this.bounding_box[1][1] = this.y+16;
+
+  this.hit_bounding_box[0][0] = this.x;
+  this.hit_bounding_box[0][1] = this.y;
+  this.hit_bounding_box[1][0] = this.x+16;
+  this.hit_bounding_box[1][1] = this.y+16;
+}
+
+creatureNeko.prototype.hit = function() {
+  console.log(":( :( :(");
 }
 
 creatureNeko.prototype.update = function(world_state) {

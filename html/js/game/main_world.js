@@ -26,6 +26,7 @@ function mainWorld() {
   this.debug = false;
   this.debug_rect = [[0,0],[1,1]];
 
+
   this.player_nudge_delay_count = 8;
   this.player_nudge_delay = 8;
 
@@ -500,6 +501,27 @@ mainWorld.prototype.bbox_level_collision = function(bbox) {
   }
 
   return false;
+}
+
+mainWorld.prototype.arrow_collision = function(l0, l1) {
+  var p_bbox = this.player.playerBBox();
+  if (box_line_intersect(p_bbox, l0, l1, 1)) {
+    return this.player;
+  }
+
+  for (var i=0; i<this.enemy.length; i++) {
+    if (this.enemy[i].state == "dead") { continue; }
+    if (this.enemy[i].name == "floatskull") { continue; }
+    if ("hit_bounding_box" in this.enemy[i]) {
+      if (box_line_intersect(this.enemy[i].hit_bounding_box, l0, l1, 1)) {
+        return this.enemy[i];
+      }
+    } else {
+      console.log("ERROR: no bbox", this.enemy[i]);
+    }
+  }
+
+  return null;
 }
 
 mainWorld.prototype.line_level_collision = function(l0, l1) {
@@ -2283,11 +2305,6 @@ mainWorld.prototype.level_transition_init = function(portal_id) {
 
   this.init_monsters();
 
-  //DEBUG
-  if (this.level.name == "blood") {
-    //this.clear_monsters();
-  }
-
   if (this.level.name=="jade") {
 
     var level_info = {};
@@ -2778,7 +2795,50 @@ mainWorld.prototype.update = function() {
         this.debug_rect[1][0] = l1.x +1;
         this.debug_rect[1][1] = l1.y +1;
 
+        var h = null;
+
         if (this.line_level_collision(l0, l1)) {
+          this.element[key].ttl = 0;
+
+          var ax = ((dx>0)?1:-1);
+          var ay = ((dy>0)?1:-1);
+
+          var arrow_dust2 = new dust();
+          arrow_dust2.x = l0.x;
+          arrow_dust2.y = l0.y;
+          this.particle.push(arrow_dust2);
+
+        } else if ((h=this.arrow_collision(l0, l1))!=null) {
+
+          var mx = ((l0.x < l1.x) ? l0.x : l1.x);
+          var my = ((l0.y < l1.y) ? l0.y : l1.y);
+          var Mx = ((l0.x > l1.x) ? l0.x : l1.x);
+          var My = ((l0.y > l1.y) ? l0.y : l1.y);
+          var tbbox = [[mx,my],[Mx,My]];
+
+          if (h.name == "player") {
+            var damage_hit = h.hit(1, tbbox);
+
+
+            if (damage_hit) {
+              var p = Math.floor(Math.random()*g_sfx["player-hit"].length);
+              g_sfx["player-hit"][p].play();
+            } else {
+            }
+
+            if (this.player.alive) {
+              this.player_kickback(5);
+              this.camera_shake(2);
+            }
+
+          } else {
+            h.hit(4, tbbox);
+
+            var n = g_sfx["enemy-hit"].length;
+            n = Math.floor(Math.random()*n);
+            g_sfx["enemy-hit"][n].play();
+          }
+
           this.element[key].ttl = 0;
 
           var ax = ((dx>0)?1:-1);
