@@ -2090,6 +2090,12 @@ mainWorld.prototype.init_monsters = function() {
     self.enemy.push(minion);
   });
 
+  this.level.meta_map(13, function(dat, x, y) {
+    var lancer = new creatureArmorLancer();
+    lancer.init(x,y);
+    self.enemy.push(lancer);
+  });
+
 
   this.level.meta_map(28, function(dat, x, y) {
     var neko = new creatureNeko();
@@ -2346,7 +2352,7 @@ mainWorld.prototype.level_transition_init = function(portal_id) {
 
     var level_info = {};
     level_info["waypoint"] = [];
-    this.level.layer_map("meta",8*3+0, function(d,x,y) { console.log(">>>", x,y); level_info.waypoint.push({"x":x,"y":y}); });
+    this.level.layer_map("meta",8*3+0, function(d,x,y) { level_info.waypoint.push({"x":x,"y":y}); });
     var boss = new creatureSkelAqua(this.level.x+10, this.level.y+10, level_info);
     this.enemy.push(boss);
 
@@ -2538,7 +2544,15 @@ mainWorld.prototype.update = function() {
 
     var h = false;
     if (en.name=="floatskull") {
-      h = g_player.sword_stun();
+      if (en.skull_type == "yellow") {
+        h = g_player.sword_stun();
+      }
+      else if (en.skull_type == "tiel") {
+      }
+      else if (en.skull_type == "red") {
+        h = g_player.hit();
+      }
+
     }
     else {
       h = g_player.hit();
@@ -2832,7 +2846,7 @@ mainWorld.prototype.update = function() {
             }
 
           } else {
-            h.hit(4, tbbox);
+            h.hit(1, tbbox);
 
             var n = g_sfx["enemy-hit"].length;
             n = Math.floor(Math.random()*n);

@@ -296,6 +296,9 @@
       g_imgcache.add("dead_knight", img_base + "/dead_lattice_knight2.png");
       g_imgcache.add("mask_dead_knight", img_base + "/dead_lattice_knight2_mask.png");
 
+      g_imgcache.add("lancer", img_base + "/armor_lancer.png");
+      g_imgcache.add("mask_lancer", img_base + "/armor_lancer_mask.png");
+
       g_imgcache.add("floatskull", img_base + "/floatskull.png");
       g_imgcache.add("floatskull_tele", img_base + "/floatskull_tele.png");
 
@@ -432,6 +435,16 @@
 
       g_sfx["powerup"] = [];
       g_sfx["powerup"].push( new_sound_object("assets/sfx/277214__thedweebman__8-bit-powerup-get-something-big.ogg") );
+
+      g_sfx["breath"] = [];
+      g_sfx["breath"].push( new_sound_object("assets/sfx/60571__gabemiller74__breathofdeath.ogg") );
+
+      g_sfx["magic"] = [];
+      g_sfx["magic"].push( new_sound_object("assets/sfx/115141__v0idation__fx-time-freeze.ogg") );
+      g_sfx["magic"].push( new_sound_object("assets/sfx/151257__michael-kur95__strange.ogg") );
+
+
+
 
       g_music = {};
       //g_music["home"] = new_sound_object("assets/music/mark.nine-the-little-things-02-devil-you-know.mp3");

@@ -50,7 +50,7 @@ function creatureFloatSkull() {
   this.choice_delay_n = 300;
 
   this.d_lookup = {0:"down", 1:"right", 2:"left", 3:"up"};
-  this.frame_lookup = {"down":0, "right":0, "left":0, "up":0};
+  //this.frame_lookup = {"down":0, "right":0, "left":0, "up":0};
 
   this.death_ttl_n = 1000;
   this.death_ttl = this.death_ttl_n;
@@ -201,7 +201,7 @@ creatureFloatSkull.prototype.realize_intent = function() {
   this.y = this.intent.y;
   this.d = this.intent.d;
 
-  this.frameRow = this.frame_lookup[this.d];
+  //this.frameRow = this.frame_lookup[this.d];
 
   this.update_bbox(this.intent.bounding_box,this.intent.x,this.intent.y);
   this.update_bbox(this.bounding_box,this.intent.x,this.intent.y);
@@ -227,6 +227,10 @@ creatureFloatSkull.prototype.teleport_intent = function(to_x, to_y) {
 
 creatureFloatSkull.prototype.update = function(world) {
   var intent_d = this.d;
+
+  if (this.skull_type == "yellow") { this.frameRow = 0; }
+  else if (this.skull_type == "tiel") { this.frameRow = 1; }
+  else if (this.skull_type == "red") { this.frameRow = 2; }
 
   if (this.state == "teleport") {
     this.teleport_delay++;

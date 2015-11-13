@@ -1,3 +1,6 @@
+
+var g_aqua;
+
 function creatureSkelAqua(x,y, init_info) {
   this.x = ((typeof x === "undefined")?0:x);
   this.y = ((typeof y === "undefined")?0:y);
@@ -9,20 +12,33 @@ function creatureSkelAqua(x,y, init_info) {
 
   this.finished = false;
 
+  this.cx = 0;
+  this.cy = 0;
+
   this.waypoint = [];
   if ("waypoint" in init_info) {
-    if (init_info.waypoint.length>0) {
-      var xy = {"x": init_info.waypoint[0].x, "y":init_info.waypoint[0].y};
+    for (var i=0; i<init_info.waypoint.length; i++) {
+      var xy = {"x": init_info.waypoint[i].x, "y":init_info.waypoint[i].y};
       this.waypoint.push(xy);
-      this.cx = xy.x;
-      this.cy = xy.y;
+      this.cx += xy.x;
+      this.cy += xy.y;
     }
   }
+  this.waypoint_idx=0;
+  this.waypoint_n = ((this.waypoint.length==0) ? 1 : this.waypoint.length);
+
+  g_aqua = this;
+
+  if (this.waypoint.length>0) {
+    this.cx /= this.waypoint.length;
+    this.cy /= this.waypoint.length;
+  }
+
+  this.cx = Math.floor(this.cx/16)*16;
+  this.cy = Math.floor(this.cy/16)*16;
 
   this.x = this.cx;
   this.y = this.cy;
-
-  console.log(">>>", this.x, this.y);
 
   this.item_alpha_delay = 0;
   this.item_alpha_delay_max = 100;
@@ -77,16 +93,16 @@ function creatureSkelAqua(x,y, init_info) {
   this.state_info = {
     "wait" : { "next":"prepare" },
     "prepare" : {
-      "next":"position",
+      "next":"float_attack",
       "delay":0,
       "delay_N":60
     },
-    "position" : {
-      "next":"shoot",
+    "float_attack" : {
+      "next":"prepare",
       "delay":0,
-      "delay_N":120
+      "delay_N":tot_frame_delay
     },
-    "shoot" : {
+    "attack" : {
       "next":"prepare",
       "delay":0,
       "delay_N":120
@@ -189,6 +205,53 @@ creatureSkelAqua.prototype.hit = function(damage, bbox) {
   return true;
 }
 
+creatureSkelAqua.prototype.magic_attack = function(world) {
+  var enemy = world.enemy;
+  for (var i=0; i<enemy.length; i++) {
+    if (enemy[i].state == "dead") { continue; }
+
+    var dx = this.x - enemy[i].x;
+    var dy = this.y - enemy[i].y;
+
+    if ((Math.abs(dx)<8) && (Math.abs(dy)<8)) { continue; }
+
+    if (Math.abs(dx) > Math.abs(dy)) {
+      if (dx<0) { enemy[i].update_intent("left"); }
+      else { enemy[i].update_intent("right"); }
+    } else {
+      if (dy<0) { enemy[i].update_intent("up"); }
+      else { enemy[i].update_intent("down"); }
+    }
+    enemy[i].skip_intent=true;
+
+    if (enemy[i].name == "floatskull") {
+      enemy[i].skull_type = "red";
+    }
+  }
+}
+
+creatureSkelAqua.prototype.magic_end = function(world) {
+  var enemy = world.enemy;
+  for (var i=0; i<enemy.length; i++) {
+    if (enemy[i].name == "floatskull") {
+      enemy[i].skull_type = "yellow";
+    }
+  }
+}
+
+creatureSkelAqua.prototype.setup_float_attack = function() {
+  if (this.waypoint.length==0) { return; }
+
+  var p = (this.waypoint_idx+1)%this.waypoint_n;
+
+  this.start_x = this.x;
+  this.start_y = this.y;
+  this.end_x = this.waypoint[p].x;
+  this.end_y = this.waypoint[p].y;
+
+  this.waypoint_idx=p;
+}
+
 creatureSkelAqua.prototype.update = function(world) {
   this.frameDelay--;
 
@@ -196,13 +259,11 @@ creatureSkelAqua.prototype.update = function(world) {
     if ( (Math.abs(world.player.x-this.x) < this.activate_r) &&
          (Math.abs(world.player.y-this.y) < this.activate_r) )
     {
-
-
-      //this.state = this.state_info.wait.next;
-      //this.keyFrame=1;
-      //this.frameDelay=8;
-      //this.state_info[this.state].delay = 0;
-
+      this.state = this.state_info.wait.next;
+      this.keyFrame=1;
+      this.frameDelay=8;
+      this.state_info[this.state].delay = 0;
+      g_sfx["magic"][0].play();
     }
   }
 
@@ -213,6 +274,46 @@ creatureSkelAqua.prototype.update = function(world) {
     if (prepare.delay >= prepare.delay_N) {
       prepare.delay=0;
       this.state = prepare.next;
+      this.state_info[this.state].delay = 0;
+
+      this.setup_float_attack();
+
+      g_sfx["magic"][1].play();
+      //g_sfx["magic"][0].play();
+    }
+
+  }
+
+  else if (this.state == "float_attack") {
+
+    var float_attack = this.state_info.float_attack;
+    float_attack.delay++;
+    if (float_attack.delay >= float_attack.delay_N) {
+      float_attack.delay=0;
+      this.state = float_attack.next;
+      this.state_info[this.state].delay = 0;
+
+
+      this.magic_end(world);
+    } else {
+      var t = float_attack.delay / float_attack.delay_N;
+      this.x = Math.floor(this.start_x + (this.end_x - this.start_x)*t);
+      this.y = Math.floor(this.start_y + (this.end_y - this.start_y)*t);
+
+      this.magic_attack(world);
+
+    }
+
+
+  }
+
+  else if (this.state == "attack") {
+
+    var attack = this.state_info.attack;
+    attack.delay++;
+    if (attack.delay >= attack.delay_N) {
+      attack.delay=0;
+      this.state = attack.next;
       this.state_info[this.state].delay = 0;
     }
 
@@ -239,6 +340,7 @@ creatureSkelAqua.prototype.update = function(world) {
     var dead = this.state_info.dead;
 
     if (!this.finished) {
+
       dead.delay++;
       if (dead.delay == dead.delay_N) {
         this.finished = true;
@@ -248,8 +350,8 @@ creatureSkelAqua.prototype.update = function(world) {
         var cb = function() { g_player.item_shield = true; }
         var bowItem = new customItemAppear(this.itemx, this.itemy, {"name":"shield", "callback":cb});
         world.custom.push(bowItem);
-
       }
+
     } else {
 
     }
@@ -263,12 +365,14 @@ creatureSkelAqua.prototype.update = function(world) {
 
   if (this.state!="dead") {
 
-    if (this.state == "bomber") {
+    var pfx = "";
+    if (this.state == "float_attack") {
+      pfx = "magic_";
       this.d = (((this.end_x - this.x)>0) ? "right" : "left");
     } else {
       this.d = (((this.cx - this.x)>0) ? "right" : "left");
     }
-    this.frameRow = this.actionRow[this.d];
+    this.frameRow = this.actionRow[pfx + this.d];
 
     if (this.frameDelay==0) {
       this.keyFrame++;
@@ -293,7 +397,7 @@ creatureSkelAqua.prototype.draw = function() {
   var imgx = 16*this.keyFrame;
   var imgy = this.frameRow*32;
 
-  if ((this.state == "wait") || (this.state=="bomber") || (this.state=="prepare")) {
+  if ((this.state == "wait") || (this.state=="prepare") || (this.state=="float_attack") || (this.state=="attack")) {
     g_imgcache.draw_s("skel_aqua", imgx, imgy, 16, 32, this.x, this.y, this.world_w, this.world_h);
   }
 
