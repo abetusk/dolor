@@ -325,7 +325,7 @@
       g_imgcache.add("font", img_base + "/font_attempt3.png");
 
       var welcome_music = new Howl({
-          urls: ['assets/music/mark.nine-the-little-things-02-devil-you-know.mp3'],
+          urls: ['assets/music/mark.nine-the-little-things-02-devil-you-know.ogg'],
           //autoplay: true,
           onened: function() { console.log("finish music"); }
       });
