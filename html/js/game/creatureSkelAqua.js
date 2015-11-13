@@ -8,7 +8,7 @@ function creatureSkelAqua(x,y, init_info) {
 
   this.name = "skel_aqua";
 
-  this.debug = true;
+  this.debug = false;
 
   this.finished = false;
 
