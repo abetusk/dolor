@@ -461,10 +461,10 @@
       //g_music["start-ambient"] = new_sound_object("assets/music/Mark.Nine_The_Little_Things_01_Lighthouse_District.ogg");
 
 
-      setTimeout( function() { console.log("A"); g_music["item-1"] = new_sound_object("assets/music/Airglow_-_04_-_Blueshift.mp3"); }, 5000 );
-      setTimeout( function() { console.log("B"); g_music["item-2"] = new_sound_object("assets/music/Airglow_-_06_-_Lisa.mp3"); }, 1000*30 );
-      setTimeout( function() { console.log("C"); g_music["item-3"] = new_sound_object("assets/music/Airglow_-_07_-_New_Touch.mp3"); }, 1000*60 );
-      setTimeout( function() { console.log("D"); g_music["item-4"] = new_sound_object("assets/music/Airglow_-_09_-_Innermission.mp3"); }, 1000*90 );
+      setTimeout( function() { console.log("A"); g_music["item-1"] = new_sound_object("assets/music/Airglow_-_04_-_Blueshift.mp3"); }, 1000*30 );
+      setTimeout( function() { console.log("B"); g_music["item-2"] = new_sound_object("assets/music/Airglow_-_06_-_Lisa.mp3"); }, 1000*60 );
+      setTimeout( function() { console.log("C"); g_music["item-3"] = new_sound_object("assets/music/Airglow_-_07_-_New_Touch.mp3"); }, 1000*90 );
+      setTimeout( function() { console.log("D"); g_music["item-4"] = new_sound_object("assets/music/Airglow_-_09_-_Innermission.mp3"); }, 1000*120 );
 
       /*
       setTimeout( function() { g_music["item-1"] = new_sound_object("assets/music/Airglow_-_04_-_Blueshift.mp3"); }, 1000*30 );
