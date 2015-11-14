@@ -395,8 +395,11 @@
       //g_sfx["teleport"].push( new_sound_object("assets/sfx/96556__robinhood76__01667-slow-laser-shot.ogg", 0.25));
 
       g_sfx["purr"] = [];
-      g_sfx["purr"].push( new_sound_object("assets/sfx/51810__kyles__kitten-meow-not-cute-purr.ogg", 0.75) );
-      g_sfx["purr"].push( new_sound_object("assets/sfx/220949__islabonita__cat-purring.ogg", 0.75) );
+
+      setTimeout( function() {
+        g_sfx["purr"].push( new_sound_object("assets/sfx/51810__kyles__kitten-meow-not-cute-purr.ogg", 0.75) );
+        g_sfx["purr"].push( new_sound_object("assets/sfx/220949__islabonita__cat-purring.ogg", 0.75) );
+      }, 10*1000);
 
       g_sfx["rain"] = [];
       g_sfx["rain"].push( new_sound_object("assets/sfx/157433__timgormly__medium-rain.ogg", 0.75, true) );
@@ -407,7 +410,7 @@
       g_sfx["wind"].push(  new_sound_object("assets/sfx/106134__j1987__windynight_clipped_s6.ogg", 0.75) );
 
       g_sfx["wave"] = [];
-      setTimeout( function() { g_sfx["wave"].push( new_sound_object("assets/sfx/254857__afeeto__waves-against-shore.ogg", 0.75, true) ); }, 3000 );
+      setTimeout( function() { g_sfx["wave"].push( new_sound_object("assets/sfx/254857__afeeto__waves-against-shore.ogg", 0.75, true) ); }, 10*1000 );
       //g_sfx["wave"].push( new_sound_object("assets/sfx/254857__afeeto__waves-against-shore.ogg", 0.5, true) );
 
       g_sfx["boss-pain"] = [];
