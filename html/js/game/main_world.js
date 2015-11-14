@@ -2376,8 +2376,7 @@ mainWorld.prototype.fade_music = function() {
   for (var i=1; i<=4; i++) {
     var song_name = "item-" + i;
     var x = g_music[song_name];
-
-    x.fade(x.volume(), 0, 2000, function() { console.log(">>>", x); x.stop(); x.volume(1); });
+    x.fade(x.volume(), 0, 2000, function() { x.stop(); x.volume(1); });
   }
 
 }
@@ -2621,7 +2620,7 @@ mainWorld.prototype.update = function() {
 
   if (portal_id<0) { this.initial_level_transition = false; }
 
-  this._update_music();
+  //this._update_music();
 
 
   this.update_rain_sfx();
