@@ -463,10 +463,10 @@
       setTimeout( function() { console.log("D"); g_music["item-4"] = new_sound_object("assets/music/Airglow_-_09_-_Innermission.mp3"); }, 1000*90 );
       */
 
-      setTimeout( function() { g_music["item-1"] = new_sound_object("assets/music/Airglow_-_04_-_Blueshift.mp3"); }, 5000 );
-      setTimeout( function() { g_music["item-2"] = new_sound_object("assets/music/Airglow_-_06_-_Lisa.mp3"); }, 1000*30 );
-      setTimeout( function() { g_music["item-3"] = new_sound_object("assets/music/Airglow_-_07_-_New_Touch.mp3"); }, 1000*60 );
-      setTimeout( function() { g_music["item-4"] = new_sound_object("assets/music/Airglow_-_09_-_Innermission.mp3"); }, 1000*90 );
+      setTimeout( function() { g_music["item-1"] = new_sound_object("assets/music/Airglow_-_04_-_Blueshift.mp3"); }, 1000*30 );
+      setTimeout( function() { g_music["item-2"] = new_sound_object("assets/music/Airglow_-_06_-_Lisa.mp3"); }, 1000*60 );
+      setTimeout( function() { g_music["item-3"] = new_sound_object("assets/music/Airglow_-_07_-_New_Touch.mp3"); }, 1000*90 );
+      setTimeout( function() { g_music["item-4"] = new_sound_object("assets/music/Airglow_-_09_-_Innermission.mp3"); }, 1000*120 );
 
 
       //welcome_music.play();
