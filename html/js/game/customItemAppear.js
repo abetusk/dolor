@@ -33,6 +33,10 @@ function customItemAppear(x,y, init_info) {
 
   }
 
+  this.song_playing = false;
+  this.song = null;
+  if ("song" in init_info) { this.song = init_info.song; }
+
   this.sprite = [];
 
   this.callback_fire_count=0;
@@ -186,6 +190,11 @@ customItemAppear.prototype.update = function(world) {
         g_sfx["powerup"][0].play();
       }
       this.pickup_sound_playing = true;
+
+      if (this.song && !this.song_playing) {
+        g_music[this.song].play();
+        this.song_playing=true;
+      }
 
       this.item_visible=false;
 

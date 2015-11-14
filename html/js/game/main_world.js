@@ -2313,6 +2313,8 @@ mainWorld.prototype.level_transition_init = function(portal_id) {
 
   if (this.level.name=="jade") {
 
+    this.fade_music();
+
     var level_info = {};
     level_info["teleport_schedule"] = [];
     this.level.layer_map("bottom.-1", 10, function(d,x,y) { level_info.teleport_schedule.push({"x":x,"y":y}); });
@@ -2330,6 +2332,8 @@ mainWorld.prototype.level_transition_init = function(portal_id) {
 
   else if (this.level.name=="bone") {
 
+    this.fade_music();
+
     var level_info = {};
     level_info["waypoint"] = [];
     this.level.layer_map("meta",8*3+0, function(d,x,y) { level_info.waypoint.push({"x":x,"y":y}); });
@@ -2339,6 +2343,8 @@ mainWorld.prototype.level_transition_init = function(portal_id) {
   }
 
   else if (this.level.name=="blood") {
+
+    this.fade_music();
 
     var level_info = {};
     level_info["waypoint"] = [];
@@ -2350,6 +2356,8 @@ mainWorld.prototype.level_transition_init = function(portal_id) {
 
   else if (this.level.name=="aqua") {
 
+    this.fade_music();
+
     var level_info = {};
     level_info["waypoint"] = [];
     this.level.layer_map("meta",8*3+0, function(d,x,y) { level_info.waypoint.push({"x":x,"y":y}); });
@@ -2359,6 +2367,17 @@ mainWorld.prototype.level_transition_init = function(portal_id) {
   }
 
   else {
+  }
+
+}
+
+mainWorld.prototype.fade_music = function() {
+
+  for (var i=1; i<=4; i++) {
+    var song_name = "item-" + i;
+    var x = g_music[song_name];
+
+    x.fade(x.volume(), 0, 2000, function() { console.log(">>>", x); x.stop(); x.volume(1); });
   }
 
 }

@@ -347,7 +347,20 @@ creatureSkelAqua.prototype.update = function(world) {
 
         // Make the wand appear for player to pickup
         //
-        var cb = function() { g_player.item_shield = true; }
+        var cb = function() {
+          g_player.item_shield = true;
+
+          var item_count=0;
+          if (g_player.item_shield) { item_count++; }
+          if (g_player.item_wand) { item_count++; }
+          if (g_player.item_bow) { item_count++; }
+          if (g_player.item_bomb) { item_count++; }
+
+          var song_name = "item-" + item_count;
+          g_music[song_name].volume(1);
+          g_music[song_name].play();
+        };
+
         var bowItem = new customItemAppear(this.itemx, this.itemy, {"name":"shield", "callback":cb});
         world.custom.push(bowItem);
       }

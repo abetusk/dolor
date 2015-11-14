@@ -239,7 +239,8 @@
       g_imgcache.add("skel_bone", img_base + "/float_skel_purple.png");
 
       g_imgcache.add("skel_blood", img_base + "/float_skel_green.png");
-      g_imgcache.add("skel_aqua", img_base + "/float_skel_blue.png");
+      //g_imgcache.add("skel_aqua", img_base + "/float_skel_blue.png");
+      g_imgcache.add("skel_aqua", img_base + "/float_skel_purple.png");
 
       g_imgcache.add("skel_mask", img_base + "/float_skel_jade_mask.png");
 
@@ -453,6 +454,12 @@
       //g_music["dolor-ambient"] = new_sound_object("assets/music/Graham_Bole_-_05_-_Sunset_At_Goat_Fell.ogg");
       g_music["dolor-ambient"] = new_sound_object("assets/music/317363__frankum__ambient-electronic-loop-001.ogg");
       g_music["start-ambient"] = new_sound_object("assets/music/Mark.Nine_The_Little_Things_01_Lighthouse_District.ogg");
+
+      g_music["item-1"] = new_sound_object("assets/music/Airglow_-_04_-_Blueshift.mp3");
+      g_music["item-2"] = new_sound_object("assets/music/Airglow_-_06_-_Lisa.mp3");
+      g_music["item-3"] = new_sound_object("assets/music/Airglow_-_07_-_New_Touch.mp3");
+      g_music["item-4"] = new_sound_object("assets/music/Airglow_-_09_-_Innermission.mp3");
+
 
       //welcome_music.play();
 
