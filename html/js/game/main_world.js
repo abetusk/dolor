@@ -2872,7 +2872,8 @@ mainWorld.prototype.update = function() {
             }
 
           } else {
-            h.hit(1, tbbox);
+            //h.hit(1, tbbox);
+            h.hit(4, tbbox);
 
             var n = g_sfx["enemy-hit"].length;
             n = Math.floor(Math.random()*n);
