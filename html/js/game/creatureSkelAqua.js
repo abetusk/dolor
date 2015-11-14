@@ -357,8 +357,12 @@ creatureSkelAqua.prototype.update = function(world) {
           if (g_player.item_bomb) { item_count++; }
 
           var song_name = "item-" + item_count;
-          g_music[song_name].volume(1);
-          g_music[song_name].play();
+
+          if (song_name in g_music) {
+            g_music[song_name].volume(1);
+            g_music[song_name].play();
+          }
+
         };
 
         var bowItem = new customItemAppear(this.itemx, this.itemy, {"name":"shield", "callback":cb});

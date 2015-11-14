@@ -170,19 +170,17 @@ levelDolor.prototype.bbox = function(r,c) {
 
 
 levelDolor.prototype.cleanup = function() {
-  g_world.stop_music(this.level_music);
-  if (this.music_timeout) {
-    clearTimeout(this.music_timeout);
-  }
+  //g_world.stop_music(this.level_music);
+  //if (this.music_timeout) { clearTimeout(this.music_timeout); }
 }
 
 levelDolor.prototype.update = function() {
   if (!this.ready) { return; }
   if (!this.init_flag) { this.init(); }
 
-  //DEBUG
   return;
 
+  /*
   if (this.level_music_delay >= this.level_music_delay_N) {
     g_world.start_music(this.level_music);
     this.level_music_delay = Math.floor(Math.random()*this.level_music_delay_N/3);
@@ -192,9 +190,7 @@ levelDolor.prototype.update = function() {
   }
 
   this.level_music_delay++;
-
-  //DEBUG
-  //if ((this.level_music_delay%1000)==0) { console.log(this.level_music_delay); }
+  */
 
 }
 

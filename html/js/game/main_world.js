@@ -211,6 +211,7 @@ mainWorld.prototype.init = function() {
   this.player_update_focus();
 }
 
+/*
 mainWorld.prototype.start_music = function(song_name) {
 
   if (!(song_name in g_music)) {
@@ -234,7 +235,9 @@ mainWorld.prototype.start_music = function(song_name) {
   g_music[song_name].play();
   g_music[song_name].volume(0);
 }
+*/
 
+/*
 mainWorld.prototype._update_music = function() {
 
   if (!(this.music_playing)) { return; }
@@ -270,7 +273,9 @@ mainWorld.prototype._update_music = function() {
 
 
 }
+*/
 
+/*
 mainWorld.prototype.stop_music = function() {
   if (this.music_playing) {
     if (this.music_state != "ramp_down") {
@@ -281,6 +286,7 @@ mainWorld.prototype.stop_music = function() {
     }
   }
 }
+*/
 
 mainWorld.prototype.player_attack_level_collision = function() {
   if (!this.player) { return false; }
@@ -2375,8 +2381,10 @@ mainWorld.prototype.fade_music = function() {
 
   for (var i=1; i<=4; i++) {
     var song_name = "item-" + i;
-    var x = g_music[song_name];
-    x.fade(x.volume(), 0, 2000, function() { x.stop(); x.volume(1); });
+    if (song_name in g_music) {
+      var x = g_music[song_name];
+      x.fade(x.volume(), 0, 2000, function() { x.stop(); x.volume(1); });
+    }
   }
 
 }
