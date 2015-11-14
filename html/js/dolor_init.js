@@ -325,11 +325,13 @@
       g_imgcache.add("bubble", img_base + "/speech_thought_bubble8.png");
       g_imgcache.add("font", img_base + "/font_attempt3.png");
 
+      /*
       var welcome_music = new Howl({
           urls: ['assets/music/mark.nine-the-little-things-02-devil-you-know.ogg'],
           //autoplay: true,
           onened: function() { console.log("finish music"); }
       });
+      */
 
       g_sfx = {};
       g_sfx["sword-swing"] = [];
@@ -405,7 +407,7 @@
       g_sfx["wind"].push(  new_sound_object("assets/sfx/106134__j1987__windynight_clipped_s6.ogg", 0.75) );
 
       g_sfx["wave"] = [];
-      g_sfx["wave"].push( new_sound_object("assets/sfx/254857__afeeto__waves-against-shore.ogg", 0.75, true) );
+      setTimeout( function() { g_sfx["wave"].push( new_sound_object("assets/sfx/254857__afeeto__waves-against-shore.ogg", 0.75, true) ); }, 3000 );
       //g_sfx["wave"].push( new_sound_object("assets/sfx/254857__afeeto__waves-against-shore.ogg", 0.5, true) );
 
       g_sfx["boss-pain"] = [];
