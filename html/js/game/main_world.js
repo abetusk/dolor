@@ -1047,7 +1047,6 @@ mainWorld.prototype.draw = function() {
   }
 
 
-
 }
 
 mainWorld.prototype.camera_shake = function(n) {
@@ -1754,187 +1753,6 @@ mainWorld.prototype.updateCam = function() {
 
   }
 
-  //this.updateCam_lerp_average_lead_window();
-  //this.updateCam_lerp_snap_on_edge();
-  return;
-
-  var painter = this.painter;
-  var screen0 = { "x": painter.width/2, "y": painter.height/2 };
-  var world0 = painter.devToWorld(screen0.x, screen0.y);
-
-  var dest_world = {"x": world0.x, "y": world0.y };
-  if (this.player) {
-
-    var dx = this.player.x - this.player_prev_x;
-    var dy = this.player.y - this.player_prev_y;
-    this.player_prev_x = this.player.x;
-    this.player_prev_y = this.player.y;
-
-    var dxy = Math.floor(Math.abs(dx) + Math.abs(dy));
-
-    var dv = 0;
-    var p = this.camvec_pos;
-    this.camvec[p] = dxy;
-    this.camvec_pos = (p+1)%this.camvec.length;
-    for (var i=0; i<this.camvec.length; i++) {
-      dv += this.camvec[i];
-    }
-
-    //console.log(dxy, dv);
-
-    var player_dir = this.player.dir_xy();
-
-    var vec_dir = { "x" : dv*player_dir[0], "y": dv*player_dir[1]};
-    var lead_xy = { "x": this.player.x + vec_dir.x, "y":this.player.y + vec_dir.y};
-
-    //dest_world.x = Math.floor((world0.x + this.player.x + vec_dir.x)/3);
-    //dest_world.y = Math.floor(((world0.y + this.player.y + vec_dir.y)/3);
-
-    // attempt 0:
-    //
-    //var p1 = 1/32;
-    //var p0 = 1-p1;
-    //dest_world.x = (p0*world0.x + p1*this.player.x);
-    //dest_world.y = (p0*world0.y + p1*this.player.y);
-
-    var p1 = 1/16;
-    var p2 = 1/32;
-    var p0 = 1-p1-p2;
-
-    // interesting artifact...windowing because of the floor
-    //
-    //dest_world.x = Math.floor(p0*world0.x + p1*this.player.x);
-    //dest_world.y = Math.floor(p0*world0.y + p1*this.player.y);
-
-    dest_world.x = (p0*world0.x + p1*this.player.x + p2*lead_xy.x);
-    dest_world.y = (p0*world0.y + p1*this.player.y + p2*lead_xy.y);
-
-
-    var dest_screen = painter.worldToDev(dest_world.x, dest_world.y);
-
-    //screen_dx = -Math.floor(dest_screen.x - screen0.x);
-    //screen_dy = -Math.floor(dest_screen.y - screen0.y);
-
-    screen_dx = -(dest_screen.x - screen0.x);
-    screen_dy = -(dest_screen.y - screen0.y);
-
-    //console.log(world0.x, world0.y, screen_dx, screen_dy);
-
-    // clamp
-    if (screen_dx >= ((painter.width/2)-3))      { screen_dx =   (painter.width/2)-3;   }
-    if (screen_dx <= (-((painter.width/2)-3)))   { screen_dx = -((painter.width/2)-3);  }
-    if (screen_dy >= ((painter.height/2)-3))     { screen_dy =   (painter.height/2)-3;  }
-    if (screen_dy <= (-((painter.height/2)-3)))  { screen_dy = -((painter.height/2)-3); }
-
-    screen_dx = Math.floor(screen_dx);
-    screen_dy = Math.floor(screen_dy);
-
-    //screen_dx = (screen_dx);
-    //screen_dy = (screen_dy);
-
-    if (Math.abs(screen_dx) < 1/1024) { scree_dx = 0; }
-    if (Math.abs(screen_dy) < 1/1024) { scree_dy = 0; }
-
-    //console.log(screen_dx, screen_dy);
-
-    painter.adjustPan(screen_dx,screen_dy);
-
-  }
-
-
-  //console.log(screen0, world0);
-  return;
-
-  var dev_xy = painter.worldToDev(world_x, world_y);
-  var x = dev_xy.x;
-  var y = dev_xy.y;
-
-  var dx = (painter.width/2) - x;
-  var dy = (painter.height/2) - y;
-
-
-  var dev_xy = painter.worldToDev(world_x, world_y);
-
-
-  var player_x = 0;
-  var player_y = 0;
-
-  var player_vx = 0;
-  var player_vy = 0;
-  var p=0;
-
-  if (this.player) {
-
-    player_x = this.player.x;
-    player_y = this.player.y;
-
-    var dx = this.player.x - this.player_prev_x;
-    var dy = this.player.y - this.player_prev_y;
-
-    p = this.player_focus_v_pos;
-    this.player_focus_v[p][0] = dx;
-    this.player_focus_v[p][1] = dy;
-    this.player_focus_v_pos = (p+1)%this.player_focus_v_window;
-
-    dx = 0;
-    dy = 0;
-    for (var i=0; i<this.player_focus_v_window; i++) {
-      dx += this.player_focus_v[i][0];
-      dy += this.player_focus_v[i][1];
-    }
-
-    player_vx = dx*this.player_focus_v_factor;
-    player_vy = dy*this.player_focus_v_factor;
-
-    //var dx = this.player.x - this.player_prev_x;
-    //var dy = this.player.y - this.player_prev_y;
-
-    var predict_x = this.player.x + dx;
-    var predict_y = this.player.y + dy;
-
-    //var dest_cam_x = (this.player.x + predict_x)/2;
-    //var dest_cam_y = (this.player.y + predict_y)/2;
-
-    var dest_cam_x = predict_x;
-    var dest_cam_y = predict_y;
-
-    p = this.player_focus_history_pos;
-    this.player_focus_history[p][0] = dest_cam_x;
-    this.player_focus_history[p][1] = dest_cam_y;
-    this.player_focus_history_pos = (p+1)%this.player_focus_history_window;
-    this.player_update_focus();
-
-    this.player_prev_x = this.player.x;
-    this.player_prev_y = this.player.y;
-  }
-
-
-  //var world_x = this.player_focus[0];
-  //var world_y = this.player_focus[1];
-
-  var world_x = player_x + player_vx;
-  var world_y = player_y + player_vy;
-
-  var painter = this.painter;
-
-  var dev_xy = painter.worldToDev(world_x, world_y);
-  var x = dev_xy.x;
-  var y = dev_xy.y;
-
-  var dx = (painter.width/2) - x;
-  var dy = (painter.height/2) - y;
-
-  // clamp
-  if (dx >= ((painter.width/2)-3))      { dx =   (painter.width/2)-3;   }
-  if (dx <= (-((painter.width/2)-3)))   { dx = -((painter.width/2)-3);  }
-  if (dy >= ((painter.height/2)-3))     { dy =   (painter.height/2)-3;  }
-  if (dy <= (-((painter.height/2)-3)))  { dy = -((painter.height/2)-3); }
-
-  dx = Math.floor(dx);
-  dy = Math.floor(dy);
-
-  painter.adjustPan(dx,dy);
-
 }
 
 mainWorld.prototype.update_wave_sfx = function() {
@@ -2211,8 +2029,6 @@ mainWorld.prototype.level_transition_init = function(portal_id) {
     var r = this.day_night_bg_color.cur[0];
     var g = this.day_night_bg_color.cur[1];
     var b = this.day_night_bg_color.cur[2];
-
-    console.log(this.day_night);
 
     //this.bg_color = "rgba(210,210,220,1.0)";
     this.bg_color = "rgba(" + r + "," + g + "," + b + ",1.0)";

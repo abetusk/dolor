@@ -70,7 +70,8 @@ function messageBubble(info) {
   this.name = "font";
 
   this.font_w = 5;
-  this.font_y = 7;
+  //this.font_y = 7;
+  this.font_y = 6;
 
   this.speak_w = 8;
   this.speak_h = 8;

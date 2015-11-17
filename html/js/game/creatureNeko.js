@@ -112,8 +112,11 @@ creatureNeko.prototype.update = function(world_state) {
 
         if (this.purr_delay==0) {
           x = Math.floor(Math.random() * g_sfx["purr"].length);
-          g_sfx["purr"][x].play();
+          if (g_sfx["purr"][x]) {
+            g_sfx["purr"][x].play();
+          }
           this.purr_delay=this.purr_delay_N;
+
         }
 
       } else if (this.message_bubble) {

@@ -259,8 +259,8 @@ creatureFloatSkull.prototype.update = function(world) {
 
   this.choice_delay = (this.choice_delay+1)%(this.choice_delay_n);
   if (this.choice_delay==0) {
-    this.frameRow = Math.floor(Math.random()*4);
-    intent_d = this.d_lookup[ this.frameRow ];
+    //this.frameRow = Math.floor(Math.random()*4);
+    intent_d = this.d_lookup[ Math.floor(Math.random()*4) ]
   }
 
 

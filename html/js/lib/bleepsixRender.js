@@ -1518,6 +1518,18 @@ bleepsixRender.prototype.drawSubImage = function(img, imgx, imgy, imgw, imgh, x,
   ctx.globalAlpha = a;
   //ctx.drawImage(img, imgx, imgy, imgw, imgh, x, y, w, h);
   //ctx.drawImage(img, imgx, imgy, imgw, imgh, 0, 0, w, h);
+
+  if ((imgx<0) || (imgy<0)) {
+    console.trace()
+  }
+
+  imgx = Math.floor(imgx);
+  imgy = Math.floor(imgy);
+  imgw = Math.floor(imgw);
+  imgh = Math.floor(imgh);
+  w = Math.floor(w);
+  h = Math.floor(h);
+
   ctx.drawImage(img, imgx, imgy, imgw, imgh, 0, 0, w, h);
   ctx.globalAlpha = s_a;
 

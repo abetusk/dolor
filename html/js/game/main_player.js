@@ -1008,19 +1008,6 @@ mainPlayer.prototype.addPuffs = function() {
     y -= Math.floor(Math.random()*2)
   }
 
-      /*
-  if (di == "left") {
-    x += s2;
-    y += s-3;
-    y -= Math.floor(Math.random()*2)
-  } else if (di == "right") {
-    x += s2;
-    y += s-3;
-    y -= Math.floor(Math.random()*2)
-  } else if (di == "up") {
-  }
-  */
-
   this.puff.d.push( Math.floor(4*Math.random()) );
   this.puff.ttl.push(this.puffTTL);
   this.puff.pos.push([x,y]);
@@ -1029,62 +1016,6 @@ mainPlayer.prototype.addPuffs = function() {
   this.puff.delay.push(this.puffSizeDelayN);
   this.puff.alpha.push(0.6);
   this.puff.dalpha.push(0);
-
-  return;
-
-
-  var ttl = 50;
-  var psize = 2;
-  var alpha = 0.6;
-  var dalpha = 0.01;
-
-  var p2 = Math.floor(psize/2);
-  // n0, n1, dx0, dy0, dx1, dy1
-  //
-  var vec = [0,0,0,0,0,0];
-  var s = this.size;
-  var s2 = Math.floor(s/2);
-  var rr = 8;
-  var r2 = Math.floor(rr/2);
-
-  var dn = Math.floor(Math.random()*2);
-  if (di == "left") {
-    //     n0  n1  dx0   dy0      dx1   dy1
-    vec = [2-dn,1, s-s2, s-p2-r2+2, s-s2, s-p2-r2+2];
-  } else if (di == "right") {
-    //     n0  n1   dx0   dy0    dx1   dy1
-    vec = [1, 2-dn, s2, s-p2-r2+2, s2, s-p2-r2+2];
-  }
-
-  for (var i=0; i<vec[0]; i++) {
-
-    var rx = Math.floor(Math.random()*rr)-r2;
-    //var ry = Math.floor(Math.random()*rr)-r2;
-    var ry = Math.floor(Math.random()*3)-1;
-
-    var x = this.x + vec[2] + rx;
-    var y = this.y + vec[3] + ry;
-    this.puffObject.pos.push([x, y]);
-    this.puffObject.psize.push(psize);
-    this.puffObject.dpsize.push(1);
-    this.puffObject.ttl.push(ttl);
-    this.puffObject.alpha.push(alpha);
-    this.puffObject.dalpha.push(dalpha);
-
-
-  }
-
-  for (var i=0; i<vec[1]; i++) {
-    var x = this.x + vec[4];
-    var y = this.y + vec[5];
-    this.puffObject.pos.push([x, y]);
-    this.puffObject.psize.push(psize);
-    this.puffObject.dpsize.push(1);
-    this.puffObject.ttl.push(ttl);
-    this.puffObject.alpha.push(alpha);
-    this.puffObject.dalpha.push(dalpha);
-  }
-
 
 }
 
@@ -1504,10 +1435,7 @@ mainPlayer.prototype.dxdy = function() {
 
   }
 
-  //console.log(d, r);
-
   return r;
-  //return xy[d];
 }
 
 // returns text direction
@@ -1517,10 +1445,6 @@ mainPlayer.prototype.sword_dxdy = function() {
   var dy = this.swordJitterY;
 
   return [dx,dy];
-
-  var xy = { "up":[dx,-dy], "right":[dx,dy], "down":[dx,dy], "left":[-dx,dy], "stop":[0,0]  };
-  var d = this.currentWalkDirection();
-  return xy[d];
 }
 
 mainPlayer.prototype.stopWalking = function() {
