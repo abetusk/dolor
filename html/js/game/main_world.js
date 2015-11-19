@@ -439,11 +439,58 @@ mainWorld.prototype.tile_bbox = function(col_val, tile_x, tile_y) {
   return bbox;
 }
 
-mainWorld.prototype.bbox_level_collision = function(bbox) {
+mainWorld.prototype.bbox_level_collision_layer = function(bbox, layer) {
   var level = this.level;
   if (!level) { return false; }
+  if (!(layer in level.layer_name_index_lookup)) { return false; }
 
-  var layers = level.tilemap.layers;
+  var tile_bbox = [[0,0],[0,0]];
+
+  var level_x = 0;
+  var level_y = 0;
+  if (this.level.ready) {
+    level_x = this.level.x;
+    level_y = this.level.y;
+  }
+
+  var base_c = Math.floor((bbox[0][0]-level_x)/16);
+  var base_r = Math.floor((bbox[0][1]-level_y)/16);
+
+  var z = level.layer_name_index_lookup[layer];
+  for (var cc=-1; cc<2; cc++) {
+    for (var rr=-1; rr<2; rr++) {
+      var key = (base_r+rr) + ":" + (base_c+cc);
+
+      if (key in this.level.layer_lookup[z]) {
+
+        var tile_x = level_x + (base_c + cc) * 16;
+        var tile_y = level_y + (base_r + rr) * 16;
+        var val = this.level.layer_lookup[z][key];
+        var ti = level.tile_info[val];
+
+        tile_bbox = this.tile_bbox(val - ti.firstgid, tile_x, tile_y);
+        if (box_box_intersect(bbox, tile_bbox, .25)) {
+          this.debug_rect = tile_bbox;
+          return true;
+        }
+
+      }
+    }
+  }
+
+  return false;
+}
+
+
+mainWorld.prototype.bbox_level_collision_top_bottom = function(bbox) {
+  if (this.bbox_level_collision_layer(bbox, "collision.top")) { return true; }
+  if (this.bbox_level_collision_layer(bbox, "collision.bottom")) { return true; }
+  return false;
+}
+
+mainWorld.prototype.bbox_level_collision_old = function(bbox) {
+  var level = this.level;
+  if (!level) { return false; }
 
   var tile_bbox = [[0,0],[0,0]];
 
@@ -1358,13 +1405,14 @@ mainWorld.prototype.player_kickback = function(ds) {
 
   var tbbox = [[kickback_pos_x,player.y],[kickback_pos_x+player.size-1,player.y+player.size-1]];
 
-  if (!this.bbox_level_collision(tbbox)) {
+  //if (!this.bbox_level_collision(tbbox)) {
+  if (!this.bbox_level_collision_top_bottom(tbbox)) {
     player.x = kickback_pos_x;
   }
 
   tbbox = [[player.x,kickback_pos_y],[player.x+player.size-1,kickback_pos_y+player.size-1]];
 
-  if (!this.bbox_level_collision(tbbox)) {
+  if (!this.bbox_level_collision_top_bottom(tbbox)) {
     player.y = kickback_pos_y;
   }
 }
@@ -1881,6 +1929,22 @@ mainWorld.prototype.clear_monsters = function() {
   self.enemy=[];
 }
 
+mainWorld.prototype.init_misc = function() {
+  var self = this;
+  this.level.meta_map(21, function(dat, x, y) {
+    var t = new debugSpriteAnimator("flame", 12,12, 6, 1, 5);
+    t.x = x+8-2;
+    t.y = y;
+    t.world_w = 4;
+    t.sprite_w = 4;
+    t.world_h = 12;
+    t.sprite_h = 12;
+
+    self.particle.push(t);
+  });
+
+}
+
 mainWorld.prototype.init_monsters = function() {
   var self = this;
   self.enemy = [];
@@ -2132,6 +2196,7 @@ mainWorld.prototype.level_transition_init = function(portal_id) {
   }
 
   this.init_monsters();
+  this.init_misc();
 
   if (this.level.name=="jade") {
 
@@ -2333,6 +2398,7 @@ mainWorld.prototype.bomb_damage = function(bomb) {
     this.player.hit();
   }
 
+
   for (var key in this.enemy) {
     if (!("hit_bounding_box" in this.enemy[key])) { continue; }
     if (this.enemy[key].state == "dead") { continue; }
@@ -2352,6 +2418,47 @@ mainWorld.prototype.bomb_damage = function(bomb) {
 
     }
   }
+
+  // Remove elements from the tilemap that are marked
+  // as being 'explodable' by bombs (tile map entries
+  // that will clear when a bomb explodes nearby).
+  //
+  var self = this;
+  this.level.meta_map(20, function(dat,x,y) {
+    var tbbox = [[x,y],[x+16,y+16]];
+
+    if (box_box_intersect(bomb_bbox, tbbox)) {
+
+      var ic = Math.floor(((x-self.level.x)/16)+0.5);
+      var ir = Math.floor(((y-self.level.y)/16)+0.5);
+
+      var bott_ind = self.level.layer_name_index_lookup["bottom"];
+      var collt_ind = self.level.layer_name_index_lookup["collision.top"];
+      var collb_ind = self.level.layer_name_index_lookup["collision.bottom"];
+
+      var layer = self.level.tilemap.layers[bott_ind];
+      var collt_layer = self.level.tilemap.layers[collt_ind];
+      var collb_layer = self.level.tilemap.layers[collb_ind];
+
+      var w = layer.width;
+      var data_ind = (ir*w) + ic;
+
+      var key = ir + ":" + ic;
+      if (key in self.level.layer_lookup[collt_ind]) {
+        delete self.level.layer_lookup[collt_ind][key];
+      }
+
+      if (key in self.level.layer_lookup[collb_ind]) {
+        delete self.level.layer_lookup[collb_ind][key];
+      }
+
+      self.level.tilemap.layers[bott_ind].data[data_ind] = 0;
+      self.level.tilemap.layers[collt_ind].data[data_ind] = 0;
+      self.level.tilemap.layers[collb_ind].data[data_ind] = 0;
+    }
+
+
+  });
 
 }
 
@@ -2772,11 +2879,11 @@ mainWorld.prototype.update = function() {
         var dsty_bbox = [[player.x, dst_y], [player.x+player.size-1,dst_y+player.size-1]];
 
 
-        if (!this.bbox_level_collision(dstx_bbox)) {
+        if (!this.bbox_level_collision_top_bottom(dstx_bbox)) {
           player.x = dst_x;
         } else { has_collision = true; }
 
-        if (!this.bbox_level_collision(dsty_bbox)) {
+        if (!this.bbox_level_collision_top_bottom(dsty_bbox)) {
           player.y = dst_y;
         } else { has_collision = true; }
 
@@ -2793,7 +2900,7 @@ mainWorld.prototype.update = function() {
             var tbbox = [[nudge_x,dst_y],[nudge_x+player.size-1,dst_y+player.size-1]];
 
             if (player.x != nudge_x) {
-              if (!this.bbox_level_collision(tbbox)) {
+              if (!this.bbox_level_collision_top_bottom(tbbox)) {
                 player.x = nudge_x;
                 player.y = dst_y;
               }
@@ -2808,7 +2915,7 @@ mainWorld.prototype.update = function() {
             var tbbox = [[nudge_x,dst_y],[nudge_x+player.size-1,dst_y+player.size-1]];
 
             if (player.x != nudge_x) {
-              if (!this.bbox_level_collision(tbbox)) {
+              if (!this.bbox_level_collision_top_bottom(tbbox)) {
                 player.x = nudge_x;
                 player.y = dst_y;
               }
@@ -2824,7 +2931,7 @@ mainWorld.prototype.update = function() {
             var tbbox = [[dst_x,nudge_y],[dst_x+player.size-1,nudge_y+player.size-1]];
 
             if (player.y != nudge_y) {
-              if (!this.bbox_level_collision(tbbox)) {
+              if (!this.bbox_level_collision_top_bottom(tbbox)) {
                 player.x = dst_x;
                 player.y = nudge_y;
               }
@@ -2840,7 +2947,7 @@ mainWorld.prototype.update = function() {
             var tbbox = [[dst_x,nudge_y],[dst_x+player.size-1,nudge_y+player.size-1]];
 
             if (player.y != nudge_y) {
-              if (!this.bbox_level_collision(tbbox)) {
+              if (!this.bbox_level_collision_top_bottom(tbbox)) {
                 player.x = dst_x;
                 player.y = nudge_y;
               }
@@ -2940,7 +3047,16 @@ mainWorld.prototype.update = function() {
         var td = player.intent.d;
 
         //var ee = new particleFirefly(tx,ty,tdx,tdy);
-        var ee = new particleRising(tx,ty);
+        //var ee = new particleRising(tx,ty);
+
+        var ee = new debugSpriteAnimator("flame", 12,12, 6,1,5);
+        ee.world_w = 4;
+        ee.world_h = 12;
+        ee.sprite_w = 4;
+        ee.sprite_h = 12;
+        ee.x = tx;
+        ee.y = ty;
+
         this.particle.push(ee);
       } else if (player.intent.type == "shootArrow") {
         var nt = player.intent;
@@ -2960,7 +3076,7 @@ mainWorld.prototype.update = function() {
 
         var dst_bbox = [[px, py], [px+sz-1,py+sz-1]];
 
-        if (!this.bbox_level_collision(dst_bbox)) {
+        if (!this.bbox_level_collision_top_bottom(dst_bbox)) {
           player.teleport_x = player.intent.dest_x;
           player.teleport_y = player.intent.dest_y;
         } else {
@@ -2986,7 +3102,7 @@ mainWorld.prototype.update = function() {
         var intent = this.enemy[key].intent;
         var bbox = this.enemy[key].intent.bounding_box;
 
-        if (!this.bbox_level_collision(bbox)) {
+        if (!this.bbox_level_collision_top_bottom(bbox)) {
           this.enemy[key].realize_intent();
         } else {
           this.enemy[key].world_collision(this);

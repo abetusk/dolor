@@ -282,7 +282,7 @@ creatureSkelBone.prototype.update = function(world) {
       tbbox[1][0] = this.x+16;
       tbbox[1][1] = this.y+32;
 
-      if (!world.bbox_level_collision(tbbox)) {
+      if (!world.bbox_level_collision_top_bottom(tbbox)) {
         var bo = new itemBomb({"x": this.x, "y":this.y+16, "dx":0, "dy":0, "d":"none"});
         bo.x = this.x;
         bo.y = this.y+16;

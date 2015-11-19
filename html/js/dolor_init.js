@@ -271,6 +271,8 @@
       //g_imgcache.add("rotstring", img_base + "/rotstring_20x20.png");
       //g_imgcache.add("rotstring", img_base + "/rotstring_a2_20x20.png");
 
+      g_imgcache.add("flame", img_base + "/small_flame.png");
+
       g_imgcache.add("puff", img_base + "/puff.png");
 
       g_imgcache.add("shadow", img_base + "/shadow16x16.png");
