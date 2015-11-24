@@ -2,6 +2,8 @@ function debugSpriteAnimator(name, gridsize, tilesize, n, m, default_delay) {
   this.x = 0;
   this.y = 0;
 
+  this.ttl = 1;
+
   default_delay = ((typeof default_delay === "undefined") ? 4 : default_delay);
 
   this.name = name;

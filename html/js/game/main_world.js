@@ -1943,6 +1943,10 @@ mainWorld.prototype.init_misc = function() {
     self.particle.push(t);
   });
 
+  this.level.meta_map(22, function(dat, x,y) {
+    var t = new customWaterfallScene(x+16*2,y+16*5);
+    self.particle.push(t);
+  });
 }
 
 mainWorld.prototype.init_monsters = function() {
