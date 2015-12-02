@@ -74,7 +74,8 @@ particleSpray.prototype._random_spray_big = function(spray) {
   var tick_delay_N = 2;
   var delay_N = 100;
   var X = 16*4;
-  var Y = 5;
+  //var Y = 5;
+  var Y = 10;
   var R = 3;
   var S = 10;
   //var S = 20;
@@ -260,92 +261,10 @@ particleSpray.prototype.update = function(world) {
     this.spray[i].h = Math.floor((1-t)*this.spray[i].orig_h + t*this.spray[i].max_h);
   }
 
-
-  return;
-
-  var state_info = this.state_info[this.state];
-
-  if (state_info.delay>0) {
-    state_info.delay--;
-    if (state_info.delay==0) {
-      if (this.state=="final") {
-        this.ttl=0;
-      } else {
-        this.state = state_info.next;
-      }
-    }
-  } else if (state_info.delay==0) {
-    if (this.state == "fade_out") {
-      this.state = "final";
-    }
-  }
-
-  var state_info = this.state_info[this.state];
-  if (this.state == "init") {
-    this.halo = new particleRising(this.x, this.y);
-    g_world.particle.push(this.halo);
-
-    if (!this.appear_sound_playing) {
-      g_sfx["item-appear"][0].play();
-    }
-    this.appear_sound_playing = true;
-  }
-  else if (this.state == "fade_in") {
-    this.item_alpha = 1 - (state_info.delay / state_info.delay_N);
-    this.item_visible = true;
-  }
-  else if (this.state == "fade_out") {
-    this.item_alpha = (state_info.delay / state_info.delay_N);
-  }
-  else if (this.state == "final") {
-    this.ttl=0;
-  }
-  else if (this.state == "wait") {
-    this.item_alpha = 1;
-
-    var player_bbox = world.player.playerBBox();
-    if (box_box_intersect(this.item_bounding_box, player_bbox)) {
-
-      if (!this.pickup_sound_playing) {
-        g_sfx["powerup"][0].play();
-      }
-      this.pickup_sound_playing = true;
-
-      if (this.song && !this.song_playing) {
-        g_music[this.song].play();
-        this.song_playing=true;
-      }
-
-      this.item_visible=false;
-
-      if (this.callback != null) {
-        if (this.callback_fire_once && (this.callback_fire_count==0))
-        {
-          this.callback();
-          this.callback_fire_count=1;
-        }
-      }
-
-      if (this.halo.ttl>this.halo.ttl_finish) {
-        this.halo.finish();
-      }
-
-    }
-
-    if (!this.item_visible && (this.halo.ttl<=0)) {
-      this.state = "final";
-      this.ttl=0;
-    }
-
-  }
-
-  this.update_bbox(this.bounding_box, this.x, this.y);
-  this.update_bbox(this.item_bounding_box, this.x, this.y);
 }
 
 particleSpray.prototype.draw = function() {
   if (this.ttl<=0) { return; }
-
 
   var n = this.spray.length;
   for (var i=0; i<n; i++) {
@@ -362,27 +281,11 @@ particleSpray.prototype.draw = function() {
     var h = Math.floor(this.spray[i].h);
 
     var a = this.spray[i].alpha;
-    //g_painter.drawPoint(x,y, "rgba(255,255,255," + a + ")", this.spray[i].s);
 
     var h2 = Math.floor(h/2);
     var w2 = Math.floor(w/2);
     g_painter.drawRectangle(x-w2,y-h2, w,h, 0, "rgba(255,255,255,0)", true, "rgba(255,255,255," + a + ")");
 
-
-
-  }
-
-
-  return; 
-
-  var imgx = 16*this.keyFrame;
-  var imgy = this.frameRow*32;
-
-
-  if (this.item_visible) {
-    for (var i=0; i<this.sprite.length; i++) {
-      g_imgcache.draw_s("item", this.sprite[i].x, this.sprite[i].y, 16, 16, this.x, this.y, 16, 16, this.sprite[i].a, this.item_alpha);
-    }
   }
 
 }

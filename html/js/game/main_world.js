@@ -574,6 +574,15 @@ mainWorld.prototype.arrow_collision = function(l0, l1) {
     }
   }
 
+  for (var i=0; i<this.particle.length; i++) {
+    if (this.particle[i].name != "flame") { continue; }
+    if ("hit_bounding_box" in this.particle[i]) {
+      if (box_line_intersect(this.particle[i].hit_bounding_box, l0, l1, 1)) {
+        return this.particle[i];
+      }
+    }
+  }
+
   return null;
 }
 
@@ -900,16 +909,6 @@ mainWorld.prototype.draw = function() {
     }
   }
 
-
-  // playing around with a light column
-  //
-  /*
-  debug_var += debug_del;
-  if (debug_var < 0) { debug_var = 0; debug_del = 1; }
-  if (debug_var > 100) { debug_var = 100; debug_del = -1; }
-  var a = (debug_var/100)
-  this.painter.drawRectangle(this.player.x, this.player.y-1000, 16, 1000, 0, 0, true, "rgba(255,255,255," + a + ")");
-  */
 
   if (this.enemy) {
     for (var key in this.enemy) {
@@ -1931,22 +1930,31 @@ mainWorld.prototype.clear_monsters = function() {
 
 mainWorld.prototype.init_misc = function() {
   var self = this;
+  var waterfall = null;
+
+  // waterfall
+  //
+  this.level.meta_map(22, function(dat, x,y) {
+    waterfall = new customWaterfallScene(x+16*2,y+16*5);
+    self.particle.push(waterfall);
+  });
+
+  // flame
+  //
   this.level.meta_map(21, function(dat, x, y) {
-    var t = new debugSpriteAnimator("flame", 12,12, 6, 1, 5);
+    //var t = new debugSpriteAnimator("flame", 12,12, 6, 1, 5);
+    var t = new particleFlame("flame", 12,12, 6, 1, 5);
     t.x = x+8-2;
     t.y = y;
     t.world_w = 4;
     t.sprite_w = 4;
     t.world_h = 12;
     t.sprite_h = 12;
+    t.hit_callback = function(x,y,z) { waterfall.flame_callback(x,y,z); };
 
     self.particle.push(t);
   });
 
-  this.level.meta_map(22, function(dat, x,y) {
-    var t = new customWaterfallScene(x+16*2,y+16*5);
-    self.particle.push(t);
-  });
 }
 
 mainWorld.prototype.init_monsters = function() {
@@ -2798,6 +2806,8 @@ mainWorld.prototype.update = function() {
               this.camera_shake(2);
             }
 
+          } else if (h.name == "flame") {
+            h.hit(4,tbbox);
           } else {
             //h.hit(1, tbbox);
             h.hit(4, tbbox);
