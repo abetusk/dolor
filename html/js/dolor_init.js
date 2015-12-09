@@ -73,6 +73,32 @@
           g_painter.setView(x, y, 2);
         });
 
+        /*
+        var c = [];
+        c.push( new debugSpriteAnimator("bones", 16, 16, 4, 4, 10) );
+        c.push( new debugSpriteAnimator("dead_bones", 16, 16, 4, 2, 10) );
+        c.push( new debugSpriteAnimator("bone_minion", 16, 16, 4, 4, 10) );
+        c.push( new debugSpriteAnimator("dead_bone_minion", 16, 16, 4, 2, 10) );
+        c.push( new debugSpriteAnimator("dead_horns", 16, 16, 4, 2, 10) );
+        c.push( new debugSpriteAnimator("knight", 16, 16, 4, 4, 10) );
+        c.push( new debugSpriteAnimator("dead_knight", 16, 16, 4, 2, 10) );
+        c.push( new debugSpriteAnimator("noether", 16, 16, 4, 5, 10) );
+        c.push( new debugSpriteAnimator("noether_fox_shield", 16, 16, 4, 5, 10) );
+
+        var zcol = 4;
+
+        for (var ind=0; ind<c.length; ind++) {
+          var rr = Math.floor(ind/zcol);
+          var cc = ind%zcol;
+          c[ind].x = g_player.x + cc*16;
+          c[ind].y = g_player.y + rr*16;
+          g_world.particle.push(c[ind]);
+          console.log("???", g_world.particle);
+        }
+
+        console.log(">>>", g_player.x, g_player.y);
+        */
+
       }
 
     }

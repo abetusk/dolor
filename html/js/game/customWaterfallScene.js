@@ -5,7 +5,7 @@ function customWaterfallScene(x,y, init_info) {
   this.waterfall_height = 16*4;
   this.waterfall_width = 16*4;
 
-  this.debug=true;
+  this.debug=false;
 
   var h = this.waterfall_height;
   var wh = this.waterfall_height/2;
@@ -16,7 +16,9 @@ function customWaterfallScene(x,y, init_info) {
   this.spray = new particleSpray(this.x, this.y + spray_fudge);
 
   this.ttl = 1;
-  this.state = "full-0";
+  this.base_state = "full-";
+  //this.state = "full-0";
+  this.state = this.base_state + "0";
   this.state_n = 0;
 
   this.state_delay = 0;
@@ -53,8 +55,12 @@ customWaterfallScene.prototype.flame_callback = function(x,y,z) {
   console.log("watefall scene callback", x, y, z);
 
   this.flame_count--;
+  if (this.flame_count==1) {
+    this.base_state = "half-";
+  }
   if (this.flame_count==0)  {
-    this.ttl=0;
+    this.base_state = "none-";
+    //this.ttl=0;
   }
 }
 
@@ -77,7 +83,8 @@ customWaterfallScene.prototype.update = function(world) {
     this.state_delay = 0;
     this.state_n = 1-this.state_n;
 
-    this.state = "full-" + this.state_n;
+    //this.state = "full-" + this.state_n;
+    this.state = this.base_state + this.state_n;
   }
 
   this.update_bbox(this.bounding_box, this.x, this.y);
@@ -100,6 +107,7 @@ customWaterfallScene.prototype.draw = function() {
 
   sprite_x = 6*16;
 
+  var skip = false;
   if (this.state == "full-0") {
     sprite_y = 8*16;
   } else if (this.state == "full-1") {
@@ -108,14 +116,20 @@ customWaterfallScene.prototype.draw = function() {
     sprite_y = 4*16;
   } else if (this.state == "half-1") {
     sprite_y = 6*16;
+  } else if (this.state == "none-0") {
+    skip = true;
+  } else if (this.state == "none-1") {
+    skip = true;
   }
 
-  g_imgcache.draw_s("overworld_extra",
-      sprite_x, sprite_y, sprite_w, sprite_h,
-      tx, ty, sprite_w, sprite_h, 0, 1.0);
+  if (!skip) {
+    g_imgcache.draw_s("overworld_extra",
+        sprite_x, sprite_y, sprite_w, sprite_h,
+        tx, ty, sprite_w, sprite_h, 0, 1.0);
 
-  this.waterfall.draw();
-  this.spray.draw();
+    this.waterfall.draw();
+    this.spray.draw();
+  }
 
   if (this.debug) {
     var x0 = this.bounding_box[0][0];

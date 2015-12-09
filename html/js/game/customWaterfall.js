@@ -54,7 +54,6 @@ function customWaterfall(x,y, init_info) {
       if (j==0) { fr=0; state = "left"; }
       else if (j==(W-1)) { fr=1; state="right"; }
 
-      //var wf = {"x": this.x + 16*j, "y": this.y + i*16, "fc":0, "fC":4, "fr":fr, "fR":4, "delay":0, "delay_N":11 };
       var wf = {
         "x": this.x + 16*j, "y": this.y + i*16,
         "fc":8, "fC":4,
@@ -67,11 +66,43 @@ function customWaterfall(x,y, init_info) {
     }
   }
 
+  this.half_waterfall = [];
+  var H = this.waterfall_height;
+  var W = this.waterfall_width;
+  for (var i=0; i<H; i++) {
+    for (var j=0; j<W; j++) {
+      var fr = 3;
+      var state = "middle-0";
+      if (j==0) { fr=0; state = "left"; }
+      else if (j==(W-1)) { fr=1; state="right"; }
+
+      var wf = {
+        "x": this.x + 16*j, "y": this.y + i*16,
+        "fc":8, "fC":4,
+        "fr":fr, "fR":4,
+        "delay":0, "delay_N":11,
+        "col_offset":8,
+        "state" : state
+      };
+      this.waterfall.push(wf);
+    }
+  }
+
+  this.state_counter = 2;
+  this.state = "full";
+  this.state_delay = 0;
+  this.state_delay_N = 20;
+
 }
 
 customWaterfall.prototype.init = function(x,y) {
   this.x = ((typeof x === "undefined") ? this.x : x);
   this.y = ((typeof y === "undefined") ? this.y : y);
+}
+
+customWaterfall.prototype.transition = function() {
+  this.state = "transition";
+  this.state_delay = 0;
 }
 
 customWaterfall.prototype.update_bbox = function(bbox,x,y) {
@@ -84,6 +115,10 @@ customWaterfall.prototype.update_bbox = function(bbox,x,y) {
 
 
 customWaterfall.prototype.update = function(world) {
+
+  if (this.state=="transition") {
+
+  }
 
   for (var i=0; i<this.waterfall_height; i++) {
     for (var j=0; j<this.waterfall_width; j++) {

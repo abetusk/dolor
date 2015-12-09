@@ -1,5 +1,5 @@
 function particleFlame(name, gridsize, tilesize, n, m, default_delay) {
-  this.debug=true;
+  this.debug=false;
 
   this.x = 0;
   this.y = 0;
@@ -48,6 +48,7 @@ particleFlame.prototype.update_bbox = function(bbox,x,y) {
 
 particleFlame.prototype.hit = function(damage, bbox) {
 
+  console.log("!!!");
   console.log(">>>hit!");
 
   if (this.hit_callback) {
@@ -56,6 +57,10 @@ particleFlame.prototype.hit = function(damage, bbox) {
 
     this.hit_callback(this,damage,bbox);
   }
+
+  console.log("???", this.ttl);
+  this.ttl=0;
+  console.log("???", this.ttl);
 }
 
 particleFlame.prototype.update = function() {

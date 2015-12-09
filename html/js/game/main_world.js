@@ -2723,14 +2723,15 @@ mainWorld.prototype.update = function() {
       this.particle[key].update();
     }
 
-    var new_p_a = [];
-    for (var key in this.particle) {
-      if (this.particle[key].ttl<=0) { continue; }
-      new_p_a.push(this.particle[key]);
+    for (var key=0; key<this.particle.length; key++) {
+      if (this.particle[key].ttl<=0) {
+        var v = this.particle.pop();
+        if (key<this.particle.length) { this.particle[key] = v; }
+        key--;
+      }
     }
-    this.particle = new_p_a;
-
   }
+
 
   if (this.enemy)
   {
