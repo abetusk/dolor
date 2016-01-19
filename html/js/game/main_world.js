@@ -171,6 +171,11 @@ function mainWorld() {
   this.music_song_name = "";
   this.music_volume_max = 0.75;
 
+  this.credit_x = 0;
+  this.credit_y = 0;
+  this.credit_player = false;
+  this.credit = new customCredit();
+
 }
 
 mainWorld.prototype.player_update_focus = function() {
@@ -672,7 +677,8 @@ mainWorld.prototype.draw_level_transition = function() {
     var g = Math.floor(this.bg_g*this.level_transition_alpha);
     var b = Math.floor(this.bg_b*this.level_transition_alpha);
   }
-  this.painter.startDrawColor( "rgba(" + r + "," + g + "," + b + ",1.0)" );
+  var bg_color = "rgba(" + r + "," + g + "," + b + ",1.0)" ;
+  this.painter.startDrawColor(bg_color);
 
 
   var painter = this.painter;
@@ -787,6 +793,13 @@ mainWorld.prototype.draw_level_transition = function() {
   }
 
   this.painter.endDraw();
+
+
+  if (this.credit_playing) {
+    this.painter.startDraw_a(bg_color); 
+    this.credit.draw();
+  }
+
 }
 
 var debug_var = true;
@@ -1033,6 +1046,7 @@ mainWorld.prototype.draw = function() {
 
   this.painter.endDraw();
 
+
   var hs = 32;
   var ws = 64;
   var ihx = 5;
@@ -1042,6 +1056,9 @@ mainWorld.prototype.draw = function() {
   var cur_xmax=0;
 
   this.painter.startDraw_a( this.bg_color ); 
+
+  if (this.credit_playing) { this.credit.draw(); }
+
   var iheart=0;
   for (iheart=0; iheart<g_player.hp; iheart++) {
     var hx = iheart*dhx;
@@ -2265,6 +2282,14 @@ mainWorld.prototype.level_transition_init = function(portal_id) {
 
   }
 
+  else if (this.level.name=="library") {
+
+    this.fade_music();
+
+    var self = this;
+    this.level.meta_map(24, function(d,x,y) { self.credit_x = x; self.credit_y = y; });
+  }
+
   else {
   }
 
@@ -2586,6 +2611,11 @@ mainWorld.prototype.update = function() {
           this.initial_level_transition = true;
         }
       }
+
+      if (this.credit_playing) {
+        this.credit.update();
+      }
+
       return;
     }
   }
@@ -2594,6 +2624,15 @@ mainWorld.prototype.update = function() {
 
   //this._update_music();
 
+  if (this.level.name == "library") {
+    if ( (Math.abs(g_player.x - this.credit_x) < 64) &&
+         (Math.abs(g_player.y - this.credit_y) < 64) ) {
+      this.credit_playing = true;
+    }
+  }
+
+  if (this.credit_playing) { this.credit.update(); }
+ 
 
   this.update_rain_sfx();
   //this.update_wave_sfx();

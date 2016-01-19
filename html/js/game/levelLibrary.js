@@ -31,6 +31,9 @@ function levelLibrary(x,y) {
 
   this.tile_info = {};
 
+  this.credit_x = 0;
+  this.credit_y = 0;
+
   this.portal = {};
 }
 
@@ -135,6 +138,16 @@ levelLibrary.prototype.init = function() {
 
   }
 
+  console.log("??? library");
+
+  var self = this;
+  this.meta_map(24, function(dat,x,y) {
+    self.credit_x = x;
+    self.credit_y = y;
+
+    console.log(">>>", self.credit_x, self.credit_y);
+  });
+
 }
 
 
@@ -171,6 +184,12 @@ levelLibrary.prototype.bbox = function(r,c) {
 levelLibrary.prototype.update = function() {
   if (!this.ready) { return; }
   if (!this.init_flag) { this.init(); }
+
+  if ( (Math.abs(g_player.x - this.credit_x) <= 32) &&
+       (Math.abs(g_player.y - this.credit_x) <= 32) )
+  {
+    console.log("CREDIT_START");
+  }
 
   //console.log(">>>");
 }

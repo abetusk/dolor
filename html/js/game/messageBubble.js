@@ -12,6 +12,8 @@ function messageBubble(info) {
 
   this.x = 0;
   this.y = 0;
+  this.scale = 1;
+  this.text_src_y = 0;
 
   this.info = {};
   this.default_info = {
@@ -20,8 +22,11 @@ function messageBubble(info) {
     style:"center",
     easeIn:"abrupt",
     easeOut:"abrupt",
-    message:"hello, friend"
+    message:"hello, friend",
+    scale:1,
+    bubble_type:"speech"
   };
+
 
   this.alpha_factor = 0.9;
   this.init();
@@ -174,13 +179,16 @@ messageBubble.prototype.setup_info = function(info) {
   this.info.easeIn = ((typeof info.easeIn === "undefined") ? this.info.easeIn : info.easeIn );
   this.info.easeOut = ((typeof info.easeOut === "undefined") ? this.info.easeOut : info.easeOut );
   this.info.message = ((typeof info.message === "undefined") ? this.info.message : info.message );
+  this.info.bubble_type = ((typeof info.bubble_type === "undefined") ? this.info.bubble_type : info.bubble_type);
+  this.info.scale = ((typeof info.scale === "undefined") ? this.info.scale : info.scale);
 
   this.x = this.info.x;
   this.y = this.info.y;
 
   this.type = "speak";
-  this.bubble_type = "speech";
+  this.bubble_type = this.info.bubble_type;
   this.message = this.info.message;
+  this.scale = this.info.scale;
 
   this.calc_helper();
 }
@@ -262,7 +270,7 @@ messageBubble.prototype.draw = function() {
   if (this.state != "hidden") {
 
     var font_a = this.fade_step / this.fade_step_N;
-    var txt_y = 0;
+    var txt_y = this.text_src_y;
     var dtxt = 4;
 
     font_a *= this.alpha_factor;
@@ -281,7 +289,7 @@ messageBubble.prototype.draw = function() {
           24, 8,
           8, 8,
           this.x, this.y-ofy,
-          8, 8,
+          this.scale*8, this.scale*8,
           0, font_a);
 
       ofy+=8;
@@ -292,7 +300,7 @@ messageBubble.prototype.draw = function() {
           24, 0,
           8, 8,
           this.x, this.y-ofy,
-          8, 8,
+          this.scale*8, this.scale*8,
           0, font_a);
 
       var m = Math.floor((this.cur_width+8)/8);
@@ -306,7 +314,7 @@ messageBubble.prototype.draw = function() {
             8, 16,
             8, 8,
             this.x+ofx, this.y-ofy,
-            8, 8,
+            this.scale*8, this.scale*8,
             0, font_a);
 
       }
@@ -317,7 +325,7 @@ messageBubble.prototype.draw = function() {
           16, 16,
           8, 8,
           this.x+(m)*8, this.y-ofy,
-          8, 8,
+          this.scale*8, this.scale*8,
           0, font_a);
 
       ofy+=8;
@@ -331,7 +339,7 @@ messageBubble.prototype.draw = function() {
             0, 8,
             8, 8,
             this.x, this.y-ofy,
-            8, 8,
+            this.scale*8, this.scale*8,
             0, font_a);
 
         for (var jj=0; jj<(m-1); jj++) {
@@ -343,7 +351,7 @@ messageBubble.prototype.draw = function() {
               8, 8,
               8, 8,
               this.x+ofx, this.y-ofy,
-              8, 8,
+              this.scale*8, this.scale*8,
               0, font_a);
 
         }
@@ -354,7 +362,7 @@ messageBubble.prototype.draw = function() {
             16, 8,
             8, 8,
             this.x+(m)*8, this.y-ofy,
-            8, 8,
+            this.scale*8, this.scale*8,
             0, font_a);
 
 
@@ -368,7 +376,7 @@ messageBubble.prototype.draw = function() {
           0, 0,
           8, 8,
           this.x, this.y-ofy,
-          8, 8,
+          this.scale*8, this.scale*8,
           0, font_a);
 
       for (var jj=0; jj<(m-1); jj++) {
@@ -380,7 +388,7 @@ messageBubble.prototype.draw = function() {
             8, 0,
             8, 8,
             this.x+ofx, this.y-ofy,
-            8, 8,
+            this.scale*8, this.scale*8,
             0, font_a);
 
       }
@@ -391,7 +399,7 @@ messageBubble.prototype.draw = function() {
           16, 0,
           8, 8,
           this.x+(m)*8, this.y-ofy,
-          8, 8,
+          this.scale*8, this.scale*8,
           0, font_a);
 
 
@@ -411,7 +419,7 @@ messageBubble.prototype.draw = function() {
     for (var i=0; i<this.message.length; i++) {
 
       if (this.message[i] == "\n") {
-        disp_y += this.font_y;
+        disp_y += this.scale*this.font_y;
         disp_x = orig_x;
         cur_line++;
         continue;
@@ -422,8 +430,8 @@ messageBubble.prototype.draw = function() {
       var ox = this.line_x_offset[cur_line];
 
       var txt_x = this.font_spacing[this.message[i]];
-      g_imgcache.draw_s("font", txt_x, txt_y, dtxt, this.font_y, disp_x+this.dx+ox, disp_y+this.dy, dtxt, this.font_y, 0, font_a);
-      disp_x += dtxt;
+      g_imgcache.draw_s("font", txt_x, txt_y, dtxt, this.font_y, disp_x+this.dx+ox, disp_y+this.dy, this.scale*dtxt, this.scale*this.font_y, 0, font_a);
+      disp_x += this.scale*dtxt;
     }
 
 

@@ -228,7 +228,8 @@
       g_imgcache.add("heart", img_base + "/heart_xpr2.png");
 
       //g_imgcache.add("item", img_base + "/items_11.png");
-      g_imgcache.add("item", img_base + "/items_11.a.png");
+      //g_imgcache.add("item", img_base + "/items_11.a.png");
+      g_imgcache.add("item", img_base + "/items_11.b.png");
       g_imgcache.add("item_mask", img_base + "/items_mask.png");
 
       g_imgcache.add("item_key", img_base + "/item_key.png");
@@ -355,7 +356,8 @@
       g_imgcache.add("cat", img_base + "/catxperiment2.png");
 
       g_imgcache.add("bubble", img_base + "/speech_thought_bubble8.png");
-      g_imgcache.add("font", img_base + "/font_attempt3.png");
+      //g_imgcache.add("font", img_base + "/font_attempt3.png");
+      g_imgcache.add("font", img_base + "/font_attempt4.png");
 
       /*
       var welcome_music = new Howl({
