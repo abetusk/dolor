@@ -246,7 +246,8 @@
       g_imgcache.add("forrest", img_base + "/forrestup_3.png");
       //g_imgcache.add("forrestup_0", img_base + "/forrestup_0.png");
       //g_imgcache.add("forrestup_0", img_base + "/forrestup_1.png");
-      g_imgcache.add("forrestup_0", img_base + "/forrestup_3.png");
+      //g_imgcache.add("forrestup_0", img_base + "/forrestup_3.png");
+      g_imgcache.add("forrestup_0", img_base + "/forrestup_4.png");
 
       g_imgcache.add("tree_anim", img_base + "/tree_wave_anim.png");
       g_imgcache.add("bush_anim", img_base + "/bush_anim2.png");

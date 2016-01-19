@@ -2474,6 +2474,35 @@ mainWorld.prototype.bomb_damage = function(bomb) {
 
 }
 
+mainWorld.prototype.remove_tile = function(x,y) {
+  var ic = Math.floor(x/16);
+  var ir = Math.floor(y/16);
+
+  var bott_ind = this.level.layer_name_index_lookup["bottom"];
+  var collt_ind = this.level.layer_name_index_lookup["collision.top"];
+  var collb_ind = this.level.layer_name_index_lookup["collision.bottom"];
+
+  var layer = this.level.tilemap.layers[bott_ind];
+  var collt_layer = this.level.tilemap.layers[collt_ind];
+  var collb_layer = this.level.tilemap.layers[collb_ind];
+
+  var w = layer.width;
+  var data_ind = (ir*w) + ic;
+
+  var key = ir + ":" + ic;
+  if (key in this.level.layer_lookup[collt_ind]) {
+    delete this.level.layer_lookup[collt_ind][key];
+  }
+
+  if (key in this.level.layer_lookup[collb_ind]) {
+    delete this.level.layer_lookup[collb_ind][key];
+  }
+
+  this.level.tilemap.layers[bott_ind].data[data_ind] = 0;
+  this.level.tilemap.layers[collt_ind].data[data_ind] = 0;
+  this.level.tilemap.layers[collb_ind].data[data_ind] = 0;
+}
+
 mainWorld.prototype.update = function() {
   if (!this.ready) { return; }
   var player = this.player;

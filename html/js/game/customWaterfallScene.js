@@ -29,6 +29,8 @@ function customWaterfallScene(x,y, init_info) {
 
   this.flame_count=2;
 
+  //this.level = g_level_dolor;
+
   console.log(">>>>", this.bounding_box[0], this.bounding_box[1]);
 }
 
@@ -51,16 +53,25 @@ customWaterfallScene.prototype.add_item = function(info) {
 
 customWaterfallScene.prototype.init = function(x,y) { }
 
+customWaterfallScene.prototype.finish_callback = function() {
+  console.log(">>> finish");
+  g_world.level.meta_map(23, function(dat, x, y) {
+    console.log(">>> 23", dat, x, y);
+    g_world.remove_tile(x,y);
+  });
+}
+
 customWaterfallScene.prototype.flame_callback = function(x,y,z) {
-  console.log("watefall scene callback", x, y, z);
 
   this.flame_count--;
+
   if (this.flame_count==1) {
     this.base_state = "half-";
   }
   if (this.flame_count==0)  {
     this.base_state = "none-";
-    //this.ttl=0;
+    this.finish_callback();
+    this.ttl=0;
   }
 }
 
