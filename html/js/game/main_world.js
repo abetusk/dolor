@@ -6,6 +6,9 @@ function mainWorld() {
 
   this.painter = g_painter;
 
+  this.disable_upate = false;
+  this.disable_draw = false;
+
 
   this.enemy = [];
   this.particle = [];
@@ -804,7 +807,12 @@ mainWorld.prototype.draw_level_transition = function() {
 
 var debug_var = true;
 
+var __bg_color = "rgb(210,210,220)";
+
 mainWorld.prototype.draw = function() {
+
+  if (this.disable_draw) { return; }
+
   if (!this.level) { return; }
   if (!this.level.ready) { return; }
 
@@ -816,38 +824,28 @@ mainWorld.prototype.draw = function() {
   //this.painter.startDrawColor( "rgba(210,210,220,1.0)" );
 
 
-      //this.level_transition_dst_completed = true;
   if (this.overworld_flag ) {
-    //var rgb = this.day_night_bg_color[this.day_night];
-    var rgb = this.day_night_bg_color.cur;
-    var bg_color = "rgb(" + rgb[0] + "," + rgb[1] + "," + rgb[2] + ")";
-    //this.painter.startDrawColor(bg_color);
-
-    this.painter.startDrawColor_a(bg_color);
-    //g_imgcache.draw_s("heart", 0, 0, 6, 6, 100,0, 20, 20, 0, 0.9);
-    this.painter.startDrawColor_b(bg_color);
+    this.painter.startDrawColor_a(__bg_color);
+    this.painter.startDrawColor_b(__bg_color);
   } else {
-    //this.painter.startDrawColor( this.bg_color ); 
 
     this.painter.startDrawColor_a( this.bg_color ); 
-    //g_imgcache.draw_s("heart", 0, 0, 6, 6, 100,0, 200, 200, 0, 0.9);
     this.painter.startDrawColor_b( this.bg_color ); 
   }
 
 
-  var painter = this.painter;
-  var screen0 = { "x": painter.width/2, "y": painter.height/2 };
-  var world0 = painter.devToWorld(screen0.x, screen0.y);
+  var world0 = this.painter.devToWorld(this.painter.width/2, this.painter.height/2);
 
-  var world_p_x = painter.devToWorld(painter.width, screen0.y);
-  var world_p_y = painter.devToWorld(screen0.x, painter.height);
+  var world_p_x = this.painter.devToWorld(this.painter.width, 0);
+  var world_p_y = this.painter.devToWorld(0, this.painter.height);
 
-  var tile_dx = Math.floor((Math.abs(world_p_x.x - world0.x)/8)) + 2;
-  var tile_dy = Math.floor((Math.abs(world_p_y.y - world0.y)/8)) + 2;
+  var world_p = this.painter.devToWorld(0,0);
+
+  var tile_dx = Math.floor((Math.abs(world_p.x - world0.x)/16)) + 2;
+  var tile_dy = Math.floor((Math.abs(world_p.y - world0.y)/16)) + 2;
 
   if (this.level)
   {
-
 
     if (this.display_speedup) {
       this.level.draw_layer_w("bottom.-2", world0.x, world0.y, tile_dx, tile_dy);
@@ -858,7 +856,6 @@ mainWorld.prototype.draw = function() {
           this.debris[key].draw();
         }
       }
-
 
       this.level.draw_layer_w("bottom", world0.x, world0.y, tile_dx, tile_dy);
     } else {
@@ -1012,7 +1009,6 @@ mainWorld.prototype.draw = function() {
     }
   }
 
-
   // fireflies
   //
   if ((this.level.name == "dolor" || this.overworld_flag) && this.firefly_flag)  {
@@ -1046,7 +1042,6 @@ mainWorld.prototype.draw = function() {
 
   this.painter.endDraw();
 
-
   var hs = 32;
   var ws = 64;
   var ihx = 5;
@@ -1056,6 +1051,7 @@ mainWorld.prototype.draw = function() {
   var cur_xmax=0;
 
   this.painter.startDraw_a( this.bg_color ); 
+
 
   if (this.credit_playing) { this.credit.draw(); }
 
@@ -2529,6 +2525,9 @@ mainWorld.prototype.remove_tile = function(x,y) {
 }
 
 mainWorld.prototype.update = function() {
+
+  if (this.disable_update) { return; }
+
   if (!this.ready) { return; }
   var player = this.player;
 

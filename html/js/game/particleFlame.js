@@ -89,6 +89,14 @@ particleFlame.prototype.draw = function() {
 
   g_imgcache.draw_s(this.name, imgx, imgy, this.sprite_w, this.sprite_h, this.x, this.y, this.world_w, this.world_h, 0, this.alpha);
 
+
+  g_imgcache.draw_s(this.name, imgx, imgy, this.sprite_w, this.sprite_h, this.x+1, this.y, this.world_w, this.world_h, 0, this.alpha);
+  g_imgcache.draw_s(this.name, imgx, imgy, this.sprite_w, this.sprite_h, this.x, this.y+2, this.world_w, this.world_h, 0, this.alpha);
+  g_imgcache.draw_s(this.name, imgx, imgy, this.sprite_w, this.sprite_h, this.x-3, this.y-1, this.world_w, this.world_h, 0, this.alpha);
+  g_imgcache.draw_s(this.name, imgx, imgy, this.sprite_w, this.sprite_h, this.x-2, this.y+1, this.world_w, this.world_h, 0, this.alpha);
+  g_imgcache.draw_s(this.name, imgx, imgy, this.sprite_w, this.sprite_h, this.x-3, this.y-1, this.world_w, this.world_h, 0, this.alpha);
+  g_imgcache.draw_s(this.name, imgx, imgy, this.sprite_w, this.sprite_h, this.x+2, this.y+1, this.world_w, this.world_h, 0, this.alpha);
+
   if (this.debug) {
     var x0 = this.bounding_box[0][0];
     var y0 = this.bounding_box[0][1];

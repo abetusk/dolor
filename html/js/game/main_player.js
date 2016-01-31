@@ -79,8 +79,11 @@ function mainPlayer(x,y,game) {
 
   this.walkDisplayQ = [];
 
-  this.dx = g_GRIDSIZE/8;
-  this.dy = g_GRIDSIZE/8;
+  //this.dx = g_GRIDSIZE/8;
+  //this.dy = g_GRIDSIZE/8;
+
+  this.dx = g_GRIDSIZE/6;
+  this.dy = g_GRIDSIZE/6;
 
 
   this.img_w = 16;

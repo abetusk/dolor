@@ -138,14 +138,10 @@ levelLibrary.prototype.init = function() {
 
   }
 
-  console.log("??? library");
-
   var self = this;
   this.meta_map(24, function(dat,x,y) {
     self.credit_x = x;
     self.credit_y = y;
-
-    console.log(">>>", self.credit_x, self.credit_y);
   });
 
 }

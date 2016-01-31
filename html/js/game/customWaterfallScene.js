@@ -30,8 +30,6 @@ function customWaterfallScene(x,y, init_info) {
   this.flame_count=2;
 
   //this.level = g_level_dolor;
-
-  console.log(">>>>", this.bounding_box[0], this.bounding_box[1]);
 }
 
 customWaterfallScene.prototype.add_item = function(info) {
@@ -138,7 +136,19 @@ customWaterfallScene.prototype.draw = function() {
         sprite_x, sprite_y, sprite_w, sprite_h,
         tx, ty, sprite_w, sprite_h, 0, 1.0);
 
-    this.waterfall.draw();
+    if ((this.state == "full-0") || (this.state=="full-1")) {
+      this.waterfall.draw();
+    } else {
+      g_imgcache.draw_s("overworld_extra",
+          sprite_x, 12*16, sprite_w, sprite_h,
+          tx, ty+32, sprite_w, sprite_h, 0, 1.0);
+
+      g_imgcache.draw_s("overworld_extra",
+          sprite_x, 12*16, sprite_w, sprite_h,
+          tx, ty+64, sprite_w, sprite_h, 0, 1.0);
+
+
+    }
     this.spray.draw();
   }
 

@@ -75,6 +75,10 @@ function homeLevel(x,y) {
   };
   this.wave_tile = {};
 
+
+  this.canvas = null;
+  this.ctx = null;
+
 }
 
 
@@ -141,6 +145,11 @@ homeLevel.prototype.init_firefly = function() {
 
 homeLevel.prototype.init = function() {
   this.init_flag=true;
+
+  this.canvas = document.createElement("canvas");
+  this.canvas.width = g_painter.width;
+  this.canvas.height = g_painter.height;
+  this.ctx = this.canvas.getContext("2d");
 
 
   if ("tilesets" in this.tilemap) {
@@ -667,6 +676,7 @@ homeLevel.prototype.draw_layer_top = function(display_name, cmp_x, cmp_y, a) {
 
 }
 
+
 homeLevel.prototype.draw_layer_w = function(display_name, anchor_x, anchor_y, window_c, window_r, alpha) {
   alpha = ((typeof alpha === "undefined") ? 1.0 : alpha);
   if (!this.ready) { return; }
@@ -682,8 +692,6 @@ homeLevel.prototype.draw_layer_w = function(display_name, anchor_x, anchor_y, wi
   var anchor_c = Math.floor((anchor_x - this.x)/16)
   var anchor_r = Math.floor((anchor_y - this.y)/16)
 
-  //var anchor_r = anchor_y;
-  //var anchor_c = anchor_x;
   var data_ind = 0;
 
   if ((display_name == "top") && (this.firefly_flag)) {
@@ -727,44 +735,25 @@ homeLevel.prototype.draw_layer_w = function(display_name, anchor_x, anchor_y, wi
       //g_imgcache.draw_s(this.tilemap_name, imx, imy, 16, 16, x, y, this.world_w, this.world_h);
       //g_imgcache.draw_s(tile_info.tileset_name, imx, imy, 16, 16, x, y, this.world_w, this.world_h);
 
-      /*
-      if (!(data_ind in this.bush_lookup)) {
-        g_imgcache.draw_s(tile_info.tileset_name, imx, imy, 16, 16, x, y, this.world_w, this.world_h, 0, alpha);
-      } else if (this.bush_lookup[data_ind].idle) {
-        g_imgcache.draw_s(tile_info.tileset_name, imx, imy, 16, 16, x, y, this.world_w, this.world_h, 0, alpha);
-      } else {
-        var ix = 16*this.bush_lookup[data_ind].keyFrame;
-        var iy = 0;
-        g_imgcache.draw_s("bush_anim", ix, iy, 16, 16, x, y, this.world_w, this.world_h, 0, alpha);
-      }
-      */
-
       if (data_ind in this.wave_tile) {
         var dy = this.wave_tile[data_ind].dy;
         var dy2 = Math.floor(dy/2);
 
         g_imgcache.draw_s(tile_info.tileset_name, imx, imy+dy, 16, 16, x, y, this.world_w, this.world_h, 0, alpha);
-
-        /*
-        g_painter.drawRectangle(x, y-0.125, 16, 16+2, 0, 0, true, "rgb(128,192,192)");
-        if (dy>=0) {
-          g_imgcache.draw_s(tile_info.tileset_name, imx, imy, 16, 16-dy, x, y+dy, this.world_w, this.world_h-dy, 0, alpha);
-        } else {
-          var pdy = -dy;
-          g_imgcache.draw_s(tile_info.tileset_name, imx, imy+pdy, 16, 16-pdy, x, y, this.world_w, this.world_h-pdy, 0, alpha);
-        }
-        */
+        //g_imgcache.cdraw_s(this.ctx, tile_info.tileset_name, imx, imy+dy, 16, 16, x, y, this.world_w, this.world_h, 0, alpha);
 
       } else if (data_ind in this.bush_lookup) {
         
         if (this.bush_lookup[data_ind].idle) {
           g_imgcache.draw_s(tile_info.tileset_name, imx, imy, 16, 16, x, y, this.world_w, this.world_h, 0, alpha);
+          //g_imgcache.cdraw_s(this.ctx, tile_info.tileset_name, imx, imy, 16, 16, x, y, this.world_w, this.world_h, 0, alpha);
         } else {
 
           if (this.bush_lookup[data_ind].t=="b") {  // bush
             var ix = 16*this.bush_lookup[data_ind].keyFrame;
             var iy = 0;
             g_imgcache.draw_s("bush_anim", ix, iy, 16, 16, x, y, this.world_w, this.world_h, 0, alpha);
+            //g_imgcache.cdraw_s(this.ctx, "bush_anim", ix, iy, 16, 16, x, y, this.world_w, this.world_h, 0, alpha);
           } else if (this.bush_lookup[data_ind].t=="t") {  //tree
             var ofs = this.bush_lookup[data_ind].keyFrameOffset;
             var idx=0, idy=0;
@@ -774,10 +763,13 @@ homeLevel.prototype.draw_layer_w = function(display_name, anchor_x, anchor_y, wi
             var ix = 32*(this.bush_lookup[data_ind].keyFrame%3) + idx;
             var iy = idy;
             g_imgcache.draw_s("tree_anim", ix, iy, 16, 16, x, y, this.world_w, this.world_h, 0, alpha);
+            //g_imgcache.cdraw_s(this.ctx, "tree_anim", ix, iy, 16, 16, x, y, this.world_w, this.world_h, 0, alpha);
           }
         }
+
       } else {
         g_imgcache.draw_s(tile_info.tileset_name, imx, imy, 16, 16, x, y, this.world_w, this.world_h, 0, alpha);
+        //g_imgcache.cdraw_s(this.ctx, tile_info.tileset_name, imx, imy, 16, 16, x, y, this.world_w, this.world_h, 0, alpha);
       }
 
       //DEBUG
@@ -803,6 +795,11 @@ homeLevel.prototype.draw_layer_w = function(display_name, anchor_x, anchor_y, wi
   }
 
 
+  /*
+  g_painter.drawSubImage(this.canvas,
+                         0, 0, this.canvas.width, this.canvas.height,
+                         0, 0, this.canvas.width, this.canvas.height);
+                         */
 
 }
 

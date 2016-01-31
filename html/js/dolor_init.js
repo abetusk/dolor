@@ -6,10 +6,6 @@
       mouseDown = false,
       visible = true;
 
-    var msec = 0;
-    var frame = 0;
-    var lastTime = new Date();
-
     // DEVELOPMENT
     // DEBUG
     //var g_debug = true;
@@ -123,72 +119,53 @@
 
 
     var lastUpdateTime = new Date();
-    var updateThreshold = 15;
+    //var updateThreshold = 16;
+    var updateThreshold = Math.floor(1000/60);
+
+    var msec = 0;
+    var frame = 0;
+    var lastTime = new Date();
+
+    var __g_last_date=0, __g_date, __dt;
+    var __update = false;
+    var __frame = 0;
+    var __msec = 0;
+    var __frame_counter = 0;
+    var __fps_last_date = 0;
+
     function loop() {
-      var d = new Date();
-      var update = false;
-      var dt = d.getTime() - lastUpdateTime.getTime();
 
-      if (dt > updateThreshold) {
-        lastUpdateTime = d;
-        update = true;
+      __update = false;
+      __g_date = Date.now();
+      __dt = __g_date - __g_last_date;
+
+      if (__dt > updateThreshold) {
+        __g_last_date = __g_date;
+        __update = true;
       }
 
-      frame = frame + 1;
-      if ( frame >= 30 ) {
-        msec = (d.getTime() - lastTime ) / frame;
-        lastTime = d;
-        frame = 0;
+      __frame = __frame+1;
+      if (__frame >= 30) {
+        __msec = (__g_date - __fps_last_date)/__frame;
+        __frame=0;
+        __fps_last_date = __g_date;
 
-      }
-
-      if (g_show_fps) 
-      {
-        //var container = document.querySelector( 'section' );
-        //container.innerHTML = "FPS: " + (1000.0/msec);
-        console.log("fps:", 1000.0/msec);
-      }
-
-      requestAnimationFrame(loop, 1);
-
-
-
-      if (update) {
-        //g_game_controller.update();
-        g_world.update();
-
-        /*
-        g_painter.clear();
-        g_player.update();
-        g_level.update();
-
-        g_world.update();
-        */
-
-        /*
-        if (g_player.intent.type != "idle") {
-
-          if (g_player.intent.type == "walking") {
-            g_player.x = g_player.intent.next.x;
-            g_player.y = g_player.intent.next.y;
+        if (g_show_fps) {
+          if ((__msec>1) && ((__frame_counter%30)==0)){
+            console.log("fps:", 1000.0/__msec);
+          } else {
+            console.log(">>", __msec, __frame_counter);
           }
-          g_player.intent = { "type" : "idle" };
         }
-        */
+
       }
+
+      if (__update) { g_world.update(); }
 
       g_painter.dirty_flag = true;
-      if (g_painter.dirty_flag) {
-        g_world.draw();
+      if (g_painter.dirty_flag) { g_world.draw(); }
 
-        /*
-        g_painter.startDrawColor();
-        g_level.draw();
-        g_player.draw();
-        g_painter.endDraw();
-        */
-      }
-
+      requestAnimationFrame(loop, 1);
     }
 
     $(document).ready( function() {
@@ -302,7 +279,7 @@
       g_imgcache.add("waterfall", img_base + "/waterfall_wip.png");
       g_imgcache.add("flame", img_base + "/small_flame.png");
 
-      g_imgcache.add("overworld_extra", img_base + "/overworld_extra_wip4.png");
+      g_imgcache.add("overworld_extra", img_base + "/overworld_extra_wip5.png");
 
       g_imgcache.add("puff", img_base + "/puff.png");
 

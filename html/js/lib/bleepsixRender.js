@@ -75,6 +75,18 @@ function bleepsixRender( canvas_param )
   this.default_fill_color = "rgb( 0, 160, 0 )";
 
   this.line_join_type = "round";
+
+  this.init=false;
+
+  this.offscreen_opt = true;
+
+  if (this.offscreen_opt) {
+    this.offscreen_canvas = document.createElement("canvas");
+    this.offscreen_canvas.width = 512;
+    this.offscreen_canvas.height = 512;
+    this.offscreen_context = this.offscreen_canvas.getContext("2d");
+
+  }
 }
 
 bleepsixRender.prototype.setWidthHeight = function ( w , h) {
@@ -1493,6 +1505,8 @@ bleepsixRender.prototype.drawImage = function( img, x, y, w, h, a )
 //
 // a is alpha (default to 1.0)
 //
+// https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial/Optimizing_canvas
+//
 bleepsixRender.prototype.drawSubImage = function(img, imgx, imgy, imgw, imgh, x, y, w, h, angle_radian, a)
 {
   a = ( (typeof a === "undefined") ? 1.0 : a );
@@ -1500,12 +1514,10 @@ bleepsixRender.prototype.drawSubImage = function(img, imgx, imgy, imgw, imgh, x,
   if (typeof angle_radian !== "undefined") { skip_angle = false; }
 
   var ctx = this.context;
+
   ctx.imageSmoothingEnabled = false;
   ctx.mozImageSmoothingEnabled = false;
   ctx.webkitImageSmoothingEnabled = false;
-
-  //ctx.webkitImageSmoothingEnabled = false;
-  //var angle_radian = 0.0;
 
   var comx = w/2;
   var comy = h/2;
@@ -1516,12 +1528,48 @@ bleepsixRender.prototype.drawSubImage = function(img, imgx, imgy, imgw, imgh, x,
 
   var s_a = ctx.globalAlpha;
   ctx.globalAlpha = a;
-  //ctx.drawImage(img, imgx, imgy, imgw, imgh, x, y, w, h);
-  //ctx.drawImage(img, imgx, imgy, imgw, imgh, 0, 0, w, h);
 
-  if ((imgx<0) || (imgy<0)) {
-    console.trace()
-  }
+  if ((imgx<0) || (imgy<0)) { console.trace() }
+
+  imgx = Math.floor(imgx);
+  imgy = Math.floor(imgy);
+  imgw = Math.floor(imgw);
+  imgh = Math.floor(imgh);
+  w = Math.floor(w);
+  h = Math.floor(h);
+
+  ctx.drawImage(img, imgx, imgy, imgw, imgh, 0, 0, w, h);
+  ctx.globalAlpha = s_a;
+
+  ctx.translate(comx, comy);
+  if (!skip_angle) { ctx.rotate( -angle_radian ); }
+  ctx.translate(-x-comx, -y-comy);
+
+}
+
+bleepsixRender.prototype.drawSubImageCtx = function(ctx, img, imgx, imgy, imgw, imgh, x, y, w, h, angle_radian, a)
+{
+  a = ( (typeof a === "undefined") ? 1.0 : a );
+  var skip_angle = true;
+  if (typeof angle_radian !== "undefined") { skip_angle = false; }
+
+  //var ctx = this.context;
+
+  ctx.imageSmoothingEnabled = false;
+  ctx.mozImageSmoothingEnabled = false;
+  ctx.webkitImageSmoothingEnabled = false;
+
+  var comx = w/2;
+  var comy = h/2;
+
+  ctx.translate(x+comx, y+comy);
+  if (!skip_angle) { ctx.rotate( angle_radian ); }
+  ctx.translate(-comx, -comy);
+
+  var s_a = ctx.globalAlpha;
+  ctx.globalAlpha = a;
+
+  if ((imgx<0) || (imgy<0)) { console.trace() }
 
   imgx = Math.floor(imgx);
   imgy = Math.floor(imgy);

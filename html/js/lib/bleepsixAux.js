@@ -138,6 +138,40 @@ imageCache.prototype.draw_s = function(name, sx, sy, sw, sh, x, y, w, h, ang_rad
 
 }
 
+imageCache.prototype.cdraw_s = function(ctx, name, sx, sy, sw, sh, x, y, w, h, ang_rad, a)
+{
+  if (!(name in this.image))
+  {
+    console.log("WARNING: " + name + " not in imageCache ");
+    return;
+  }
+
+  if ( !this.image[name].ready )
+  {
+    console.log("WARNING: " + name + " not ready");
+    return;
+  }
+
+  var img = this.image[name].image;
+
+  sx = Math.floor(sx);
+  sy = Math.floor(sy);
+  sw = Math.floor(sw);
+  sh = Math.floor(sh);
+
+  iw = Math.floor(img.width);
+  ih = Math.floor(img.height);
+
+  if ((sx<0) || (sy<0) || ((sx+sw)>iw) || ((sy+sh)>ih)) {
+    s = sx + "," +  sy + "," +  (sx+sw) + "," +  (sy+sh) + "," +  img.width + "," +  img.height;
+    console.log("ERROR!!! " +  name + " " + s);
+    return;
+  }
+
+  g_painter.drawSubImageCtx(ctx, img, sx, sy, sw, sh, x, y, w, h, ang_rad, a);
+
+}
+
 if (typeof module !== 'undefined')
 {
   module.exports = {
