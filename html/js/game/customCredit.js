@@ -24,16 +24,14 @@ function customCredit(info) {
   this.credit_idx = 0;
 
   var msg = [
-    "Main overworld tileset by....\n" +
-    "             interdimensional\n" +
-    "\n" +
-    "Main dungeon tileset by......\n" +
-    "                         Buch\n",
-
-    "Music by.....................\n" +
-    "                      Airglow\n",
-    "Programming by ..............\n" +
-    "                      abetusk",
+    "Main overworld tileset by ...\n" +
+    "   interdimensional\n",
+    "Main dungeon tileset by ...\n" +
+    "   Buch\n",
+    "Music by ...\n" +
+    "   Airglow\n",
+    "Programming by ...\n" +
+    "   abetusk",
     "All code under agpl",
     "All art under\n" +
     "  cc by, cc by sa\n" + 
